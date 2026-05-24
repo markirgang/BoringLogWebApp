@@ -297,6 +297,7 @@
             <button class="tab-btn" onclick="switchTab(event, 'tab-runs')">3. Log Details (Boring Runs)</button>
             <button class="tab-btn" onclick="switchTab(event, 'tab-calcs')">4. Site Class & Bearing Metrics</button>
             <button class="tab-btn" style="background: #dbeafe; color: #1e40af;" onclick="switchTab(event, 'tab-reference')">📖 5. Reference Soil Types</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-sample-layers')">6. Sample-Layer Relations</button>
         </div>
     </div>
 </div>
@@ -398,85 +399,14 @@
     </div>
 
     <div id="tab-profiles" class="tab-content">
-        <h3>Borehole Strata Layer Profile Mapping</h3>
-        <form id="profileForm">
-            <div class="grid-3">
-                <div class="form-group">
-                    <label>Boring Target Reference</label>
-                    <div class="input-addon-group">
-                        <select id="prof_id">
-                            <option value="B-1">B-1</option>
-                            <option value="B-2">B-2</option>
-                        </select>
-                        <button type="button" class="btn-small" onclick="promptAddChoice('prof_id')">➕ Choice</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Top Depth of Strata Layer (ft)</label>
-                    <div class="input-addon-group">
-                        <select id="prof_top">
-                            <option value="0.0">0.0</option>
-                            <option value="0.5">0.5</option>
-                            <option value="1.0">1.0</option>
-                            <option value="2.0">2.0</option>
-                            <option value="4.0">4.0</option>
-                        </select>
-                        <button type="button" class="btn-small" onclick="promptAddChoice('prof_top')">➕ Choice</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Bottom Depth of Strata Layer (ft)</label>
-                    <div class="input-addon-group">
-                        <select id="prof_bottom">
-                            <option value="0.5">0.5</option>
-                            <option value="1.0">1.0</option>
-                            <option value="2.0">2.0</option>
-                            <option value="4.0">4.0</option>
-                            <option value="6.0">6.0</option>
-                            <option value="10.0">10.0</option>
-                        </select>
-                        <button type="button" class="btn-small" onclick="promptAddChoice('prof_bottom')">➕ Choice</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Major Burmister Soil Classification Type</label>
-                    <div class="input-addon-group">
-                        <select id="prof_soil">
-                            <option value="TOPSOIL">TOPSOIL</option>
-                            <option value="ASPHALT">ASPHALT</option>
-                            <option value="BASE COURSE">BASE COURSE</option>
-                            <option value="FILL/REWORKED">FILL/REWORKED</option>
-                            <option value="FINE SAND">FINE SAND</option>
-                            <option value="FINE TO MEDIUM SAND">FINE TO MEDIUM SAND</option>
-                            <option value="SILTY FINE SAND">SILTY FINE SAND</option>
-                            <option value="CLAYEY SILT">CLAYEY SILT</option>
-                        </select>
-                        <button type="button" class="btn-small" onclick="promptAddChoice('prof_soil')">➕ Choice</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Moisture Variant Condition</label>
-                    <div class="input-addon-group">
-                        <select id="prof_moisture">
-                            <option value="dry">dry</option>
-                            <option value="damp">damp</option>
-                            <option value="moist">moist</option>
-                            <option value="wet">wet</option>
-                        </select>
-                        <button type="button" class="btn-small" onclick="promptAddChoice('prof_moisture')">➕ Choice</button>
-                    </div>
-                </div>
-                <div class="form-group" style="justify-content: flex-end;">
-                    <button type="submit" class="btn btn-primary">➕ Log Profile Entry</button>
-                </div>
-            </div>
-        </form>
+        <h3>Borehole Strata Layer Profile Overview</h3>
+        <p>This table displays all recorded strata layers across all samples.</p>
 
         <div class="table-container">
             <table>
                 <thead>
                     <tr>
-                        <th>Boring ID</th>
+                        <th>Sample ID</th>
                         <th>Top Depth (ft)</th>
                         <th>Bottom Depth (ft)</th>
                         <th>Soil Type</th>
@@ -494,6 +424,16 @@
         <h3>Sample Target Blowcounts / Boring Logs Run Log Entries</h3>
         <form id="runForm">
             <div class="grid-3">
+                <div class="form-group">
+                    <label>Boring Target Reference</label>
+                    <div class="input-addon-group">
+                        <select id="run_boring_id">
+                            <option value="B-1">B-1</option>
+                            <option value="B-2">B-2</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('run_boring_id')">➕ Choice</button>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label>Sample Index ID</label>
                     <div class="input-addon-group">
@@ -588,6 +528,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th>Boring ID</th>
                         <th>Sample ID</th>
                         <th>Start Depth</th>
                         <th>End Depth</th>
@@ -670,9 +611,106 @@
             </table>
         </div>
     </div>
+
+    <div id="tab-sample-layers" class="tab-content">
+        <h3>Sample-Layer Relationships</h3>
+        <p>Define multiple strata layers belonging to a specific Sample.</p>
+        <form id="sampleLayerForm">
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>Sample Target Reference</label>
+                    <div class="input-addon-group">
+                        <select id="rel_sample_id">
+                            <option value="S-1">S-1</option>
+                            <option value="S-2">S-2</option>
+                            <option value="S-3">S-3</option>
+                            <option value="S-4">S-4</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('rel_sample_id')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Top Depth of Strata Layer (ft)</label>
+                    <div class="input-addon-group">
+                        <select id="rel_top">
+                            <option value="0.0">0.0</option>
+                            <option value="0.5">0.5</option>
+                            <option value="1.0">1.0</option>
+                            <option value="2.0">2.0</option>
+                            <option value="4.0">4.0</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('rel_top')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Bottom Depth of Strata Layer (ft)</label>
+                    <div class="input-addon-group">
+                        <select id="rel_bottom">
+                            <option value="0.5">0.5</option>
+                            <option value="1.0">1.0</option>
+                            <option value="2.0">2.0</option>
+                            <option value="4.0">4.0</option>
+                            <option value="6.0">6.0</option>
+                            <option value="10.0">10.0</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('rel_bottom')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Major Burmister Soil Classification Type</label>
+                    <div class="input-addon-group">
+                        <select id="rel_soil">
+                            <option value="TOPSOIL">TOPSOIL</option>
+                            <option value="ASPHALT">ASPHALT</option>
+                            <option value="BASE COURSE">BASE COURSE</option>
+                            <option value="FILL/REWORKED">FILL/REWORKED</option>
+                            <option value="FINE SAND">FINE SAND</option>
+                            <option value="FINE TO MEDIUM SAND">FINE TO MEDIUM SAND</option>
+                            <option value="SILTY FINE SAND">SILTY FINE SAND</option>
+                            <option value="CLAYEY SILT">CLAYEY SILT</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('rel_soil')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Moisture Variant Condition</label>
+                    <div class="input-addon-group">
+                        <select id="rel_moisture">
+                            <option value="dry">dry</option>
+                            <option value="damp">damp</option>
+                            <option value="moist">moist</option>
+                            <option value="wet">wet</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('rel_moisture')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group" style="justify-content: flex-end;">
+                    <button type="submit" class="btn btn-primary">➕ Log Layer to Sample</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="table-container">
+            <table id="sampleLayerTable" style="display: table;">
+                <thead>
+                    <tr>
+                        <th>Sample ID</th>
+                        <th>Top Depth (ft)</th>
+                        <th>Bottom Depth (ft)</th>
+                        <th>Soil Type</th>
+                        <th>Moisture</th>
+                        <th style="width: 35%;">Comments (Type Directly Below)</th>
+                    </tr>
+                </thead>
+                <tbody id="sampleLayerTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script>
+
     // Custom drop-down choice appending routine
     function promptAddChoice(selectElementId) {
         const selectElement = document.getElementById(selectElementId);
@@ -711,15 +749,15 @@
 
     // Stateful Data storage arrays with built-in reference placeholders
     let datasetProfiles = [
-        { "Boring ID": "B-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.5, "Soil Type": "ASPHALT", "Moisture Condition": "dry", "Comments": "Fresh overlay" },
-        { "Boring ID": "B-1", "Top Depth (ft)": 0.5, "Bottom Depth (ft)": 1.0, "Soil Type": "BASE COURSE", "Moisture Condition": "damp", "Comments": "" },
-        { "Boring ID": "B-1", "Top Depth (ft)": 1.0, "Bottom Depth (ft)": 4.0, "Soil Type": "FILL/REWORKED", "Moisture Condition": "moist", "Comments": "Heavy structural compaction observed" }
+        { "Sample ID": "S-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.5, "Soil Type": "ASPHALT", "Moisture Condition": "dry", "Comments": "Fresh overlay" },
+        { "Sample ID": "S-1", "Top Depth (ft)": 0.5, "Bottom Depth (ft)": 1.0, "Soil Type": "BASE COURSE", "Moisture Condition": "damp", "Comments": "" },
+        { "Sample ID": "S-2", "Top Depth (ft)": 1.0, "Bottom Depth (ft)": 4.0, "Soil Type": "FILL/REWORKED", "Moisture Condition": "moist", "Comments": "Heavy structural compaction observed" }
     ];
 
     let datasetRuns = [
-        { "Sample ID": "S-1", "Start Depth (ft)": 0.0, "End Depth (ft)": 2.0, "SPT N-Value": 6, "Recovery (in)": 18, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "Initial baseline standard check run" },
-        { "Sample ID": "S-2", "Start Depth (ft)": 2.0, "End Depth (ft)": 4.0, "SPT N-Value": 8, "Recovery (in)": 16, "Field Testing Notes": "PID: 0.2 ppm", "Comments": "" },
-        { "Sample ID": "S-3", "Start Depth (ft)": 4.0, "End Depth (ft)": 6.0, "SPT N-Value": 14, "Recovery (in)": 22, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "" }
+        { "Boring ID": "B-1", "Sample ID": "S-1", "Start Depth (ft)": 0.0, "End Depth (ft)": 2.0, "SPT N-Value": 6, "Recovery (in)": 18, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "Initial baseline standard check run" },
+        { "Boring ID": "B-1", "Sample ID": "S-2", "Start Depth (ft)": 2.0, "End Depth (ft)": 4.0, "SPT N-Value": 8, "Recovery (in)": 16, "Field Testing Notes": "PID: 0.2 ppm", "Comments": "" },
+        { "Boring ID": "B-1", "Sample ID": "S-3", "Start Depth (ft)": 4.0, "End Depth (ft)": 6.0, "SPT N-Value": 14, "Recovery (in)": 22, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "" }
     ];
 
     const referenceSoilTypes = [
@@ -728,14 +766,14 @@
         { "Major Soil Type": "fine to coarse SAND", "Behavior": "granular", "Cohesionless Min N": 10, "Cohesionless Max N": 30, "Density Status": "Medium dense", "Material Profile": "COARSE SAND", "Max Weight (pcf)": 136, "Min Weight (pcf)": 84 }
     ];
 
-    document.getElementById('profileForm').addEventListener('submit', function(e) {
+    document.getElementById('sampleLayerForm').addEventListener('submit', function(e) {
         e.preventDefault();
         datasetProfiles.push({
-            "Boring ID": document.getElementById('prof_id').value,
-            "Top Depth (ft)": parseFloat(document.getElementById('prof_top').value) || 0,
-            "Bottom Depth (ft)": parseFloat(document.getElementById('prof_bottom').value) || 0,
-            "Soil Type": document.getElementById('prof_soil').value,
-            "Moisture Condition": document.getElementById('prof_moisture').value,
+            "Sample ID": document.getElementById('rel_sample_id').value,
+            "Top Depth (ft)": parseFloat(document.getElementById('rel_top').value) || 0,
+            "Bottom Depth (ft)": parseFloat(document.getElementById('rel_bottom').value) || 0,
+            "Soil Type": document.getElementById('rel_soil').value,
+            "Moisture Condition": document.getElementById('rel_moisture').value,
             "Comments": ""
         });
         renderProfilesTable();
@@ -744,6 +782,7 @@
     document.getElementById('runForm').addEventListener('submit', function(e) {
         e.preventDefault();
         datasetRuns.push({
+            "Boring ID": document.getElementById('run_boring_id').value,
             "Sample ID": document.getElementById('run_id').value,
             "Start Depth (ft)": parseFloat(document.getElementById('run_start').value) || 0,
             "End Depth (ft)": parseFloat(document.getElementById('run_end').value) || 0,
@@ -783,6 +822,7 @@
     function renderRunsTable() {
         document.getElementById('runTableBody').innerHTML = datasetRuns.map((r, index) => `
             <tr>
+                <td>${r["Boring ID"]}</td>
                 <td>${r["Sample ID"]}</td>
                 <td>${Number(r["Start Depth (ft)"]).toFixed(1)}</td>
                 <td>${Number(r["End Depth (ft)"]).toFixed(1)}</td>
