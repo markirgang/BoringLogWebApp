@@ -810,90 +810,38 @@
         document.getElementById('calcSiteClass').textContent = `Site Class ${avgN < 15 ? 'E' : avgN <= 50 ? 'D' : 'C'} (Avg N: ${avgN.toFixed(2)})`;
     }
 
-    /**
-     * DYNAMIC EXCELJS ENGINE WITH ADVANCED LAYOUT CONTROLS
-     */
-    function addStyledSheet(workbook, sheetName, dataArray) {
-        const worksheet = workbook.addWorksheet(sheetName);
-        worksheet.views = [{ showGridLines: true }];
-
-        if (!dataArray || dataArray.length === 0) return;
-
-        // 1. Setup Column Headers
-        const headers = Object.keys(dataArray[0]);
-        const headerRow = worksheet.addRow(headers);
-        headerRow.height = 26;
-
-        headerRow.eachCell((cell) => {
-            cell.font = { name: 'Segoe UI', size: 13, bold: true, color: { argb: 'FF1E293B' } };
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
-            cell.alignment = { vertical: 'middle', horizontal: 'left' };
-            cell.border = {
-                top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-                bottom: { style: 'medium', color: { argb: 'FF94A3B8' } },
-                left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-                right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
-            };
-        });
-
-        // 2. Setup Data Rows
-        dataArray.forEach(rowData => {
-            const rowValues = headers.map(h => rowData[h]);
-            const dataRow = worksheet.addRow(rowValues);
-            dataRow.height = 21;
-
-            dataRow.eachCell((cell) => {
-                cell.font = { name: 'Segoe UI', size: 12 };
-                cell.alignment = { vertical: 'middle', horizontal: 'left' };
-                cell.border = {
-                    top: { style: 'thin', color: { argb: 'FFGRID' } },
-                    bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
-                    left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
-                    right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
-                };
-            });
-        });
-
-        // 3. Adaptive Auto-Fit Columns with Fixed Protection Ceilings
-        worksheet.columns.forEach(column => {
-            let maxLen = 0;
-            column.eachCell({ includeEmpty: true }, cell => {
-                const valueStr = cell.value ? cell.value.toString() : '';
-                if (valueStr.length > maxLen) maxLen = valueStr.length;
-            });
-            column.width = Math.min(Math.max(maxLen + 4, 15), 35);
-        });
-    }
-
-    // Workbook Generation Loop Trigger
-    document.getElementById('exportBtn').addEventListener('click', function() {
-        const workbook = new ExcelJS.Workbook();
-
-        // Mapped core information matrix
-        const coverData = [
-            { Property: "Log Reference number", Value: document.getElementById('cov_boring_id').value },
-            { Property: "Project Name", Value: document.getElementById('cov_project').value },
-            { Property: "Job Number", Value: document.getElementById('cov_job').value },
-            { Property: "Location", Value: document.getElementById('cov_location').value },
-            { Property: "Contractor", Value: document.getElementById('cov_contractor').value },
-            { Property: "Rig Type", Value: document.getElementById('cov_equipment').value },
-            { Property: "Hammer System", Value: document.getElementById('cov_hammer').value },
-            { Property: "Sampler Set", Value: document.getElementById('cov_sampler').value },
-            { Property: "Groundwater Depth (ft)", Value: document.getElementById('cov_gw_depth').value },
-            { Property: "Main Form Comments", Value: document.getElementById('global_comments').value }
-        ];
-        
-        // Pass complete structural parameters down into sheets builder
-        addStyledSheet(workbook, "Cover Page", coverData);
-        addStyledSheet(workbook, "Profiles", datasetProfiles);
-        addStyledSheet(workbook, "Boring Info", datasetRuns);
-        addStyledSheet(workbook, "Soil Types (Reference)", referenceSoilTypes);
+    // Workbook Generation via Backend API
+    document.getElementById('exportBtn').addEventListener('click', async function() {
+        const payload = {
+            coverData: [
+                { Property: "Log Reference number", Value: document.getElementById('cov_boring_id').value },
+                { Property: "Project Name", Value: document.getElementById('cov_project').value },
+                { Property: "Job Number", Value: document.getElementById('cov_job').value },
+                { Property: "Location", Value: document.getElementById('cov_location').value },
+                { Property: "Contractor", Value: document.getElementById('cov_contractor').value },
+                { Property: "Rig Type", Value: document.getElementById('cov_equipment').value },
+                { Property: "Hammer System", Value: document.getElementById('cov_hammer').value },
+                { Property: "Sampler Set", Value: document.getElementById('cov_sampler').value },
+                { Property: "Groundwater Depth (ft)", Value: document.getElementById('cov_gw_depth').value },
+                { Property: "Main Form Comments", Value: document.getElementById('global_comments').value }
+            ],
+            datasetProfiles: datasetProfiles,
+            datasetRuns: datasetRuns,
+            referenceSoilTypes: referenceSoilTypes
+        };
 
         const filename = (document.getElementById('cov_boring_id').value || "Boring") + "_Calculated_Export.xlsx";
 
-        // Generate workbook binary, wrap as blob stream asset, and trigger download hook
-        workbook.xlsx.writeBuffer().then(function(buffer) {
-            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        try {
+            const response = await fetch('/api/export', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error('Export API failed with status ' + response.status);
+
+            const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const anchor = document.createElement('a');
             anchor.href = url;
@@ -904,7 +852,10 @@
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(anchor);
             }, 100);
-        });
+        } catch (err) {
+            console.error(err);
+            alert('Failed to generate export via API: ' + err.message);
+        }
     });
 
     // Run baseline initialization loops on system load
