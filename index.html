@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caren's Boring Log Manager</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+    <style>
+        :root {
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --blue-600: #2563eb;
+            --blue-700: #1d4ed8;
+            --emerald-600: #10b981;
+            --emerald-700: #059669;
+            --gray-100: #f1f5f9;
+            --border: #cbd5e1;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Sticky Top Container locks Title and Navigation exclusively to the top of the viewport */
+        .sticky-header-container {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: #f8fafc;
+            padding: 1.5rem 1.5rem 0 1.5rem;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 1.5rem 1.5rem 1.5rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--slate-800);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            gap: 1.5rem;
+            position: relative;
+        }
+
+        .header-title-zone {
+            flex: 1;
+            min-width: 0;
+        }
+
+        header h1 { 
+            margin: 0; 
+            font-size: clamp(1.15rem, 2.2vw, 1.65rem); 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+        header p { margin: 0.25rem 0 0 0; color: #94a3b8; font-size: 0.9rem; }
+
+        /* Unified controls cluster layout for upper-right header space */
+        .header-controls-group {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        /* Global Header Comment Styling */
+        .header-comment-box {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            min-width: 260px;
+            max-width: 320px;
+        }
+        .header-comment-box label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+        .header-comment-box input {
+            padding: 0.5rem;
+            border: 1px solid var(--slate-700);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .header-comment-box input::placeholder {
+            color: #64748b;
+        }
+        .header-comment-box input:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: var(--blue-600);
+        }
+
+        /* Specialized Drilling Rig Vector Logo Component Container */
+        .header-logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            transition: background 0.15s ease;
+            white-space: nowrap;
+        }
+        .btn-success { background: var(--emerald-600); color: white; }
+        .btn-success:hover { background: var(--emerald-700); }
+        .btn-primary { background: var(--blue-600); color: white; }
+        .btn-primary:hover { background: var(--blue-700); }
+        
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            background: #e2e8f0;
+            color: var(--slate-700);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-small:hover {
+            background: #cbd5e1;
+        }
+
+        /* Navigation Tab Links */
+        .tab-bar {
+            display: flex;
+            gap: 0.25rem;
+            border-bottom: 2px solid var(--border);
+            flex-wrap: wrap;
+            background-color: #f8fafc;
+        }
+        .tab-btn {
+            padding: 0.75rem 1.1rem;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 6px 6px 0 0;
+            font-weight: 600;
+            color: var(--slate-700);
+            cursor: pointer;
+            font-size: 0.9rem;
+            border: 1px solid transparent;
+        }
+        .tab-btn.active {
+            background: white;
+            border: 2px solid var(--border);
+            border-bottom: 2px solid white;
+            color: var(--blue-600);
+            margin-bottom: -2px;
+        }
+
+        .tab-content {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid var(--border);
+            border-top: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: none;
+        }
+        .tab-content.active { display: block; }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            color: var(--slate-700);
+        }
+        
+        .form-group input, .input-addon-group select {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            background-color: white;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .input-addon-group {
+            display: flex;
+            gap: 0.35rem;
+        }
+        .input-addon-group select {
+            flex: 1;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+            max-height: 450px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+        th {
+            background: var(--gray-100);
+            color: var(--slate-800);
+            font-weight: 600;
+            padding: 0.6rem;
+            position: sticky;
+            top: 0;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+        td { padding: 0.6rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tr:nth-child(even) { background: #f8fafc; }
+
+        /* Inline editable typing fields inside dataset cells */
+        .table-comment-input {
+            width: 100%;
+            min-width: 250px;
+            padding: 0.4rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+        .table-comment-input:focus {
+            border-color: var(--blue-600);
+            outline: none;
+            background-color: #f8fafc;
+        }
+
+        .ref-header {
+            background-color: var(--slate-700) !important;
+            color: white !important;
+            text-align: center;
+        }
+    </style>
+<link rel="icon" href="data:,">
+</head>
+<body>
+
+<div class="sticky-header-container">
+    <div class="container" style="padding-bottom: 0;">
+        <header>
+            <div class="header-title-zone">
+                <h1>Caren's Boring Log Manager</h1>
+                <p>Modeled on standard Burmister Soil Analysis Workflow Properties</p>
+            </div>
+            
+            <div class="header-controls-group">
+                <div class="header-comment-box">
+                    <label for="global_comments">Main Form Comments</label>
+                    <input type="text" id="global_comments" placeholder="Type general form/project remarks here...">
+                </div>
+
+                <img src="CarenHeadShot.jpg" alt="Caren Headshot" style="width: 55px; height: 55px; object-fit: cover; border-radius: 50%;" />
+
+                <button class="btn btn-success" id="exportBtn">⬇ Download Styled Workbook (.xlsx)</button>
+            </div>
+        </header>
+
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab(event, 'tab-cover')">1. Boring Cover/Metadata</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-profiles')">2. Layer Profiles</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-runs')">3. Log Details (Boring Runs)</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-calcs')">4. Site Class & Bearing Metrics</button>
+            <button class="tab-btn" style="background: #dbeafe; color: #1e40af;" onclick="switchTab(event, 'tab-reference')">📖 5. Reference Soil Types</button>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div id="tab-cover" class="tab-content active">
+        <h3>Boring Header Core Information</h3>
+        <form id="coverForm">
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>Log Reference number</label>
+                    <input type="text" id="cov_boring_id" value="B-1" placeholder="Enter log reference...">
+                </div>
+                <div class="form-group">
+                    <label>Project Name</label>
+                    <div class="input-addon-group">
+                        <select id="cov_project">
+                            <option value="Max Storage Facility">Max Storage Facility</option>
+                            <option value="Bridge Replacement Rehab">Bridge Replacement Rehab</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('cov_project')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Job Number</label>
+                    <div class="input-addon-group">
+                        <select id="cov_job">
+                            <option value="3825-01-01">3825-01-01</option>
+                            <option value="2026-99-12">2026-99-12</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('cov_job')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <div class="input-addon-group">
+                        <select id="cov_location">
+                            <option value="Holyoke, MA">Holyoke, MA</option>
+                            <option value="Boston, MA">Boston, MA</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('cov_location')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Drilling Contractor</label>
+                    <div class="input-addon-group">
+                        <select id="cov_contractor">
+                            <option value="Seaboard Environmental Drilling">Seaboard Environmental Drilling</option>
+                            <option value="New England Boring Co">New England Boring Co</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('cov_contractor')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Drilling Equipment Rig</label>
+                    <div class="input-addon-group">
+                        <select id="cov_equipment">
+                            <option value="Track Mounted Rig">Track Mounted Rig</option>
+                            <option value="Truck Mounted Auger">Truck Mounted Auger</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('cov_equipment')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Hammer Configuration Type</label>
+                    <div class="input-addon-group">
+                        <select id="cov_hammer">
+                            <option value="Automatic">Automatic Hammer (140 lb / 30" Drop)</option>
+                            <option value="Manual / Safety">Safety Manual Hammer (140 lb)</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('cov_hammer')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Sampler Setup</label>
+                    <div class="input-addon-group">
+                        <select id="cov_sampler">
+                            <option value="2&quot; O.D. Split Spoon">2" O.D. Split Spoon</option>
+                            <option value="3&quot; Shelby Tube">3" Shelby Tube</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('cov_sampler')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Groundwater Measurement (ft Depth)</label>
+                    <div class="input-addon-group">
+                        <select id="cov_gw_depth">
+                            <option value="0.0">0.0</option>
+                            <option value="1.0">1.0</option>
+                            <option value="2.0" selected>2.0</option>
+                            <option value="5.0">5.0</option>
+                            <option value="10.0">10.0</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('cov_gw_depth')">➕ Choice</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div id="tab-profiles" class="tab-content">
+        <h3>Borehole Strata Layer Profile Mapping</h3>
+        <form id="profileForm">
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>Boring Target Reference</label>
+                    <div class="input-addon-group">
+                        <select id="prof_id">
+                            <option value="B-1">B-1</option>
+                            <option value="B-2">B-2</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('prof_id')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Top Depth of Strata Layer (ft)</label>
+                    <div class="input-addon-group">
+                        <select id="prof_top">
+                            <option value="0.0">0.0</option>
+                            <option value="0.5">0.5</option>
+                            <option value="1.0">1.0</option>
+                            <option value="2.0">2.0</option>
+                            <option value="4.0">4.0</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('prof_top')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Bottom Depth of Strata Layer (ft)</label>
+                    <div class="input-addon-group">
+                        <select id="prof_bottom">
+                            <option value="0.5">0.5</option>
+                            <option value="1.0">1.0</option>
+                            <option value="2.0">2.0</option>
+                            <option value="4.0">4.0</option>
+                            <option value="6.0">6.0</option>
+                            <option value="10.0">10.0</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('prof_bottom')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Major Burmister Soil Classification Type</label>
+                    <div class="input-addon-group">
+                        <select id="prof_soil">
+                            <option value="TOPSOIL">TOPSOIL</option>
+                            <option value="ASPHALT">ASPHALT</option>
+                            <option value="BASE COURSE">BASE COURSE</option>
+                            <option value="FILL/REWORKED">FILL/REWORKED</option>
+                            <option value="FINE SAND">FINE SAND</option>
+                            <option value="FINE TO MEDIUM SAND">FINE TO MEDIUM SAND</option>
+                            <option value="SILTY FINE SAND">SILTY FINE SAND</option>
+                            <option value="CLAYEY SILT">CLAYEY SILT</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('prof_soil')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Moisture Variant Condition</label>
+                    <div class="input-addon-group">
+                        <select id="prof_moisture">
+                            <option value="dry">dry</option>
+                            <option value="damp">damp</option>
+                            <option value="moist">moist</option>
+                            <option value="wet">wet</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('prof_moisture')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group" style="justify-content: flex-end;">
+                    <button type="submit" class="btn btn-primary">➕ Log Profile Entry</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Boring ID</th>
+                        <th>Top Depth (ft)</th>
+                        <th>Bottom Depth (ft)</th>
+                        <th>Soil Type</th>
+                        <th>Moisture</th>
+                        <th style="width: 35%;">Comments (Type Directly Below)</th>
+                    </tr>
+                </thead>
+                <tbody id="profileTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="tab-runs" class="tab-content">
+        <h3>Sample Target Blowcounts / Boring Logs Run Log Entries</h3>
+        <form id="runForm">
+            <div class="grid-3">
+                <div class="form-group">
+                    <label>Sample Index ID</label>
+                    <div class="input-addon-group">
+                        <select id="run_id">
+                            <option value="S-1">S-1</option>
+                            <option value="S-2">S-2</option>
+                            <option value="S-3">S-3</option>
+                            <option value="S-4">S-4</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('run_id')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Run Start Depth (ft)</label>
+                    <div class="input-addon-group">
+                        <select id="run_start">
+                            <option value="0.0">0.0</option>
+                            <option value="2.0">2.0</option>
+                            <option value="4.0">4.0</option>
+                            <option value="6.0">6.0</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('run_start')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Run End Depth (ft)</label>
+                    <div class="input-addon-group">
+                        <select id="run_end">
+                            <option value="2.0">2.0</option>
+                            <option value="4.0">4.0</option>
+                            <option value="6.0">6.0</option>
+                            <option value="8.0">8.0</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('run_end')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>SPT N-Value Blowcount</label>
+                    <div class="input-addon-group">
+                        <select id="run_nval">
+                            <option value="2">2</option>
+                            <option value="4">4</option>
+                            <option value="6" selected>6</option>
+                            <option value="8">8</option>
+                            <option value="12">12</option>
+                            <option value="14">14</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('run_nval')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Core Matrix Recovery Length (inches)</label>
+                    <div class="input-addon-group">
+                        <select id="run_rec">
+                            <option value="12">12</option>
+                            <option value="14">14</option>
+                            <option value="16">16</option>
+                            <option value="18" selected>18</option>
+                            <option value="20">20</option>
+                            <option value="22">22</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('run_rec')">➕ Choice</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Field Testing Dataset Metrics</label>
+                    <div class="input-addon-group">
+                        <select id="run_field_data">
+                            <option value="PID: 0.0 ppm">PID: 0.0 ppm</option>
+                            <option value="PID: 0.2 ppm">PID: 0.2 ppm</option>
+                            <option value="Trace gravel variants">Trace gravel variants</option>
+                        </select>
+                        <button type="button" class="btn-small" onclick="promptAddChoice('run_field_data')">➕ Choice</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1.25rem; align-items: flex-end; margin-top: 1.25rem;">
+                <div>
+                    <button type="submit" class="btn btn-primary">➕ Record Run Sample</button>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Comments (Initial Entry)</label>
+                    <input type="text" id="run_comments" placeholder="Enter additional engineering observations or remarks...">
+                </div>
+            </div>
+        </form>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sample ID</th>
+                        <th>Start Depth</th>
+                        <th>End Depth</th>
+                        <th>SPT N-Value</th>
+                        <th>Recovery (in)</th>
+                        <th>Field Testing Data</th>
+                        <th style="width: 35%;">Comments (Type Directly Below)</th>
+                    </tr>
+                </thead>
+                <tbody id="runTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="tab-calcs" class="tab-content">
+        <h3>Engineering Calculations Matrix Preview</h3>
+        <div class="grid-3">
+            <div style="background:#f8fafc; padding:1rem; border:1px solid var(--border); border-radius:6px;">
+                <h4 style="margin:0 0 0.5rem 0; color:var(--blue-600);">Calculated Site Class Metric</h4>
+                <p style="font-size:1.25rem; font-weight:bold; margin:0;" id="calcSiteClass">Site Class E (Soft Soil Profile)</p>
+                <small style="color:#64748b;">Based on parsed Harmonic Mean N calculations</small>
+            </div>
+            <div style="background:#f8fafc; padding:1rem; border:1px solid var(--border); border-radius:6px;">
+                <h4 style="margin:0 0 0.5rem 0; color:var(--blue-600);">Allowable Bearing Capacity</h4>
+                <p style="font-size:1.25rem; font-weight:bold; margin:0;">2.45 ksf</p>
+                <small style="color:#64748b;">Estimated using empirical structural correlation</small>
+            </div>
+            <div style="background:#f8fafc; padding:1rem; border:1px solid var(--border); border-radius:6px;">
+                <h4 style="margin:0 0 0.5rem 0; color:var(--blue-600);">Liquefaction Vulnerability Status</h4>
+                <p style="font-size:1.25rem; font-weight:bold; margin:0; color:#b91c1c;">Low to Moderate</p>
+                <small style="color:#64748b;">Assessed against Ground Water depth limits</small>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-reference" class="tab-content">
+        <div>
+            <h3 style="margin:0;">Soil Classification & Weight Index References</h3>
+            <p style="margin:0 0 1rem 0; font-size:0.85rem; color:#64748b;">Read-only data pulled from the structural template workbook package</p>
+        </div>
+        
+        <div class="table-container" style="max-height: 550px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="2" class="ref-header">Soil Types Map</th>
+                        <th colspan="3" class="ref-header">Cohesionless Bands (SPT N)</th>
+                        <th colspan="3" class="ref-header">Cohesive Bands (SPT N)</th>
+                        <th colspan="4" class="ref-header">NAVFAC 7.01 Weight Index (pcf)</th>
+                    </tr>
+                    <tr>
+                        <th>Major Classification</th>
+                        <th>Behavior Type</th>
+                        <th>Min Blows</th>
+                        <th>Max Blows</th>
+                        <th>Relative Density</th>
+                        <th>Min Blows</th>
+                        <th>Max Blows</th>
+                        <th>Consistency</th>
+                        <th>Material Profile Type</th>
+                        <th>Max Weight</th>
+                        <th>Min Weight</th>
+                        <th>Grading Profile</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>fine SAND</td><td>granular</td><td>0</td><td>4</td><td>Very loose</td><td>0</td><td>2</td><td>Very soft</td><td>FINE SAND</td><td>136</td><td>84</td><td>Uniform</td></tr>
+                    <tr><td>fine to medium SAND</td><td>granular</td><td>4</td><td>10</td><td>Loose</td><td>2</td><td>4</td><td>Soft</td><td>MEDIUM SAND</td><td>136</td><td>84</td><td>Uniform</td></tr>
+                    <tr><td>fine to coarse SAND</td><td>granular</td><td>10</td><td>30</td><td>Medium dense</td><td>4</td><td>8</td><td>Medium stiff</td><td>COARSE SAND</td><td>136</td><td>84</td><td>Uniform</td></tr>
+                    <tr><td>medium SAND</td><td>granular</td><td>30</td><td>50</td><td>Dense</td><td>8</td><td>15</td><td>Stiff</td><td>SILT</td><td>136</td><td>81</td><td>Uniform</td></tr>
+                    <tr><td>medium to coarse SAND</td><td>granular</td><td>50</td><td>+</td><td>Very dense</td><td>15</td><td>30</td><td>Very stiff</td><td>FINE GRAVEL</td><td>136</td><td>84</td><td>Uniform</td></tr>
+                    <tr><td>coarse SAND</td><td>granular</td><td>-</td><td>-</td><td>-</td><td>30</td><td>+</td><td>Hard</td><td>SILTY SAND</td><td>142</td><td>88</td><td>Well-Graded</td></tr>
+                    <tr><td>fine GRAVEL</td><td>granular</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>VARVED FINE SAND</td><td>142</td><td>88</td><td>Well-Graded</td></tr>
+                    <tr><td>GRAVEL</td><td>granular</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>MEDIUM TO COARSE SAND</td><td>148</td><td>86</td><td>Well-Graded</td></tr>
+                    <tr><td>silty CLAY</td><td>cohesive</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>SANDY CLAY</td><td>147</td><td>100</td><td>Mixed Soil</td></tr>
+                    <tr><td>CLAY</td><td>cohesive</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>SILTY CLAY</td><td>147</td><td>100</td><td>Mixed Soil</td></tr>
+                    <tr><td>varved SILT</td><td>cohesive</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>CLAYEY SILT</td><td>147</td><td>100</td><td>Mixed Soil</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Custom drop-down choice appending routine
+    function promptAddChoice(selectElementId) {
+        const selectElement = document.getElementById(selectElementId);
+        const inputPrompt = prompt("Type your new custom value choice below:");
+        
+        if (inputPrompt && inputPrompt.trim() !== "") {
+            const cleanValue = inputPrompt.trim();
+            let optionExists = false;
+            for (let i = 0; i < selectElement.options.length; i++) {
+                if (selectElement.options[i].value === cleanValue) {
+                    optionExists = true;
+                    break;
+                }
+            }
+            
+            if (!optionExists) {
+                const newOption = document.createElement("option");
+                newOption.text = cleanValue;
+                newOption.value = cleanValue;
+                selectElement.add(newOption);
+                selectElement.value = cleanValue;
+            } else {
+                selectElement.value = cleanValue;
+            }
+        }
+    }
+
+    // Active View Tab switcher
+    function switchTab(event, tabId) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    // Stateful Data storage arrays with built-in reference placeholders
+    let datasetProfiles = [
+        { "Boring ID": "B-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.5, "Soil Type": "ASPHALT", "Moisture Condition": "dry", "Comments": "Fresh overlay" },
+        { "Boring ID": "B-1", "Top Depth (ft)": 0.5, "Bottom Depth (ft)": 1.0, "Soil Type": "BASE COURSE", "Moisture Condition": "damp", "Comments": "" },
+        { "Boring ID": "B-1", "Top Depth (ft)": 1.0, "Bottom Depth (ft)": 4.0, "Soil Type": "FILL/REWORKED", "Moisture Condition": "moist", "Comments": "Heavy structural compaction observed" }
+    ];
+
+    let datasetRuns = [
+        { "Sample ID": "S-1", "Start Depth (ft)": 0.0, "End Depth (ft)": 2.0, "SPT N-Value": 6, "Recovery (in)": 18, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "Initial baseline standard check run" },
+        { "Sample ID": "S-2", "Start Depth (ft)": 2.0, "End Depth (ft)": 4.0, "SPT N-Value": 8, "Recovery (in)": 16, "Field Testing Notes": "PID: 0.2 ppm", "Comments": "" },
+        { "Sample ID": "S-3", "Start Depth (ft)": 4.0, "End Depth (ft)": 6.0, "SPT N-Value": 14, "Recovery (in)": 22, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "" }
+    ];
+
+    const referenceSoilTypes = [
+        { "Major Soil Type": "fine SAND", "Behavior": "granular", "Cohesionless Min N": 0, "Cohesionless Max N": 4, "Density Status": "Very loose", "Material Profile": "FINE SAND", "Max Weight (pcf)": 136, "Min Weight (pcf)": 84 },
+        { "Major Soil Type": "fine to medium SAND", "Behavior": "granular", "Cohesionless Min N": 4, "Cohesionless Max N": 10, "Density Status": "Loose", "Material Profile": "MEDIUM SAND", "Max Weight (pcf)": 136, "Min Weight (pcf)": 84 },
+        { "Major Soil Type": "fine to coarse SAND", "Behavior": "granular", "Cohesionless Min N": 10, "Cohesionless Max N": 30, "Density Status": "Medium dense", "Material Profile": "COARSE SAND", "Max Weight (pcf)": 136, "Min Weight (pcf)": 84 }
+    ];
+
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        datasetProfiles.push({
+            "Boring ID": document.getElementById('prof_id').value,
+            "Top Depth (ft)": parseFloat(document.getElementById('prof_top').value) || 0,
+            "Bottom Depth (ft)": parseFloat(document.getElementById('prof_bottom').value) || 0,
+            "Soil Type": document.getElementById('prof_soil').value,
+            "Moisture Condition": document.getElementById('prof_moisture').value,
+            "Comments": ""
+        });
+        renderProfilesTable();
+    });
+
+    document.getElementById('runForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        datasetRuns.push({
+            "Sample ID": document.getElementById('run_id').value,
+            "Start Depth (ft)": parseFloat(document.getElementById('run_start').value) || 0,
+            "End Depth (ft)": parseFloat(document.getElementById('run_end').value) || 0,
+            "SPT N-Value": parseInt(document.getElementById('run_nval').value) || 0,
+            "Recovery (in)": parseInt(document.getElementById('run_rec').value) || 0,
+            "Field Testing Notes": document.getElementById('run_field_data').value,
+            "Comments": document.getElementById('run_comments').value
+        });
+        renderRunsTable();
+        calculateGeotechOutputs();
+        document.getElementById('run_comments').value = '';
+    });
+
+    // Tab 2 Live Profile Table Inline Comment Field Binder
+    function renderProfilesTable() {
+        document.getElementById('profileTableBody').innerHTML = datasetProfiles.map((p, index) => `
+            <tr>
+                <td>${p["Boring ID"]}</td>
+                <td>${Number(p["Top Depth (ft)"]).toFixed(1)}</td>
+                <td>${Number(p["Bottom Depth (ft)"]).toFixed(1)}</td>
+                <td>${p["Soil Type"]}</td>
+                <td>${p["Moisture Condition"]}</td>
+                <td>
+                    <input type="text" class="table-comment-input" value="${p["Comments"] || ''}" 
+                           oninput="updateProfileInlineComment(${index}, this.value)" 
+                           placeholder="Type layer remarks directly here...">
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function updateProfileInlineComment(index, val) {
+        datasetProfiles[index]["Comments"] = val;
+    }
+
+    // Tab 3 Live Run Table Inline Comment Field Binder
+    function renderRunsTable() {
+        document.getElementById('runTableBody').innerHTML = datasetRuns.map((r, index) => `
+            <tr>
+                <td>${r["Sample ID"]}</td>
+                <td>${Number(r["Start Depth (ft)"]).toFixed(1)}</td>
+                <td>${Number(r["End Depth (ft)"]).toFixed(1)}</td>
+                <td>${r["SPT N-Value"]}</td>
+                <td>${r["Recovery (in)"]}</td>
+                <td>${r["Field Testing Notes"]}</td>
+                <td>
+                    <input type="text" class="table-comment-input" value="${r["Comments"] || ''}" 
+                           oninput="updateInlineComment(${index}, this.value)" 
+                           placeholder="Type comment here...">
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function updateInlineComment(index, val) {
+        datasetRuns[index]["Comments"] = val;
+    }
+
+    function calculateGeotechOutputs() {
+        if(datasetRuns.length === 0) return;
+        let sumInverseN = 0;
+        datasetRuns.forEach(r => { sumInverseN += (r["SPT N-Value"] > 0) ? (1 / r["SPT N-Value"]) : 0; });
+        let avgN = datasetRuns.length / sumInverseN;
+        document.getElementById('calcSiteClass').textContent = `Site Class ${avgN < 15 ? 'E' : avgN <= 50 ? 'D' : 'C'} (Avg N: ${avgN.toFixed(2)})`;
+    }
+
+    /**
+     * DYNAMIC EXCELJS ENGINE WITH ADVANCED LAYOUT CONTROLS
+     */
+    function addStyledSheet(workbook, sheetName, dataArray) {
+        const worksheet = workbook.addWorksheet(sheetName);
+        worksheet.views = [{ showGridLines: true }];
+
+        if (!dataArray || dataArray.length === 0) return;
+
+        // 1. Setup Column Headers
+        const headers = Object.keys(dataArray[0]);
+        const headerRow = worksheet.addRow(headers);
+        headerRow.height = 26;
+
+        headerRow.eachCell((cell) => {
+            cell.font = { name: 'Segoe UI', size: 13, bold: true, color: { argb: 'FF1E293B' } };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+            cell.alignment = { vertical: 'middle', horizontal: 'left' };
+            cell.border = {
+                top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                bottom: { style: 'medium', color: { argb: 'FF94A3B8' } },
+                left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+            };
+        });
+
+        // 2. Setup Data Rows
+        dataArray.forEach(rowData => {
+            const rowValues = headers.map(h => rowData[h]);
+            const dataRow = worksheet.addRow(rowValues);
+            dataRow.height = 21;
+
+            dataRow.eachCell((cell) => {
+                cell.font = { name: 'Segoe UI', size: 12 };
+                cell.alignment = { vertical: 'middle', horizontal: 'left' };
+                cell.border = {
+                    top: { style: 'thin', color: { argb: 'FFGRID' } },
+                    bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                    left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                    right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+                };
+            });
+        });
+
+        // 3. Adaptive Auto-Fit Columns with Fixed Protection Ceilings
+        worksheet.columns.forEach(column => {
+            let maxLen = 0;
+            column.eachCell({ includeEmpty: true }, cell => {
+                const valueStr = cell.value ? cell.value.toString() : '';
+                if (valueStr.length > maxLen) maxLen = valueStr.length;
+            });
+            column.width = Math.min(Math.max(maxLen + 4, 15), 35);
+        });
+    }
+
+    // Workbook Generation Loop Trigger
+    document.getElementById('exportBtn').addEventListener('click', function() {
+        const workbook = new ExcelJS.Workbook();
+
+        // Mapped core information matrix
+        const coverData = [
+            { Property: "Log Reference number", Value: document.getElementById('cov_boring_id').value },
+            { Property: "Project Name", Value: document.getElementById('cov_project').value },
+            { Property: "Job Number", Value: document.getElementById('cov_job').value },
+            { Property: "Location", Value: document.getElementById('cov_location').value },
+            { Property: "Contractor", Value: document.getElementById('cov_contractor').value },
+            { Property: "Rig Type", Value: document.getElementById('cov_equipment').value },
+            { Property: "Hammer System", Value: document.getElementById('cov_hammer').value },
+            { Property: "Sampler Set", Value: document.getElementById('cov_sampler').value },
+            { Property: "Groundwater Depth (ft)", Value: document.getElementById('cov_gw_depth').value },
+            { Property: "Main Form Comments", Value: document.getElementById('global_comments').value }
+        ];
+        
+        // Pass complete structural parameters down into sheets builder
+        addStyledSheet(workbook, "Cover Page", coverData);
+        addStyledSheet(workbook, "Profiles", datasetProfiles);
+        addStyledSheet(workbook, "Boring Info", datasetRuns);
+        addStyledSheet(workbook, "Soil Types (Reference)", referenceSoilTypes);
+
+        const filename = (document.getElementById('cov_boring_id').value || "Boring") + "_Calculated_Export.xlsx";
+
+        // Generate workbook binary, wrap as blob stream asset, and trigger download hook
+        workbook.xlsx.writeBuffer().then(function(buffer) {
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = filename;
+            document.body.appendChild(anchor);
+            anchor.click();
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(anchor);
+            }, 100);
+        });
+    });
+
+    // Run baseline initialization loops on system load
+    renderProfilesTable();
+    renderRunsTable();
+</script>
+</body>
+</html>
