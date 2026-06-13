@@ -4961,8 +4961,8 @@
         boringOverridesMap = {};
         boringGWMap = {};
 
-        // 2. Clear all input elements (text, number, date, textarea)
-        const inputs = document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], textarea');
+        // 2. Clear all input elements (text, number, date, time, textarea)
+        const inputs = document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], input[type="time"], textarea');
         inputs.forEach(input => {
             if (input.id === 'export_date') return; // Preserve export date widget
             input.value = '';
@@ -4972,19 +4972,19 @@
         const selects = document.querySelectorAll('select');
         selects.forEach(select => {
             // Keep option elements intact, just reset the selection
-            const hasEmptyOption = Array.from(select.options).some(o => o.value === '');
-            if (hasEmptyOption) {
-                select.value = '';
-            } else if (select.options.length > 0) {
-                let defaultIdx = -1;
-                for (let i = 0; i < select.options.length; i++) {
-                    if (select.options[i].defaultSelected) {
-                        defaultIdx = i;
-                        break;
-                    }
+            let defaultIdx = -1;
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].defaultSelected) {
+                    defaultIdx = i;
+                    break;
                 }
-                if (defaultIdx !== -1) {
-                    select.selectedIndex = defaultIdx;
+            }
+            if (defaultIdx !== -1) {
+                select.selectedIndex = defaultIdx;
+            } else {
+                const hasEmptyOption = Array.from(select.options).some(o => o.value === '');
+                if (hasEmptyOption) {
+                    select.value = '';
                 } else {
                     select.selectedIndex = 0;
                 }
