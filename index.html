@@ -496,6 +496,55 @@
         .editable-select-input:focus {
             outline: none !important;
         }
+        .editable-select-wrapper {
+            position: relative;
+        }
+        .editable-select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            z-index: 9999;
+            margin-top: 4px;
+        }
+        .editable-select-dropdown::-webkit-scrollbar {
+            width: 6px;
+        }
+        .editable-select-dropdown::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .editable-select-dropdown::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .editable-select-dropdown::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .editable-select-dropdown-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: var(--slate-700);
+            transition: background-color 0.15s ease, color 0.15s ease;
+            text-align: left;
+        }
+        .editable-select-dropdown-item.highlighted {
+            background-color: var(--blue-600);
+            color: #ffffff;
+        }
+        .editable-select-dropdown-no-results {
+            padding: 8px 12px;
+            color: #64748b;
+            font-size: 0.875rem;
+            font-style: italic;
+            text-align: left;
+        }
     </style>
 <link rel="icon" href="data:,">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -2084,12 +2133,15 @@
         wrapper.className = 'editable-select-wrapper';
         wrapper.style.position = 'relative';
         wrapper.style.display = 'inline-flex';
-        wrapper.style.width = select.style.width || selectStyle.width || '100%';
+        
+        // Safely extract styles with fallbacks for hidden elements
+        const widthStyle = select.style.width || selectStyle.width;
+        wrapper.style.width = (widthStyle && widthStyle !== '0px' && widthStyle !== 'auto') ? widthStyle : '100%';
         wrapper.style.flex = select.style.flex || selectStyle.flex;
-        wrapper.style.flexGrow = selectStyle.flexGrow;
-        wrapper.style.flexShrink = selectStyle.flexShrink;
-        wrapper.style.flexBasis = selectStyle.flexBasis;
-        wrapper.style.margin = selectStyle.margin;
+        wrapper.style.flexGrow = select.style.flexGrow || selectStyle.flexGrow;
+        wrapper.style.flexShrink = select.style.flexShrink || selectStyle.flexShrink;
+        wrapper.style.flexBasis = select.style.flexBasis || selectStyle.flexBasis;
+        wrapper.style.margin = select.style.margin || selectStyle.margin;
 
         // Insert wrapper before select and move select inside
         select.parentNode.insertBefore(wrapper, select);
@@ -2099,6 +2151,7 @@
         select.style.width = '100%';
         select.style.boxSizing = 'border-box';
         select.style.color = 'transparent';
+        select.style.pointerEvents = 'none'; // Redirect clicks to the wrapper
 
         // 2. Create text input overlay
         const input = document.createElement('input');
@@ -2117,19 +2170,36 @@
         input.style.zIndex = '2';
         input.style.boxSizing = 'border-box';
 
-        // Copy font styles from the select to the input
-        input.style.fontFamily = selectStyle.fontFamily;
-        input.style.fontSize = selectStyle.fontSize;
-        input.style.fontWeight = selectStyle.fontWeight;
-        input.style.color = selectStyle.color === 'transparent' ? '#334155' : selectStyle.color;
+        // Copy font styles from the select to the input with robust fallbacks
+        input.style.fontFamily = selectStyle.fontFamily || 'inherit';
+        
+        const fontSize = selectStyle.fontSize || select.style.fontSize;
+        input.style.fontSize = (fontSize && fontSize !== '0px') ? fontSize : '0.9rem';
+        
+        const fontWeight = selectStyle.fontWeight || select.style.fontWeight;
+        input.style.fontWeight = (fontWeight && fontWeight !== '0') ? fontWeight : '400';
+        
+        let fontColor = selectStyle.color || select.style.color;
+        if (!fontColor || fontColor === 'transparent' || fontColor.startsWith('rgba(0, 0, 0, 0)')) {
+            fontColor = '#334155'; // standard dark slate color
+        }
+        input.style.color = fontColor;
 
-        // Match background and border-radius to match select
-        input.style.backgroundColor = selectStyle.backgroundColor === 'rgba(0, 0, 0, 0)' || selectStyle.backgroundColor === 'transparent' ? '#ffffff' : selectStyle.backgroundColor;
-        input.style.borderRadius = selectStyle.borderRadius;
+        // Copy placeholder if select has a blank or placeholder option
+        const firstOpt = select.options[0];
+        if (firstOpt && (firstOpt.value === "" || firstOpt.text.toLowerCase().includes("select"))) {
+            input.placeholder = firstOpt.text;
+        }
 
         wrapper.appendChild(input);
 
-        // 3. Create/retrieve temporary option helper
+        // 3. Create custom dropdown list container
+        const dropdown = document.createElement('div');
+        dropdown.className = 'editable-select-dropdown';
+        dropdown.style.display = 'none';
+        wrapper.appendChild(dropdown);
+
+        // 4. Create/retrieve temporary option helper
         const getOrCreateTempOpt = () => {
             let found = Array.from(select.options).find(o => o.dataset.isTempOpt === "true");
             if (!found) {
@@ -2146,7 +2216,7 @@
             input.value = select.value;
         };
 
-        // Sync input -> select
+        // Sync input -> select (triggers change/input events for forms)
         const syncInputToSelect = () => {
             const val = input.value;
             const tempOpt = getOrCreateTempOpt();
@@ -2169,34 +2239,320 @@
             select.dispatchEvent(new Event('input', { bubbles: true }));
         };
 
-        select.addEventListener('change', syncSelectToInput);
-        input.addEventListener('input', syncInputToSelect);
-        input.addEventListener('change', syncInputToSelect);
-
-        // Double click to open dropdown
-        input.addEventListener('dblclick', () => {
-            if (typeof select.showPicker === 'function') {
-                try { select.showPicker(); } catch (err) {}
-            }
-        });
-
-        // Key down arrow to open dropdown
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowDown') {
-                if (typeof select.showPicker === 'function') {
-                    try { select.showPicker(); e.preventDefault(); } catch (err) {}
+        // Commit typed choice as a permanent option
+        const commitChoice = (val) => {
+            if (!val || val.trim() === "") return;
+            const cleanVal = val.trim();
+            const tempOpt = getOrCreateTempOpt();
+            
+            // Check if there is already an exact match in permanent options (case-insensitive)
+            let matchOpt = null;
+            for (let i = 0; i < select.options.length; i++) {
+                const opt = select.options[i];
+                if (opt !== tempOpt && opt.value.toLowerCase().trim() === cleanVal.toLowerCase()) {
+                    matchOpt = opt;
+                    break;
                 }
             }
-        });
+            
+            if (matchOpt) {
+                matchOpt.selected = true;
+                
+                // Clear the temporary option first
+                tempOpt.value = '';
+                tempOpt.text = '';
+                
+                select.value = matchOpt.value;
+                input.value = matchOpt.value;
+            } else {
+                // Create a new permanent option
+                const newOpt = document.createElement('option');
+                newOpt.value = cleanVal;
+                newOpt.text = cleanVal;
+                select.add(newOpt);
+                newOpt.selected = true;
+                
+                // Clear the temporary option first
+                tempOpt.value = '';
+                tempOpt.text = '';
+                
+                select.value = cleanVal;
+                input.value = cleanVal;
+            }
 
-        // Focus styling
-        input.addEventListener('focus', () => {
+            // Sync choice mappings if applicable (e.g. run_contractor <-> layer_override_contractor)
+            const mappings = {
+                'run_contractor': 'layer_override_contractor',
+                'run_equipment': 'layer_override_equipment',
+                'run_hammer': 'layer_override_hammer',
+                'run_sampler': 'layer_override_sampler',
+                'run_foreman': 'layer_override_foreman',
+                'run_helper': 'layer_override_helper',
+                'run_bit_type': 'layer_override_bit_type',
+                'run_rod_type': 'layer_override_rod_type',
+                'run_casing': 'layer_override_casing',
+                'run_casing_lining': 'layer_override_casing_lining',
+                'run_case_diameter': 'layer_override_case_diameter',
+                'run_hammer_wgt': 'layer_override_hammer_wgt',
+                'run_hammer_drop': 'layer_override_hammer_drop',
+                'run_rock_hammer_type': 'layer_override_rock_hammer_type',
+                'run_rock_hammer_wgt_drop': 'layer_override_rock_hammer_wgt_drop',
+                'run_rock_size': 'layer_override_rock_size'
+            };
+
+            if (select.id === 'run_boring_id') {
+                const bId = cleanVal;
+                if (!boringGPSMap[bId]) {
+                    boringGPSMap[bId] = {
+                        lat: document.getElementById('cov_gps_lat')?.value || '',
+                        lon: document.getElementById('cov_gps_lon')?.value || '',
+                        address: document.getElementById('cov_gps_address')?.value || ''
+                    };
+                }
+                const relBoring = document.getElementById('rel_boring_id');
+                if (relBoring) {
+                    let optExists = Array.from(relBoring.options).some(o => o.value === bId);
+                    if (!optExists) {
+                        const opt = document.createElement('option');
+                        opt.value = bId;
+                        opt.text = bId;
+                        relBoring.add(opt);
+                    }
+                    relBoring.value = bId;
+                }
+                if (typeof syncUIToBoringFields === 'function') {
+                    syncUIToBoringFields(bId);
+                }
+                if (typeof populateSampleDropdown === 'function') {
+                    populateSampleDropdown();
+                }
+            }
+
+            let pairedId = null;
+            if (mappings[select.id]) {
+                pairedId = mappings[select.id];
+            } else {
+                for (const key in mappings) {
+                    if (mappings[key] === select.id) {
+                        pairedId = key;
+                        break;
+                    }
+                }
+            }
+
+            if (pairedId) {
+                const pairedEl = document.getElementById(pairedId);
+                if (pairedEl) {
+                    let exists = false;
+                    for (let i = 0; i < pairedEl.options.length; i++) {
+                        if (pairedEl.options[i].value === cleanVal) {
+                            exists = true;
+                            break;
+                        }
+                    }
+                    if (!exists) {
+                        const newOption = document.createElement("option");
+                        newOption.text = cleanVal;
+                        newOption.value = cleanVal;
+                        pairedEl.add(newOption);
+                    }
+                }
+            }
+            
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            select.dispatchEvent(new Event('input', { bubbles: true }));
+        };
+
+        const addNewChoice = (val) => {
+            commitChoice(val);
+            hideDropdown();
+        };
+
+        let highlightedIndex = -1;
+        let visibleItems = [];
+
+        const renderDropdownItems = (filterText = '') => {
+            dropdown.innerHTML = '';
+            visibleItems = [];
+            
+            // Read current options in real-time
+            const options = Array.from(select.options).filter(opt => opt.dataset.isTempOpt !== "true" && opt.value !== "");
+            const search = filterText.toLowerCase().trim();
+            
+            const matchingOptions = options.filter(opt => {
+                const text = opt.text.toLowerCase();
+                const value = opt.value.toLowerCase();
+                return text.includes(search) || value.includes(search);
+            });
+
+            matchingOptions.forEach((opt, index) => {
+                const item = document.createElement('div');
+                item.className = 'editable-select-dropdown-item';
+                item.textContent = opt.text || opt.value;
+                
+                item.addEventListener('mouseenter', () => {
+                    setHighlightedIndex(index);
+                });
+
+                item.addEventListener('mousedown', (e) => {
+                    e.preventDefault(); // Prevent input from blurring
+                    selectValue(opt.value);
+                });
+
+                dropdown.appendChild(item);
+                visibleItems.push({ element: item, value: opt.value });
+            });
+
+            // If there is no exact match for the typed text, show "Add new choice"
+            const exactMatch = options.some(opt => opt.value.toLowerCase().trim() === search);
+            if (filterText.trim() !== '' && !exactMatch) {
+                const addChoiceText = filterText.trim();
+                const item = document.createElement('div');
+                item.className = 'editable-select-dropdown-item';
+                item.innerHTML = `➕ Add <strong>"${addChoiceText}"</strong>`;
+                
+                const index = visibleItems.length;
+                
+                item.addEventListener('mouseenter', () => {
+                    setHighlightedIndex(index);
+                });
+
+                item.addEventListener('mousedown', (e) => {
+                    e.preventDefault(); // Prevent input from blurring
+                    addNewChoice(addChoiceText);
+                });
+
+                dropdown.appendChild(item);
+                visibleItems.push({ element: item, value: addChoiceText, isAddNew: true });
+            }
+
+            // If absolutely no options are displayed
+            if (visibleItems.length === 0) {
+                const noResult = document.createElement('div');
+                noResult.className = 'editable-select-dropdown-no-results';
+                noResult.textContent = 'No matching options';
+                dropdown.appendChild(noResult);
+                highlightedIndex = -1;
+                return;
+            }
+
+            setHighlightedIndex(0);
+        };
+
+        const setHighlightedIndex = (index) => {
+            if (highlightedIndex >= 0 && highlightedIndex < visibleItems.length) {
+                visibleItems[highlightedIndex].element.classList.remove('highlighted');
+            }
+            highlightedIndex = index;
+            if (highlightedIndex >= 0 && highlightedIndex < visibleItems.length) {
+                const current = visibleItems[highlightedIndex].element;
+                current.classList.add('highlighted');
+                current.scrollIntoView({ block: 'nearest' });
+            }
+        };
+
+        const selectValue = (val) => {
+            input.value = val;
+            syncInputToSelect();
+            hideDropdown();
+        };
+
+        const showDropdown = () => {
+            dropdown.style.display = 'block';
+            renderDropdownItems(input.value);
+            document.addEventListener('mousedown', closeOnOutsideClick);
+            
             select.style.borderColor = 'var(--blue-600)';
             select.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+        };
+
+        const hideDropdown = () => {
+            dropdown.style.display = 'none';
+            document.removeEventListener('mousedown', closeOnOutsideClick);
+            highlightedIndex = -1;
+            
+            if (document.activeElement !== input) {
+                select.style.borderColor = '';
+                select.style.boxShadow = '';
+            }
+        };
+
+        const closeOnOutsideClick = (e) => {
+            if (!wrapper.contains(e.target)) {
+                hideDropdown();
+            }
+        };
+
+        // Event listeners
+        select.addEventListener('change', syncSelectToInput);
+        
+        input.addEventListener('input', () => {
+            syncInputToSelect();
+            showDropdown();
         });
+
+        input.addEventListener('focus', () => {
+            showDropdown();
+        });
+
         input.addEventListener('blur', () => {
+            commitChoice(input.value);
+            hideDropdown();
             select.style.borderColor = '';
             select.style.boxShadow = '';
+        });
+
+        // Toggle dropdown when clicking the wrapper/arrow (excluding the dropdown itself)
+        wrapper.addEventListener('mousedown', (e) => {
+            if (dropdown.contains(e.target)) return;
+            if (e.target === input) return;
+            
+            e.preventDefault(); // Prevent input from blurring or changing focus
+            if (dropdown.style.display === 'block') {
+                hideDropdown();
+                input.blur();
+            } else {
+                input.focus();
+                showDropdown();
+            }
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (dropdown.style.display === 'block') {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    let nextIndex = highlightedIndex + 1;
+                    if (nextIndex >= visibleItems.length) nextIndex = 0;
+                    setHighlightedIndex(nextIndex);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    let prevIndex = highlightedIndex - 1;
+                    if (prevIndex < 0) prevIndex = visibleItems.length - 1;
+                    setHighlightedIndex(prevIndex);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (highlightedIndex >= 0 && highlightedIndex < visibleItems.length) {
+                        const itemObj = visibleItems[highlightedIndex];
+                        if (itemObj.isAddNew) {
+                            addNewChoice(itemObj.value);
+                        } else {
+                            selectValue(itemObj.value);
+                        }
+                    } else {
+                        commitChoice(input.value);
+                        hideDropdown();
+                    }
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    hideDropdown();
+                    input.blur();
+                }
+            } else {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    showDropdown();
+                }
+            }
         });
 
         // Overwrite value property descriptor to catch programmatic changes
@@ -2222,6 +2578,24 @@
                 input.value = val;
             }
         });
+
+        // Overwrite selectedIndex property descriptor to catch programmatic changes
+        const originalSelectedIndexProp = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'selectedIndex');
+        Object.defineProperty(select, 'selectedIndex', {
+            get: function() {
+                return originalSelectedIndexProp.get.call(this);
+            },
+            set: function(idx) {
+                originalSelectedIndexProp.set.call(this, idx);
+                input.value = this.value;
+            }
+        });
+
+        // Watch for dynamic changes to select options
+        const observer = new MutationObserver(() => {
+            syncSelectToInput();
+        });
+        observer.observe(select, { childList: true, subtree: true });
 
         // Initial sync
         syncSelectToInput();
@@ -6859,6 +7233,138 @@ async function exportStylizedExcel() {
         });
     });
 }
+
+// Browser-based Automated Test Suite (runs only when ?test=true is in the URL)
+window.addEventListener('load', () => {
+    if (!window.location.search.includes('test=true')) return;
+    
+    console.log("Starting editable select tests...");
+    const results = [];
+    const assert = (condition, message) => {
+        results.push({ success: !!condition, message });
+        console.log((condition ? "✅ PASS: " : "❌ FAIL: ") + message);
+    };
+
+    try {
+        // Test 1: Verification of editable selects initialization
+        const selects = document.querySelectorAll('select');
+        assert(selects.length > 0, `Found ${selects.length} select elements on the page.`);
+        
+        const firstSelect = selects[0];
+        const wrapper = firstSelect.parentNode;
+        assert(wrapper.classList.contains('editable-select-wrapper'), "Select elements should be wrapped in an editable-select-wrapper.");
+        
+        const overlayInput = wrapper.querySelector('.editable-select-input');
+        assert(overlayInput !== null, "Select elements should have an overlay text input.");
+
+        // Test 2: Sizing fallback check for initially hidden select elements
+        const hiddenSelect = document.getElementById('run_contractor');
+        assert(hiddenSelect !== null, "Found run_contractor select element.");
+        const hiddenWrapper = hiddenSelect.parentNode;
+        assert(hiddenWrapper.style.width === '100%' || hiddenWrapper.style.width.includes('px'), `Hidden select wrapper width is initialized to: ${hiddenWrapper.style.width}`);
+        
+        const hiddenInput = hiddenWrapper.querySelector('.editable-select-input');
+        assert(hiddenInput.style.fontSize === '0.9rem' || hiddenInput.style.fontSize.includes('px'), `Hidden select input font size is initialized to: ${hiddenInput.style.fontSize}`);
+
+        // Test 3: Typing and adding custom options on-the-fly
+        const contractorInput = document.getElementById('run_contractor').parentNode.querySelector('.editable-select-input');
+        const contractorSelect = document.getElementById('run_contractor');
+        const overrideSelect = document.getElementById('layer_override_contractor');
+        
+        assert(contractorInput !== null, "Found Drilling Contractor input overlay.");
+        
+        // Set the value as if typing
+        contractorInput.value = "New Test Contractor Co.";
+        contractorInput.dispatchEvent(new Event('input', { bubbles: true }));
+        
+        // Verify temp option holds the value
+        let tempOpt = Array.from(contractorSelect.options).find(o => o.dataset.isTempOpt === "true");
+        assert(tempOpt && tempOpt.value === "New Test Contractor Co.", "Temporary option should hold the typed value as we type.");
+        
+        // Trigger blur to commit the choice permanently
+        contractorInput.dispatchEvent(new Event('blur', { bubbles: true }));
+        
+        // Verify option is now permanent (not temp)
+        let permOpt = Array.from(contractorSelect.options).find(o => o.value === "New Test Contractor Co." && o.dataset.isTempOpt !== "true");
+        assert(permOpt !== undefined, "Typed option should be committed as a permanent choice on blur.");
+        
+        // Test 4: Syncing to paired field
+        let overridePermOpt = Array.from(overrideSelect.options).find(o => o.value === "New Test Contractor Co.");
+        assert(overridePermOpt !== undefined, "Committed custom choice should propagate to the paired layer override dropdown.");
+
+        // Test 5: Programmatic changes sync (selectedIndex / clear)
+        contractorSelect.selectedIndex = 0;
+        assert(contractorInput.value === contractorSelect.value, `Changing selectedIndex programmatically should update input value to: ${contractorSelect.value}`);
+        
+        // Restore
+        contractorSelect.value = "New Test Contractor Co.";
+        assert(contractorInput.value === "New Test Contractor Co.", "Changing value property descriptor programmatically should update input value.");
+
+    } catch (err) {
+        assert(false, "Test suite crashed with error: " + err.message);
+    }
+
+    // Render test results panel in the UI
+    const panel = document.createElement('div');
+    panel.style.position = 'fixed';
+    panel.style.top = '20px';
+    panel.style.right = '20px';
+    panel.style.width = '380px';
+    panel.style.maxHeight = '80vh';
+    panel.style.overflowY = 'auto';
+    panel.style.backgroundColor = 'rgba(15, 23, 42, 0.95)';
+    panel.style.backdropFilter = 'blur(10px)';
+    panel.style.color = '#f8fafc';
+    panel.style.padding = '1.5rem';
+    panel.style.borderRadius = '12px';
+    panel.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.5)';
+    panel.style.zIndex = '999999';
+    panel.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+    panel.style.fontSize = '0.9rem';
+    panel.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+
+    const title = document.createElement('h3');
+    title.style.margin = '0 0 1rem 0';
+    title.style.fontSize = '1.1rem';
+    title.style.fontWeight = 'bold';
+    title.style.borderBottom = '1px solid rgba(255, 255, 255, 0.2)';
+    title.style.paddingBottom = '0.5rem';
+    title.textContent = 'Dropdown Integration Test Suite';
+    panel.appendChild(title);
+
+    results.forEach(res => {
+        const row = document.createElement('div');
+        row.style.margin = '0.5rem 0';
+        row.style.display = 'flex';
+        row.style.alignItems = 'flex-start';
+        row.style.gap = '0.5rem';
+        
+        const badge = document.createElement('span');
+        badge.style.padding = '2px 6px';
+        badge.style.borderRadius = '4px';
+        badge.style.fontSize = '0.75rem';
+        badge.style.fontWeight = 'bold';
+        badge.style.flexShrink = '0';
+        if (res.success) {
+            badge.style.backgroundColor = '#10b981';
+            badge.style.color = '#ffffff';
+            badge.textContent = 'PASS';
+        } else {
+            badge.style.backgroundColor = '#ef4444';
+            badge.style.color = '#ffffff';
+            badge.textContent = 'FAIL';
+        }
+        row.appendChild(badge);
+
+        const msg = document.createElement('span');
+        msg.textContent = res.message;
+        row.appendChild(msg);
+
+        panel.appendChild(row);
+    });
+
+    document.body.appendChild(panel);
+});
 
 </script>
 </body>
