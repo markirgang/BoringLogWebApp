@@ -131,6 +131,8 @@
         .btn-success:hover { background: var(--emerald-700); }
         .btn-primary { background: var(--blue-600); color: white; }
         .btn-primary:hover { background: var(--blue-700); }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
         
         .btn-small {
             padding: 0.25rem 0.5rem;
@@ -2021,7 +2023,14 @@
                         <span style="margin-right: 0.5rem;">⬆️ 📊</span> Import Job Data from Workbook
                     </button>
                 </div>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <span style="font-weight: 700; color: #dc2626; font-size: 0.95rem;">Clear all current project logs and input fields.</span>
+                    <button class="btn btn-danger" id="clearDataBtn" style="padding: 0.75rem 1.5rem; font-size: 1rem;" onclick="clearAllSampleData()">
+                        <span style="margin-right: 0.5rem;">🗑️ ❌</span> Clear Project Data
+                    </button>
+                </div>
             </div>
+            
         </div>
         
         <div style="margin-top: 3rem; border-top: 2px dashed var(--slate-300); padding-top: 2rem;">
@@ -4938,6 +4947,82 @@
         };
         reader.readAsArrayBuffer(file);
     });
+
+    function clearAllSampleData() {
+        if (!confirm("Are you sure you want to clear all project and sample data? This will erase all logs, layers, and project info, but keep dropdown option lists.")) {
+            return;
+        }
+
+        // 1. Clear state arrays
+        datasetProfiles = [];
+        datasetRuns = [];
+        boringGPSMap = {};
+        boringDefaultsMap = {};
+        boringOverridesMap = {};
+        boringGWMap = {};
+
+        // 2. Clear all input elements (text, number, date, textarea)
+        const inputs = document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], textarea');
+        inputs.forEach(input => {
+            if (input.id === 'export_date') return; // Preserve export date widget
+            input.value = '';
+        });
+
+        // 3. Reset all select elements (dropdowns)
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            // Keep option elements intact, just reset the selection
+            const hasEmptyOption = Array.from(select.options).some(o => o.value === '');
+            if (hasEmptyOption) {
+                select.value = '';
+            } else if (select.options.length > 0) {
+                let defaultIdx = -1;
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].defaultSelected) {
+                        defaultIdx = i;
+                        break;
+                    }
+                }
+                if (defaultIdx !== -1) {
+                    select.selectedIndex = defaultIdx;
+                } else {
+                    select.selectedIndex = 0;
+                }
+            }
+        });
+
+        // 4. Rebuild boring default and groundwater maps
+        rebuildBoringMapsFromDatasets();
+        
+        // 5. Sync/Reset UI
+        const currentBoringSelect = document.getElementById('run_boring_id');
+        const currentBoring = currentBoringSelect ? currentBoringSelect.value : 'B-1';
+        syncUIToBoringFields(currentBoring);
+        
+        // Explicitly update rel_sample_id to match the newly selected run_id value
+        const runIdSelect = document.getElementById('run_id');
+        const relSampleSelect = document.getElementById('rel_sample_id');
+        if (runIdSelect && relSampleSelect) {
+            const val = runIdSelect.value || 'S-1';
+            relSampleSelect.innerHTML = `<option value="${val}" selected>${val}</option>`;
+            relSampleSelect.value = val;
+        }
+        
+        if (typeof loadCurrentRunData === 'function') loadCurrentRunData();
+        updateBlowcountPlaceholders();
+
+        // 6. Refresh UI components
+        if (typeof populateSampleDropdown === 'function') populateSampleDropdown();
+        if (typeof renderProfilesTable === 'function') renderProfilesTable();
+        if (typeof renderRunsTable === 'function') renderRunsTable();
+        if (typeof renderMergedBoringInfoTable === 'function') renderMergedBoringInfoTable();
+        if (typeof calculateGeotechOutputs === 'function') calculateGeotechOutputs();
+        if (typeof renderBurmisterTable === 'function') renderBurmisterTable();
+        if (typeof renderStackingReport === 'function') renderStackingReport();
+        if (typeof renderBoringMapTab === 'function') renderBoringMapTab();
+
+        alert("All project and sample data has been cleared.");
+    }
 
     // Run baseline initialization loops on system load
     rebuildBoringMapsFromDatasets();
