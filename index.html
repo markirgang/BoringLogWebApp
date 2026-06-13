@@ -487,6 +487,15 @@
                 padding: 0.45rem 0.6rem !important;
             }
         }
+        
+        /* Editable Select Styles */
+        select option {
+            color: #334155 !important;
+            background-color: #ffffff !important;
+        }
+        .editable-select-input:focus {
+            outline: none !important;
+        }
     </style>
 <link rel="icon" href="data:,">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -2063,6 +2072,169 @@
 </div>
 
 <script>
+    function makeSelectEditable(select) {
+        if (!select || select.dataset.editableInitialized) return;
+        select.dataset.editableInitialized = "true";
+
+        // Get select computed style before modifying
+        const selectStyle = window.getComputedStyle(select);
+
+        // 1. Create wrapper
+        const wrapper = document.createElement('div');
+        wrapper.className = 'editable-select-wrapper';
+        wrapper.style.position = 'relative';
+        wrapper.style.display = 'inline-flex';
+        wrapper.style.width = select.style.width || selectStyle.width || '100%';
+        wrapper.style.flex = select.style.flex || selectStyle.flex;
+        wrapper.style.flexGrow = selectStyle.flexGrow;
+        wrapper.style.flexShrink = selectStyle.flexShrink;
+        wrapper.style.flexBasis = selectStyle.flexBasis;
+        wrapper.style.margin = selectStyle.margin;
+
+        // Insert wrapper before select and move select inside
+        select.parentNode.insertBefore(wrapper, select);
+        wrapper.appendChild(select);
+
+        // Style select to occupy full wrapper and look like a dropdown button
+        select.style.width = '100%';
+        select.style.boxSizing = 'border-box';
+        select.style.color = 'transparent';
+
+        // 2. Create text input overlay
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'editable-select-input';
+
+        // Position input overlay directly over the select's text area
+        input.style.position = 'absolute';
+        input.style.left = '8px'; // standard select padding offset
+        input.style.top = '50%';
+        input.style.transform = 'translateY(-50%)';
+        input.style.width = 'calc(100% - 32px)'; // leave 32px for the arrow on the right
+        input.style.border = 'none';
+        input.style.outline = 'none';
+        input.style.background = 'transparent';
+        input.style.zIndex = '2';
+        input.style.boxSizing = 'border-box';
+
+        // Copy font styles from the select to the input
+        input.style.fontFamily = selectStyle.fontFamily;
+        input.style.fontSize = selectStyle.fontSize;
+        input.style.fontWeight = selectStyle.fontWeight;
+        input.style.color = selectStyle.color === 'transparent' ? '#334155' : selectStyle.color;
+
+        // Match background and border-radius to match select
+        input.style.backgroundColor = selectStyle.backgroundColor === 'rgba(0, 0, 0, 0)' || selectStyle.backgroundColor === 'transparent' ? '#ffffff' : selectStyle.backgroundColor;
+        input.style.borderRadius = selectStyle.borderRadius;
+
+        wrapper.appendChild(input);
+
+        // 3. Create/retrieve temporary option helper
+        const getOrCreateTempOpt = () => {
+            let found = Array.from(select.options).find(o => o.dataset.isTempOpt === "true");
+            if (!found) {
+                found = document.createElement('option');
+                found.dataset.isTempOpt = "true";
+                found.style.display = 'none';
+                select.add(found);
+            }
+            return found;
+        };
+
+        // Sync select -> input
+        const syncSelectToInput = () => {
+            input.value = select.value;
+        };
+
+        // Sync input -> select
+        const syncInputToSelect = () => {
+            const val = input.value;
+            const tempOpt = getOrCreateTempOpt();
+            let match = false;
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i] !== tempOpt && select.options[i].value === val) {
+                    match = true;
+                    break;
+                }
+            }
+            if (match) {
+                select.value = val;
+            } else {
+                tempOpt.value = val;
+                tempOpt.text = val;
+                select.value = val;
+            }
+            // Trigger events
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            select.dispatchEvent(new Event('input', { bubbles: true }));
+        };
+
+        select.addEventListener('change', syncSelectToInput);
+        input.addEventListener('input', syncInputToSelect);
+        input.addEventListener('change', syncInputToSelect);
+
+        // Double click to open dropdown
+        input.addEventListener('dblclick', () => {
+            if (typeof select.showPicker === 'function') {
+                try { select.showPicker(); } catch (err) {}
+            }
+        });
+
+        // Key down arrow to open dropdown
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown') {
+                if (typeof select.showPicker === 'function') {
+                    try { select.showPicker(); e.preventDefault(); } catch (err) {}
+                }
+            }
+        });
+
+        // Focus styling
+        input.addEventListener('focus', () => {
+            select.style.borderColor = 'var(--blue-600)';
+            select.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+        });
+        input.addEventListener('blur', () => {
+            select.style.borderColor = '';
+            select.style.boxShadow = '';
+        });
+
+        // Overwrite value property descriptor to catch programmatic changes
+        const originalValueProp = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+        Object.defineProperty(select, 'value', {
+            get: function() {
+                return originalValueProp.get.call(this);
+            },
+            set: function(val) {
+                let match = false;
+                for (let i = 0; i < this.options.length; i++) {
+                    if (this.options[i].dataset.isTempOpt !== "true" && this.options[i].value === val) {
+                        match = true;
+                        break;
+                    }
+                }
+                if (!match && val !== undefined && val !== null && val !== "") {
+                    const tempOpt = getOrCreateTempOpt();
+                    tempOpt.value = val;
+                    tempOpt.text = val;
+                }
+                originalValueProp.set.call(this, val);
+                input.value = val;
+            }
+        });
+
+        // Initial sync
+        syncSelectToInput();
+    }
+
+    function initAllEditableSelects() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            // Exclude tab-cover select elements or standard choices where we don't want editable features, if any.
+            // We want to make all selects editable as it meets the general requirement.
+            makeSelectEditable(select);
+        });
+    }
 
     // Custom drop-down choice appending routine
     async function fillLocationFromGPS(event) {
@@ -2857,6 +3029,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        initAllEditableSelects();
         const runBoring = document.getElementById('run_boring_id');
         const runId = document.getElementById('run_id');
         
