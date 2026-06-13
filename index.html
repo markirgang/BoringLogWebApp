@@ -1249,6 +1249,7 @@
                         <label>Core Matrix Recovery Length (inches)</label>
                         <div class="input-addon-group">
                             <select id="run_rec">
+                                <option value="0">0</option>
                                 <option value="12">12</option>
                                 <option value="14">14</option>
                                 <option value="16">16</option>
@@ -5009,6 +5010,32 @@
         }
         
         if (typeof loadCurrentRunData === 'function') loadCurrentRunData();
+
+        // 5b. Force Boring Run fields to zero (blowcounts, depths, core recovery size)
+        const zeroInputs = {
+            'run_start': '0.0',
+            'run_end': '0.0',
+            'run_bc_1': '0',
+            'run_bc_2': '0',
+            'run_bc_3': '0',
+            'run_bc_4': '0',
+            'run_bc_in_1': '0',
+            'run_bc_in_2': '0',
+            'run_bc_in_3': '0',
+            'run_bc_in_4': '0',
+            'run_nval': '0'
+        };
+        for (const [id, val] of Object.entries(zeroInputs)) {
+            const el = document.getElementById(id);
+            if (el) el.value = val;
+        }
+        const runRec = document.getElementById('run_rec');
+        if (runRec) {
+            runRec.value = '0';
+        }
+        if (typeof updateSampleLengthUI === 'function') {
+            updateSampleLengthUI();
+        }
         updateBlowcountPlaceholders();
 
         // 6. Refresh UI components
