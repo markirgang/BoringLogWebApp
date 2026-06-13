@@ -1,0 +1,59 @@
+@startuml
+
+skinparam linetype ortho
+
+entity "Boring (Cover Page)" as Boring {
+  * Boring ID <<PK>>
+  --
+  Project Name
+  Job Number
+  Location
+  Contractor
+  Rig Type
+  Hammer System
+  Sampler Set
+  Groundwater Depth (ft)
+  Main Form Comments
+}
+
+entity "Sample (Boring Runs)" as Sample {
+  * Sample ID <<PK>>
+  --
+  * Boring ID <<FK>>
+  Start Depth (ft)
+  End Depth (ft)
+  SPT N-Value
+  Recovery (in)
+  Field Testing Notes
+  Comments
+}
+
+entity "Layer (Profiles)" as Layer {
+  * Layer ID (Implicit)
+  --
+  * Sample ID <<FK>>
+  * Soil Type <<FK>>
+  Top Depth (ft)
+  Bottom Depth (ft)
+  Moisture Condition
+  Comments
+}
+
+entity "Soil Type Reference" as SoilType {
+  * Major Soil Type / Material Profile <<PK>>
+  --
+  Behavior
+  Cohesionless Min N
+  Cohesionless Max N
+  Density Status
+  Max Weight (pcf)
+  Min Weight (pcf)
+  Observed In Samples (Dynamically Calculated)
+}
+
+Boring ||--o{ Sample : 1 to Many
+Sample ||--o{ Layer : 1 to Many
+SoilType ||--o{ Layer : 1 to Many
+Sample }o..o{ SoilType : Many to Many
+
+@enduml
