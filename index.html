@@ -563,14 +563,14 @@
         <div class="tab-bar" style="border-bottom: none; flex: 1;">
             <button class="tab-btn active" onclick="switchTab(event, 'tab-cover')">1. Job</button>
             <button class="tab-btn" onclick="switchTab(event, 'tab-boring-info')">2. Boring Information</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-summary')">📊 3. Summary</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-stacking')">4. Stack</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-reference')">📖 5. Ref</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-digsafe')">🚜 6. DigSafe</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-export')">📤 7. Import/Export</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-boring-map')">🗺️ 8. Location Map</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-horizontal-stack')">↔️ 9. Horizontal Stack</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-presentation-log')">📄 10. Presentation Log</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-summary')">📊 3. Boring Summary</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-layer-description')">📄 4. Layer Description</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-stacking')">5. Stack</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-reference')">📖 6. Ref</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-digsafe')">🚜 7. DigSafe</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-export')">📤 8. Import/Export</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-boring-map')">🗺️ 9. Location Map</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-horizontal-stack')">↔️ 10. Horizontal Stack</button>
         </div>
 
 
@@ -1736,7 +1736,7 @@
     <div id="tab-summary" class="tab-content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
             <div>
-                <h3 style="margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--slate-800);">Boring & Layer Summary</h3>
+                <h3 style="margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--slate-800);">Boring Summary</h3>
                 <p style="margin:0; font-size:0.85rem; color:#64748b;">Read-only combined summary of all layers and their corresponding sample runs</p>
             </div>
             <div style="display: flex; align-items: center; gap: 0.75rem;">
@@ -1745,7 +1745,7 @@
             </div>
         </div>
 
-        <div class="table-container">
+        <div id="summaryTableContainer" class="table-container">
             <table>
                 <thead>
                     <tr style="background-color: var(--slate-100);">
@@ -1776,6 +1776,23 @@
                     <!-- Populated dynamically -->
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <div id="tab-layer-description" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h2 style="font-size: 1.75rem; font-weight: 800; margin: 0; color: var(--slate-800);">Layer Description</h2>
+                <p style="margin:0; font-size:0.85rem; color:#64748b;">Presentation format summary of all borings, samples, and layers with full Burmister descriptions</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <h1 style="font-size: 2.2rem; margin: 0; color: var(--slate-800); white-space: nowrap; font-weight: 700;">StrataPro</h1>
+                <img src="CarenHeadShot.jpg" alt="Caren Headshot" style="width: 56px; height: 56px; object-fit: cover; border-radius: 50%; border: 2px solid var(--slate-800);" />
+            </div>
+        </div>
+        
+        <div id="presentationLogContainer" style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- Rendered via JS -->
         </div>
     </div>
 
@@ -1908,21 +1925,6 @@
             </div>
         </div>
 
-    <div id="tab-presentation-log" class="tab-content">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 1rem;">
-            <h2 style="font-size: 1.75rem; font-weight: 800; margin: 0; color: var(--slate-800);">Presentation Log</h2>
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <h1 style="font-size: 2.2rem; margin: 0; color: var(--slate-800); white-space: nowrap; font-weight: 700;">StrataPro</h1>
-                <img src="CarenHeadShot.jpg" alt="Caren Headshot" style="width: 56px; height: 56px; object-fit: cover; border-radius: 50%; border: 2px solid var(--slate-800);" />
-            </div>
-        </div>
-        <p style="color: var(--slate-600); margin-bottom: 1.5rem;">A beautiful presentation summary of all borings, samples, and layers with full Burmister descriptions.</p>
-        
-        <div id="presentationLogContainer" style="display: flex; flex-direction: column; gap: 2rem;">
-            <!-- Rendered via JS -->
-        </div>
-    </div>
-
         <p>Horizontal visual representation of borings, their samples, and layers based on depth.</p>
         
         <div class="stacking-legend" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; padding: 1rem; background: white; border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem;">
@@ -1941,6 +1943,8 @@
             <!-- Dynamically populated by JS -->
         </div>
     </div>
+
+
 
     <div id="tab-digsafe" class="tab-content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
@@ -2878,6 +2882,8 @@
 
         if (tabId === 'tab-stacking') {
             renderStackingReport();
+        } else if (tabId === 'tab-layer-description') {
+            if (typeof renderPresentationLog === 'function') renderPresentationLog();
         } else if (tabId === 'tab-boring-info') {
             renderMergedBoringInfoTable();
         } else if (tabId === 'tab-boring-map') {
@@ -7598,6 +7604,91 @@ window.addEventListener('load', () => {
 
     document.body.appendChild(panel);
 });
+
+    function renderPresentationLog() {
+        const container = document.getElementById('presentationLogContainer');
+        if (!container) return;
+        
+        let borings = {};
+        
+        datasetRuns.forEach(r => {
+            let bId = r["Boring ID"];
+            if (!borings[bId]) borings[bId] = [];
+            borings[bId].push({...r});
+        });
+
+        let layersBySample = {};
+        datasetProfiles.forEach(layer => {
+            let sId = layer["Sample ID"];
+            if (!layersBySample[sId]) layersBySample[sId] = [];
+            layersBySample[sId].push({...layer});
+        });
+
+        let html = '';
+        let boringIds = Object.keys(borings).sort();
+        
+        boringIds.forEach(bId => {
+            let runs = borings[bId];
+            runs.sort((a, b) => a["Start Depth (ft)"] - b["Start Depth (ft)"]);
+            
+            let runsHtml = '';
+            runs.forEach(run => {
+                let sampleFullId = run["Sample ID"];
+                if (!sampleFullId.startsWith(run["Boring ID"])) {
+                    sampleFullId = run["Boring ID"] + sampleFullId;
+                }
+                
+                let startDepth = run["Start Depth (ft)"];
+                let endDepth = run["End Depth (ft)"];
+                let nVal = run["SPT N-Value"];
+                let rec = run["Recovery (in)"];
+                
+                let layers = layersBySample[sampleFullId] || [];
+                layers.sort((a, b) => a["Top Depth (ft)"] - b["Top Depth (ft)"]);
+                
+                let layersHtml = '';
+                layers.forEach(layer => {
+                    let desc = generateBurmisterDescription(layer);
+                    layersHtml += `
+                        <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem; padding-left: 1rem;">
+                            <div style="width: 100px; font-size: 0.95rem; font-weight: bold; color: #1d4ed8; flex-shrink: 0;">${Number(layer["Top Depth (ft)"]).toFixed(1)}' - ${Number(layer["Bottom Depth (ft)"]).toFixed(1)}'</div>
+                            <div style="font-size: 0.95rem; color: #334155;">${desc}</div>
+                        </div>
+                    `;
+                });
+                
+                if (layers.length === 0) {
+                    layersHtml = `<div style="padding-left: 1rem; color: #94a3b8; font-style: italic; font-size: 0.95rem; margin-bottom: 0.5rem;">No layers defined for this sample</div>`;
+                }
+                
+                runsHtml += `
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="background: #f1f5f9; padding: 0.5rem 1rem; font-weight: bold; color: #1e293b; margin-bottom: 0.75rem;">
+                            ${sampleFullId} (${Number(startDepth).toFixed(1)}' - ${Number(endDepth).toFixed(1)}') | N-Value: ${nVal} | Recovery: ${rec}"
+                        </div>
+                        ${layersHtml}
+                    </div>
+                `;
+            });
+            
+            html += `
+                <div style="margin-bottom: 3rem;">
+                    <div style="font-size: 1.25rem; font-weight: bold; color: #1e293b; border-bottom: 2px solid #2563eb; padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+                        Boring: ${bId}
+                    </div>
+                    <div style="padding-left: 0.5rem;">
+                        ${runsHtml || '<p style="color: #94a3b8; font-style: italic;">No samples recorded</p>'}
+                    </div>
+                </div>
+            `;
+        });
+        
+        if (boringIds.length === 0) {
+            html = '<p style="color: #64748b; font-style: italic; width: 100%; text-align: center;">No presentation data available.</p>';
+        }
+        
+        container.innerHTML = html;
+    }
 
 </script>
 </body>
