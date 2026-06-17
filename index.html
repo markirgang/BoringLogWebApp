@@ -569,6 +569,7 @@
             <button class="tab-btn" onclick="switchTab(event, 'tab-digsafe')">🚜 6. DigSafe</button>
             <button class="tab-btn" onclick="switchTab(event, 'tab-export')">📤 7. Import/Export</button>
             <button class="tab-btn" onclick="switchTab(event, 'tab-boring-map')">🗺️ 8. Location Map</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-horizontal-stack')">↔️ 9. Horizontal Stack</button>
         </div>
 
 
@@ -1897,6 +1898,33 @@
         </div>
     </div>
 
+    <div id="tab-horizontal-stack" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+            <h3 style="margin: 0; font-size: 1.5rem; font-weight: 800;">Horizontal Stacking Report</h3>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <h1 style="font-size: 2.2rem; margin: 0; color: var(--slate-800); white-space: nowrap; font-weight: 700;">StrataPro</h1>
+                <img src="CarenHeadShot.jpg" alt="Caren Headshot" style="width: 56px; height: 56px; object-fit: cover; border-radius: 50%; border: 2px solid var(--slate-800);" />
+            </div>
+        </div>
+        <p>Horizontal visual representation of borings, their samples, and layers based on depth.</p>
+        
+        <div class="stacking-legend" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; padding: 1rem; background: white; border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem;">
+            <div style="font-weight: bold; width: 100%; margin-bottom: 0.5rem;">Soil Graphics Legend:</div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;"><div class="soil-graphic-asphalt" style="width: 20px; height: 20px; border: 1px solid #94a3b8; border-radius: 2px;"></div> Asphalt</div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;"><div class="soil-graphic-topsoil" style="width: 20px; height: 20px; border: 1px solid #94a3b8; border-radius: 2px;"></div> Topsoil</div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;"><div class="soil-graphic-fill" style="width: 20px; height: 20px; border: 1px solid #94a3b8; border-radius: 2px;"></div> Fill/Reworked</div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;"><div class="soil-graphic-fine-sand" style="width: 20px; height: 20px; border: 1px solid #94a3b8; border-radius: 2px;"></div> Fine Sand</div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;"><div class="soil-graphic-medium-sand" style="width: 20px; height: 20px; border: 1px solid #94a3b8; border-radius: 2px;"></div> Fine/Med Sand</div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;"><div class="soil-graphic-silty-sand" style="width: 20px; height: 20px; border: 1px solid #94a3b8; border-radius: 2px;"></div> Silty Sand</div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;"><div class="soil-graphic-clay-silt" style="width: 20px; height: 20px; border: 1px solid #94a3b8; border-radius: 2px;"></div> Clay/Silt</div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;"><div class="soil-graphic-base-course" style="width: 20px; height: 20px; border: 1px solid #94a3b8; border-radius: 2px;"></div> Base Course/Gravel</div>
+        </div>
+
+        <div id="horizontalStackingReportContainer" class="horizontal-stacking-report-container" style="display: flex; flex-direction: column; gap: 1rem; overflow-x: auto; padding: 1rem 0; min-height: 400px;">
+            <!-- Dynamically populated by JS -->
+        </div>
+    </div>
+
     <div id="tab-digsafe" class="tab-content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
             <h3 style="margin: 0; font-size: 1.5rem; font-weight: 800;">DigSafe/Call Before You Dig</h3>
@@ -2837,6 +2865,8 @@
             renderMergedBoringInfoTable();
         } else if (tabId === 'tab-boring-map') {
             renderBoringMapTab();
+        } else if (tabId === 'tab-horizontal-stack') {
+            if (typeof renderHorizontalStackingReport === 'function') renderHorizontalStackingReport();
         }
     }
 
@@ -4918,6 +4948,7 @@
     function calculateGeotechOutputs() {
         try {
             renderStackingReport();
+            if (typeof renderHorizontalStackingReport === 'function') renderHorizontalStackingReport();
         } catch(e) {
             console.error("Stacking report error", e);
         }
@@ -5065,6 +5096,120 @@
         if (boringIds.length === 0) {
             html = '<p style="color: #64748b; font-style: italic; width: 100%; text-align: center;">No boring data available to stack.</p>';
         }
+        
+        container.innerHTML = html;
+    }
+
+    function renderHorizontalStackingReport() {
+        const container = document.getElementById('horizontalStackingReportContainer');
+        if (!container) return;
+        
+        let borings = {};
+        let maxDepthFt = 0;
+        
+        // Group runs (samples) by boring to find max depth
+        datasetRuns.forEach(r => {
+            let bId = r["Boring ID"];
+            if (!borings[bId]) borings[bId] = [];
+            borings[bId].push({...r});
+            if (r["End Depth (in)"] / 12 > maxDepthFt) {
+                maxDepthFt = r["End Depth (in)"] / 12;
+            }
+        });
+
+        // Group layers by boring as well
+        let layersByBoring = {};
+        datasetProfiles.forEach(layer => {
+            let sId = layer["Sample ID"];
+            // Extract boring ID (assuming it's the prefix of Sample ID or we find the corresponding run)
+            let matchedRun = datasetRuns.find(r => sId.startsWith(r["Boring ID"]) || r["Sample ID"] === sId);
+            let bId = matchedRun ? matchedRun["Boring ID"] : (datasetRuns[0] ? datasetRuns[0]["Boring ID"] : "");
+            
+            if (bId) {
+                if (!layersByBoring[bId]) layersByBoring[bId] = [];
+                layersByBoring[bId].push({...layer});
+                if (layer["Bottom Depth (ft)"] > maxDepthFt) {
+                    maxDepthFt = layer["Bottom Depth (ft)"];
+                }
+            }
+        });
+
+        let html = '';
+        let boringIds = Object.keys(borings).sort();
+        
+        if (boringIds.length === 0) {
+            container.innerHTML = '<p style="color: #64748b; font-style: italic; width: 100%; text-align: center;">No boring data available to stack.</p>';
+            return;
+        }
+
+        const pxPerFt = 24; // 24 pixels per foot
+        const timelineWidth = Math.max(800, maxDepthFt * pxPerFt + 100);
+
+        // Render ruler
+        let rulerHtml = `<div style="position: relative; width: ${timelineWidth}px; height: 30px; border-bottom: 2px solid #334155; margin-left: 150px; margin-bottom: 1rem;">`;
+        for (let d = 0; d <= maxDepthFt + 10; d += 5) {
+            rulerHtml += `<div style="position: absolute; left: ${d * pxPerFt}px; bottom: 0; transform: translateX(-50%); font-size: 0.8rem; font-weight: bold; color: #334155;">
+                <div style="text-align: center;">${d}'</div>
+                <div style="height: 5px; width: 1px; background: #334155; margin: 0 auto;"></div>
+            </div>`;
+        }
+        rulerHtml += `</div>`;
+        
+        html += rulerHtml;
+
+        boringIds.forEach(bId => {
+            let runs = borings[bId] || [];
+            let layers = layersByBoring[bId] || [];
+            
+            // Sort
+            runs.sort((a, b) => a["Start Depth (in)"] - b["Start Depth (in)"]);
+            layers.sort((a, b) => a["Top Depth (ft)"] - b["Top Depth (ft)"]);
+            
+            let elementsHtml = '';
+            
+            // Render samples (top tier)
+            runs.forEach(run => {
+                let sId = run["Sample ID"];
+                let sTopFt = run["Start Depth (in)"] / 12;
+                let sBottomFt = run["End Depth (in)"] / 12;
+                let w = (sBottomFt - sTopFt) * pxPerFt;
+                let l = sTopFt * pxPerFt;
+                elementsHtml += `
+                    <div style="position: absolute; left: ${l}px; width: ${w}px; top: 0; height: 20px; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 2px; font-size: 0.65rem; padding: 0 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: flex; align-items: center; justify-content: center;" title="${sId} (${run["Start Depth (in)"]} - ${run["End Depth (in)"]} in)">
+                        ${sId}
+                    </div>
+                `;
+            });
+
+            // Render layers (bottom tier)
+            layers.forEach(layer => {
+                let lTop = layer["Top Depth (ft)"];
+                let lBottom = layer["Bottom Depth (ft)"];
+                let soilType = layer["Soil Type"] || "-";
+                let desc = generateBurmisterDescription(layer);
+                let soilClass = getSoilGraphicClass(soilType);
+                
+                let w = (lBottom - lTop) * pxPerFt;
+                let l = lTop * pxPerFt;
+                
+                elementsHtml += `
+                    <div class="${soilClass}" style="position: absolute; left: ${l}px; width: ${w}px; top: 25px; height: 50px; border: 1px solid #94a3b8; border-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center;" title="${soilType} (${lTop}' - ${lBottom}')\n${desc}">
+                        <div style="background: rgba(255,255,255,0.8); padding: 0 4px; font-size: 0.7rem; font-weight: bold; border-radius: 2px; white-space: nowrap; max-width: 90%; overflow: hidden; text-overflow: ellipsis;">${soilType}</div>
+                    </div>
+                `;
+            });
+
+            html += `
+                <div class="stacking-boring-row" style="display: flex; flex-direction: row; align-items: flex-start; margin-bottom: 1.5rem;">
+                    <div class="stacking-boring-name" style="width: 150px; font-weight: 800; font-size: 1.1rem; flex-shrink: 0; padding-right: 1rem; border-right: 3px solid #cbd5e1; display: flex; align-items: center; justify-content: flex-end; color: #1e293b;">
+                        ${bId}
+                    </div>
+                    <div class="stacking-boring-timeline" style="position: relative; width: ${timelineWidth}px; height: 80px; margin-left: 10px;">
+                        ${elementsHtml}
+                    </div>
+                </div>
+            `;
+        });
         
         container.innerHTML = html;
     }
