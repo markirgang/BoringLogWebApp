@@ -570,6 +570,7 @@
             <button class="tab-btn" onclick="switchTab(event, 'tab-export')">📤 7. Import/Export</button>
             <button class="tab-btn" onclick="switchTab(event, 'tab-boring-map')">🗺️ 8. Location Map</button>
             <button class="tab-btn" onclick="switchTab(event, 'tab-horizontal-stack')">↔️ 9. Horizontal Stack</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-presentation-log')">📄 10. Presentation Log</button>
         </div>
 
 
@@ -1906,6 +1907,22 @@
                 <img src="CarenHeadShot.jpg" alt="Caren Headshot" style="width: 56px; height: 56px; object-fit: cover; border-radius: 50%; border: 2px solid var(--slate-800);" />
             </div>
         </div>
+
+    <div id="tab-presentation-log" class="tab-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 1rem;">
+            <h2 style="font-size: 1.75rem; font-weight: 800; margin: 0; color: var(--slate-800);">Presentation Log</h2>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <h1 style="font-size: 2.2rem; margin: 0; color: var(--slate-800); white-space: nowrap; font-weight: 700;">StrataPro</h1>
+                <img src="CarenHeadShot.jpg" alt="Caren Headshot" style="width: 56px; height: 56px; object-fit: cover; border-radius: 50%; border: 2px solid var(--slate-800);" />
+            </div>
+        </div>
+        <p style="color: var(--slate-600); margin-bottom: 1.5rem;">A beautiful presentation summary of all borings, samples, and layers with full Burmister descriptions.</p>
+        
+        <div id="presentationLogContainer" style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- Rendered via JS -->
+        </div>
+    </div>
+
         <p>Horizontal visual representation of borings, their samples, and layers based on depth.</p>
         
         <div class="stacking-legend" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; padding: 1rem; background: white; border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem;">
@@ -7359,6 +7376,77 @@ async function exportStylizedExcel() {
     } else {
         sheetMap.getCell('A6').value = "No GPS locations available.";
     }
+
+    
+    // 8. Presentation Log Sheet
+    const sheetPres = workbook.addWorksheet('Presentation Log');
+    sheetPres.views = [{ showGridLines: false }];
+    sheetPres.columns = [{ width: 5 }, { width: 15 }, { width: 25 }, { width: 50 }, { width: 15 }, { width: 15 }];
+    
+    // Header
+    sheetPres.mergeCells('B1:F1');
+    sheetPres.getCell('B1').value = `StrataPro 1.0 New England Region | TAB: PRESENTATION LOG`;
+    sheetPres.getCell('B1').font = { name: 'Segoe UI', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
+    sheetPres.getCell('B1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
+    sheetPres.getCell('B1').alignment = { vertical: 'middle', horizontal: 'left' };
+    sheetPres.getRow(1).height = 35;
+    
+    let presRow = 3;
+    
+    // Iterating borings
+    boringIds.forEach(bId => {
+        sheetPres.mergeCells(`B${presRow}:F${presRow}`);
+        let bCell = sheetPres.getCell(`B${presRow}`);
+        bCell.value = `Boring: ${bId}`;
+        bCell.font = { name: 'Segoe UI', size: 14, bold: true, color: { argb: 'FF1E293B' } };
+        bCell.border = { bottom: {style: 'thick', color: {argb: 'FF2563EB'}} };
+        presRow += 2;
+        
+        let runs = borings[bId] || [];
+        runs.forEach(run => {
+            let sampleFullId = run["Sample ID"];
+            if (!sampleFullId.startsWith(run["Boring ID"])) {
+                sampleFullId = run["Boring ID"] + sampleFullId;
+            }
+            let startDepth = Number(run["Start Depth (ft)"] || 0).toFixed(1);
+            let endDepth = Number(run["End Depth (ft)"] || 0).toFixed(1);
+            
+            sheetPres.mergeCells(`B${presRow}:F${presRow}`);
+            let sCell = sheetPres.getCell(`B${presRow}`);
+            sCell.value = `${sampleFullId} (${startDepth}' - ${endDepth}') | N-Value: ${run["SPT N-Value"]} | Recovery: ${run["Recovery (in)"]}"`;
+            sCell.font = { name: 'Segoe UI', size: 11, bold: true, color: { argb: 'FF1E293B' } };
+            sCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+            presRow++;
+            
+            let layers = getLayersForRun(run);
+            if (layers.length > 0) {
+                layers.forEach(layer => {
+                    let lTop = Number(layer["Top Depth (ft)"] || 0).toFixed(1);
+                    let lBottom = Number(layer["Bottom Depth (ft)"] || 0).toFixed(1);
+                    let desc = generateBurmisterDescription(layer);
+                    
+                    sheetPres.getCell(`B${presRow}`).value = ""; // margin
+                    let dCell1 = sheetPres.getCell(`C${presRow}`);
+                    dCell1.value = `${lTop}' - ${lBottom}'`;
+                    dCell1.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FF1D4ED8' } };
+                    
+                    let dCell2 = sheetPres.getCell(`D${presRow}`);
+                    dCell2.value = desc;
+                    dCell2.font = { name: 'Segoe UI', size: 10, color: { argb: 'FF334155' } };
+                    sheetPres.mergeCells(`D${presRow}:F${presRow}`);
+                    dCell2.alignment = { wrapText: true, vertical: 'top' };
+                    sheetPres.getRow(presRow).height = Math.max(20, Math.ceil(desc.length / 75) * 15);
+                    presRow++;
+                });
+            } else {
+                sheetPres.getCell(`D${presRow}`).value = "No layers defined";
+                sheetPres.getCell(`D${presRow}`).font = { name: 'Segoe UI', size: 10, italic: true, color: { argb: 'FF94A3B8' } };
+                presRow++;
+            }
+            presRow++; // space after sample
+        });
+        presRow++; // space after boring
+    });
 
     const filename = `Stylized_${projectName.replace(/\s+/g, '_')}_${dateSuffix}.xlsx`;
     workbook.xlsx.writeBuffer().then(function(buffer) {

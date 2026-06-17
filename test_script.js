@@ -346,6 +346,7 @@
     function calculateGeotechOutputs() {
         try {
             renderStackingReport();
+            try { renderPresentationLog(); } catch(e) { console.error(e); }
         } catch(e) {
             console.error("Stacking report error", e);
         }
@@ -770,3 +771,95 @@
             }
         }
     });
+
+
+    function renderPresentationLog() {
+        const container = document.getElementById('presentationLogContainer');
+        if (!container) return;
+        
+        let borings = {};
+        
+        datasetRuns.forEach(r => {
+            let bId = r["Boring ID"];
+            if (!borings[bId]) borings[bId] = [];
+            borings[bId].push({...r});
+        });
+
+        let layersBySample = {};
+        datasetProfiles.forEach(layer => {
+            let sId = layer["Sample ID"];
+            if (!layersBySample[sId]) layersBySample[sId] = [];
+            layersBySample[sId].push({...layer});
+        });
+
+        let html = '';
+        let boringIds = Object.keys(borings).sort();
+        
+        boringIds.forEach(bId => {
+            let runs = borings[bId];
+            runs.sort((a, b) => a["Start Depth (ft)"] - b["Start Depth (ft)"]);
+            
+            let runsHtml = '';
+            runs.forEach(run => {
+                let sampleFullId = run["Sample ID"];
+                if (!sampleFullId.startsWith(run["Boring ID"])) {
+                    sampleFullId = run["Boring ID"] + sampleFullId;
+                }
+                
+                let startDepth = run["Start Depth (ft)"];
+                let endDepth = run["End Depth (ft)"];
+                let nVal = run["SPT N-Value"];
+                let rec = run["Recovery (in)"];
+                
+                let layers = layersBySample[sampleFullId] || [];
+                layers.sort((a, b) => a["Top Depth (ft)"] - b["Top Depth (ft)"]);
+                
+                let layersHtml = '';
+                layers.forEach(layer => {
+                    let desc = generateBurmisterDescription(layer);
+                    let soilClass = getSoilGraphicClass(layer["Soil Type"]);
+                    layersHtml += `
+                        <div style="display: flex; border-top: 1px solid #e2e8f0;">
+                            <div class="${soilClass}" style="width: 24px; border-right: 1px solid #e2e8f0;"></div>
+                            <div style="padding: 0.5rem 1rem; flex: 1;">
+                                <div style="font-size: 0.8rem; font-weight: bold; color: var(--blue-700);">${Number(layer["Top Depth (ft)"]).toFixed(1)}' - ${Number(layer["Bottom Depth (ft)"]).toFixed(1)}'</div>
+                                <div style="font-size: 0.9rem; color: var(--slate-800);">${desc}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                if (layers.length === 0) {
+                    layersHtml = `<div style="padding: 0.5rem 1rem; color: #94a3b8; font-style: italic; font-size: 0.85rem; border-top: 1px solid #e2e8f0;">No layers defined for this sample</div>`;
+                }
+                
+                runsHtml += `
+                    <div style="margin-bottom: 1rem; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden; background: white;">
+                        <div style="background: #f1f5f9; padding: 0.5rem 1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1;">
+                            <strong style="color: var(--slate-800);">${sampleFullId} (${startDepth.toFixed(1)}' - ${endDepth.toFixed(1)}')</strong>
+                            <div style="font-size: 0.85rem; color: var(--slate-600); display: flex; gap: 1rem;">
+                                <span>N-Value: <strong style="color: var(--slate-800);">${nVal}</strong></span>
+                                <span>Recovery: <strong style="color: var(--slate-800);">${rec}"</strong></span>
+                            </div>
+                        </div>
+                        ${layersHtml}
+                    </div>
+                `;
+            });
+            
+            html += `
+                <div style="margin-bottom: 2rem; background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+                    <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.25rem; color: var(--slate-800); border-bottom: 2px solid var(--blue-600); padding-bottom: 0.5rem; display: inline-block;">Boring: ${bId}</h3>
+                    <div style="padding-left: 0.5rem;">
+                        ${runsHtml || '<p style="color: #94a3b8; font-style: italic;">No samples recorded</p>'}
+                    </div>
+                </div>
+            `;
+        });
+        
+        if (boringIds.length === 0) {
+            html = '<p style="color: #64748b; font-style: italic; width: 100%; text-align: center;">No presentation data available.</p>';
+        }
+        
+        container.innerHTML = html;
+    }
