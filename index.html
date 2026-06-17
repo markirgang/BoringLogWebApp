@@ -1770,6 +1770,7 @@
                         <th style="min-width: 250px;">Burmister Description</th>
                         <th style="min-width: 120px;">Max Unit Weight (pcf)</th>
                         <th style="min-width: 120px;">Min Unit Weight (pcf)</th>
+                        <th style="min-width: 250px;">Comments</th>
                     </tr>
                 </thead>
                 <tbody id="summaryTableBody">
@@ -4616,9 +4617,10 @@
                     <td style="min-width: 250px;"><small style="color: #4b5563; font-style: italic;">${row["Burmister Description"]}</small></td>
                     <td style="color: #b91c1c; font-weight: 600; white-space: nowrap;">${row["Max Unit Weight (pcf)"]}</td>
                     <td style="color: #b91c1c; font-weight: 600; white-space: nowrap;">${row["Min Unit Weight (pcf)"]}</td>
+                    <td style="min-width: 250px; white-space: pre-wrap;"><small style="color: #4b5563;">${row["Comments"] || ''}</small></td>
                 </tr>
                 <tr class="summary-details-row">
-                    <td colspan="21" style="background-color: #f1f5f9 !important; font-family: inherit; font-size: 0.775rem; color: #475569; padding: 0.45rem 0.8rem; border-top: none; border-bottom: 1px solid var(--border);">
+                    <td colspan="22" style="background-color: #f1f5f9 !important; font-family: inherit; font-size: 0.775rem; color: #475569; padding: 0.45rem 0.8rem; border-top: none; border-bottom: 1px solid var(--border);">
                         Drilling Contractor: ${row["Drilling Contractor"]} &nbsp;|&nbsp; 
                         Rig: ${row["Drilling Equipment Rig"]} &nbsp;|&nbsp; 
                         Hammer Setup: ${row["Hammer Setup"]} &nbsp;|&nbsp; 
@@ -6707,25 +6709,25 @@ async function exportStylizedExcel() {
         "Boring ID", "Drill Date", "Site Class", "GPS Coordinates", "Groundwater Obs 1", "Groundwater Obs 2",
         "Sample ID", "Run Depth (in)", "Blows and Inches", "N-Value", "Recovery (in)", "Field Testing (PID/PP/TV)",
         "Layer ID", "Layer Depth (ft)", "Layer Length (ft)", "Soil Type", "Color", "Moisture",
-        "Burmister Description", "Max Unit Weight (pcf)", "Min Unit Weight (pcf)"
+        "Burmister Description", "Max Unit Weight (pcf)", "Min Unit Weight (pcf)", "Comments"
     ];
 
     const summaryRows = buildSummaryRowsData();
 
-    sheetBoringSummary.mergeCells('A1:U1');
+    sheetBoringSummary.mergeCells('A1:V1');
     sheetBoringSummary.getCell('A1').value = `StrataPro 1.0 New England Region | TAB: BORINGS, SAMPLES & LAYERS SUMMARY`;
     sheetBoringSummary.getCell('A1').font = { name: 'Segoe UI', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
     sheetBoringSummary.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
     sheetBoringSummary.getCell('A1').alignment = { vertical: 'middle', horizontal: 'left' };
     sheetBoringSummary.getRow(1).height = 35;
 
-    sheetBoringSummary.mergeCells('A2:U2');
+    sheetBoringSummary.mergeCells('A2:V2');
     sheetBoringSummary.getCell('A2').value = `Job Name: ${projectName} | Job Ref: ${jobName}`;
     sheetBoringSummary.getCell('A2').font = { name: 'Segoe UI', size: 12, bold: true };
     sheetBoringSummary.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
     sheetBoringSummary.getRow(2).height = 24;
 
-    sheetBoringSummary.mergeCells('A3:U3');
+    sheetBoringSummary.mergeCells('A3:V3');
     sheetBoringSummary.getCell('A3').value = `Address: ${address}`;
     sheetBoringSummary.getCell('A3').font = { name: 'Segoe UI', size: 12, italic: true };
     sheetBoringSummary.getCell('A3').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
@@ -6740,7 +6742,7 @@ async function exportStylizedExcel() {
     sheetBoringSummary.getCell(`A${groupRow.number}`).value = "Boring Information";
     sheetBoringSummary.mergeCells(`G${groupRow.number}:L${groupRow.number}`);
     sheetBoringSummary.getCell(`G${groupRow.number}`).value = "Sample Information";
-    sheetBoringSummary.mergeCells(`M${groupRow.number}:U${groupRow.number}`);
+    sheetBoringSummary.mergeCells(`M${groupRow.number}:V${groupRow.number}`);
     sheetBoringSummary.getCell(`M${groupRow.number}`).value = "Soil Layer Profile & Classification";
 
     for (let c = 1; c <= 21; c++) {
@@ -6754,7 +6756,7 @@ async function exportStylizedExcel() {
     // Individual Column Headers in Row 6
     const headerRowSummary = sheetBoringSummary.addRow(summaryHeaders);
     headerRowSummary.height = 26;
-    for (let c = 1; c <= 21; c++) {
+    for (let c = 1; c <= 22; c++) {
         const cell = headerRowSummary.getCell(c);
         cell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF475569' } };
@@ -6796,6 +6798,7 @@ async function exportStylizedExcel() {
             else if (h === 'Burmister Description') colWidth = 40;
             else if (h === 'Max Unit Weight (pcf)') colWidth = 16;
             else if (h === 'Min Unit Weight (pcf)') colWidth = 16;
+            else if (h === 'Comments') colWidth = 40;
             
             const cellLines = val.split('\n').map(line => Math.max(1, Math.ceil(line.length / colWidth))).reduce((acc, curr) => acc + curr, 0);
             maxLines = Math.max(maxLines, cellLines);
@@ -6805,7 +6808,7 @@ async function exportStylizedExcel() {
         const isOdd = (rowIndex % 2 !== 0);
         const rowBgColor = isOdd ? 'FFF8FAFC' : 'FFFFFFFF';
 
-        for (let c = 1; c <= 21; c++) {
+        for (let c = 1; c <= 22; c++) {
             const cell = dataRow.getCell(c);
             cell.font = { name: 'Segoe UI', size: 10 };
             cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
@@ -6839,10 +6842,10 @@ async function exportStylizedExcel() {
         detailsRow.height = 20;
 
         // Merge cells A to U for the details row
-        sheetBoringSummary.mergeCells(detailsRow.number, 1, detailsRow.number, 21);
+        sheetBoringSummary.mergeCells(detailsRow.number, 1, detailsRow.number, 22);
 
         // Style the merged cell and all cells in the range (for borders)
-        for (let c = 1; c <= 21; c++) {
+        for (let c = 1; c <= 22; c++) {
             const cell = detailsRow.getCell(c);
             cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
             cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
