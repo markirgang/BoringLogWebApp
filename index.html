@@ -5425,8 +5425,9 @@
                 "Rock Hammer Wgt/Drop", "Rock Size",
                 "PID (ppm)", "Pocket Penetrometer (tsf)", "Pocket Torvane (tsf)"
             ];
-            const extraKeys = Object.keys(datasetProfiles[0]).filter(k => !profileKeys.includes(k));
-            const allProfileKeys = profileKeys.concat(extraKeys);
+            const allProfileKeysSet = new Set(profileKeys);
+            datasetProfiles.forEach(row => Object.keys(row).forEach(k => allProfileKeysSet.add(k)));
+            const allProfileKeys = Array.from(allProfileKeysSet);
             sheetProfiles.columns = allProfileKeys.map(k => ({ header: k, key: k, width: 20 }));
             sheetProfiles.addRows(datasetProfiles);
         }
@@ -5449,8 +5450,9 @@
                 "GW 2nd Moisture", "GW 2nd Depth", "GW 2nd Date", "GW 2nd Time", "GW 2nd Comment",
                 "GPS Lat", "GPS Lon", "GPS Location", "Comments"
             ];
-            const extraKeys = Object.keys(datasetRuns[0]).filter(k => !runKeys.includes(k));
-            const allRunKeys = runKeys.concat(extraKeys);
+            const allRunKeysSet = new Set(runKeys);
+            datasetRuns.forEach(row => Object.keys(row).forEach(k => allRunKeysSet.add(k)));
+            const allRunKeys = Array.from(allRunKeysSet);
             sheetRuns.columns = allRunKeys.map(k => ({ header: k, key: k, width: 20 }));
             sheetRuns.addRows(datasetRuns);
         }
@@ -7384,14 +7386,14 @@ async function exportStylizedExcel() {
     }
 
     
-    // 8. Presentation Log Sheet
-    const sheetPres = workbook.addWorksheet('Presentation Log');
+    // 8. Layers Sheet
+    const sheetPres = workbook.addWorksheet('Layers');
     sheetPres.views = [{ showGridLines: false }];
     sheetPres.columns = [{ width: 5 }, { width: 15 }, { width: 25 }, { width: 50 }, { width: 15 }, { width: 15 }];
     
     // Header
     sheetPres.mergeCells('B1:F1');
-    sheetPres.getCell('B1').value = `StrataPro 1.0 New England Region | TAB: PRESENTATION LOG`;
+    sheetPres.getCell('B1').value = `StrataPro 1.0 New England Region | TAB: LAYERS`;
     sheetPres.getCell('B1').font = { name: 'Segoe UI', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
     sheetPres.getCell('B1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
     sheetPres.getCell('B1').alignment = { vertical: 'middle', horizontal: 'left' };
