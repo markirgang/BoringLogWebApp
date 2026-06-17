@@ -7392,7 +7392,7 @@ async function exportStylizedExcel() {
     // 8. Layers Sheet
     const sheetPres = workbook.addWorksheet('Layers');
     sheetPres.views = [{ showGridLines: false }];
-    sheetPres.columns = [{ width: 5 }, { width: 15 }, { width: 25 }, { width: 50 }, { width: 15 }, { width: 15 }];
+    sheetPres.columns = [{ width: 5 }, { width: 15 }, { width: 25 }, { width: 50 }, { width: 15 }, { width: 25 }];
     
     // Header
     sheetPres.mergeCells('B1:F1');
@@ -7444,9 +7444,17 @@ async function exportStylizedExcel() {
                     let dCell2 = sheetPres.getCell(`D${presRow}`);
                     dCell2.value = desc;
                     dCell2.font = { name: 'Segoe UI', size: 10, color: { argb: 'FF334155' } };
-                    sheetPres.mergeCells(`D${presRow}:F${presRow}`);
+                    sheetPres.mergeCells(`D${presRow}:E${presRow}`);
                     dCell2.alignment = { wrapText: true, vertical: 'top' };
-                    sheetPres.getRow(presRow).height = Math.max(20, Math.ceil(desc.length / 75) * 15);
+                    
+                    let cCell = sheetPres.getCell(`F${presRow}`);
+                    cCell.value = layer["Comments"] || "";
+                    cCell.font = { name: 'Segoe UI', size: 9, italic: true, color: { argb: 'FF64748B' } };
+                    cCell.alignment = { wrapText: true, vertical: 'top' };
+
+                    let descHeight = Math.ceil(desc.length / 65) * 15;
+                    let commHeight = Math.ceil((layer["Comments"] || "").length / 30) * 15;
+                    sheetPres.getRow(presRow).height = Math.max(20, descHeight, commHeight);
                     presRow++;
                 });
             } else {
@@ -7654,10 +7662,12 @@ window.addEventListener('load', () => {
                 let layersHtml = '';
                 layers.forEach(layer => {
                     let desc = generateBurmisterDescription(layer);
+                    let comments = layer["Comments"] || '';
                     layersHtml += `
                         <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem; padding-left: 1rem;">
                             <div style="width: 100px; font-size: 0.95rem; font-weight: bold; color: #1d4ed8; flex-shrink: 0;">${Number(layer["Top Depth (ft)"]).toFixed(1)}' - ${Number(layer["Bottom Depth (ft)"]).toFixed(1)}'</div>
-                            <div style="font-size: 0.95rem; color: #334155;">${desc}</div>
+                            <div style="font-size: 0.95rem; color: #334155; flex-grow: 1;">${desc}</div>
+                            <div style="width: 250px; font-size: 0.85rem; color: #64748b; font-style: italic; flex-shrink: 0; white-space: pre-wrap;">${comments}</div>
                         </div>
                     `;
                 });
