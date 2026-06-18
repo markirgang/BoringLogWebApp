@@ -5474,7 +5474,7 @@
                 "Blowcount 3", "Blowcount 3 Inches",
                 "Blowcount 4", "Blowcount 4 Inches",
                 "Blowcount 1 (0-6)", "Blowcount 2 (6-12)", "Blowcount 3 (12-18)", "Blowcount 4 (18-24)",
-                "SPT N-Value", "Recovery (in)", "PID (ppm)", "Pocket Penetrometer (tsf)", "Pocket Torvane (tsf)",
+                "SPT N-Value", "Recovery (in)", "PID (ppm)", "Pocket Penetrometer (tsf)", "Pocket Torvane (tsf)", "Field Testing Notes",
                 "Drilling Contractor", "Drilling Equipment Rig", "Hammer Configuration Type",
                 "Sampler Setup", "Foreman", "Helper", "Bit Type", "Rod Type", "Casing",
                 "Casing Lining", "Case Diameter", "Hammer Wgt", "Hammer Drop", "Rock Hammer Type",
@@ -7450,8 +7450,8 @@ async function exportStylizedExcel() {
             if (!sampleFullId.startsWith(run["Boring ID"])) {
                 sampleFullId = run["Boring ID"] + sampleFullId;
             }
-            let startDepth = Number(run["Start Depth (ft)"] || 0).toFixed(1);
-            let endDepth = Number(run["End Depth (ft)"] || 0).toFixed(1);
+            let startDepth = Number((run["Start Depth (in)"] || 0) / 12).toFixed(1);
+            let endDepth = Number((run["End Depth (in)"] || 0) / 12).toFixed(1);
             
             sheetPres.mergeCells(`B${presRow}:F${presRow}`);
             let sCell = sheetPres.getCell(`B${presRow}`);
@@ -7673,7 +7673,7 @@ window.addEventListener('load', () => {
         
         boringIds.forEach(bId => {
             let runs = borings[bId];
-            runs.sort((a, b) => a["Start Depth (ft)"] - b["Start Depth (ft)"]);
+            runs.sort((a, b) => (a["Start Depth (in)"] || 0) - (b["Start Depth (in)"] || 0));
             
             let runsHtml = '';
             runs.forEach(run => {
@@ -7682,8 +7682,8 @@ window.addEventListener('load', () => {
                     sampleFullId = run["Boring ID"] + sampleFullId;
                 }
                 
-                let startDepth = run["Start Depth (ft)"];
-                let endDepth = run["End Depth (ft)"];
+                let startDepth = (run["Start Depth (in)"] || 0) / 12;
+                let endDepth = (run["End Depth (in)"] || 0) / 12;
                 let nVal = run["SPT N-Value"];
                 let rec = run["Recovery (in)"];
                 
