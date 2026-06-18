@@ -973,182 +973,198 @@
                             <h5 style="margin: 0; font-size: 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.2rem; color: var(--slate-800); margin-top: 0.5rem;">Drilling Parameters</h5>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Drilling Contractor</label>
-                                <select id="run_contractor" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="Seasons Environmental Drilling" selected>Seasons Environmental Drilling</option>
-                                    <option value="Brighton Boring Co.">Brighton Boring Co.</option>
-                                    <option value="Seaboard Environmental Drilling">Seaboard Environmental Drilling</option>
-                                    <option value="Martin Geo Environmental">Martin Geo Environmental</option>
-                                    <option value="Witch Enterprises">Witch Enterprises</option>
-                                    <option value="Northern Drill Service, Inc.">Northern Drill Service, Inc.</option>
-                                    <option value="Aquifer Drilling and Testing, Inc. (ADT)">Aquifer Drilling and Testing, Inc. (ADT)</option>
-                                </select>
+                                <input type="text" id="run_contractor" list="run_contractor_list" placeholder="Select or type..." autocomplete="off" style="font-size: 0.8rem; padding: 0.35rem;; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="run_contractor_list">
+                                    <option value="Seasons Environmental Drilling">
+                                    <option value="Brighton Boring Co.">
+                                    <option value="Seaboard Environmental Drilling">
+                                    <option value="Martin Geo Environmental">
+                                    <option value="Witch Enterprises">
+                                    <option value="Northern Drill Service, Inc.">
+                                    <option value="Aquifer Drilling and Testing, Inc. (ADT)">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Drilling Equipment Rig</label>
-                                <select id="run_equipment" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="Track Mounted Rig" selected>Track Mounted Rig</option>
-                                    <option value="Truck Mounted Auger">Truck Mounted Auger</option>
-                                    <option value="B-53 Truck Mounted Rig">B-53 Truck Mounted Rig</option>
-                                    <option value="B-48 Track Mounted Rig">B-48 Track Mounted Rig</option>
-                                    <option value="D-50 Track Mounted Rig">D-50 Track Mounted Rig</option>
-                                    <option value="Geoprobe 6620-DT">Geoprobe 6620-DT</option>
-                                    <option value="Geoprobe 54-DT">Geoprobe 54-DT</option>
-                                    <option value="Skid Rig">Skid Rig</option>
-                                    <option value="Central Mining Equipment Mounted Rig">Central Mining Equipment Mounted Rig</option>
-                                    <option value="Drill Press">Drill Press</option>
-                                    <option value="Hand Auger">Hand Auger</option>
-                                    <option value="None">None</option>
-                                </select>
+                                <input type="text" id="run_equipment" list="run_equipment_list" placeholder="Select or type..." autocomplete="off" style="font-size: 0.8rem; padding: 0.35rem;; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="run_equipment_list">
+                                    <option value="Track Mounted Rig">
+                                    <option value="Truck Mounted Auger">
+                                    <option value="B-53 Truck Mounted Rig">
+                                    <option value="B-48 Track Mounted Rig">
+                                    <option value="D-50 Track Mounted Rig">
+                                    <option value="Geoprobe 6620-DT">
+                                    <option value="Geoprobe 54-DT">
+                                    <option value="Skid Rig">
+                                    <option value="Central Mining Equipment Mounted Rig">
+                                    <option value="Drill Press">
+                                    <option value="Hand Auger">
+                                    <option value="None">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Hammer Configuration</label>
-                                <select id="run_hammer" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="Automatic" selected>Automatic Hammer (140 lb / 30" Drop)</option>
-                                    <option value="Safety">Safety Hammer (140 lb / 30" Wire Line)</option>
-                                    <option value="Manual / Safety">Safety Manual Hammer (140 lb)</option>
-                                    <option value="Cathead">Cathead Hammer</option>
-                                    <option value="Donut">Donut Hammer</option>
-                                    <option value="Soil Probing Hammer">Soil Probing Hammer</option>
-                                    <option value="None">None</option>
-                                </select>
+                                <input type="text" id="run_hammer" list="run_hammer_list" placeholder="Select or type..." autocomplete="off" style="font-size: 0.8rem; padding: 0.35rem;; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="run_hammer_list">
+                                    <option value="Automatic">
+                                    <option value="Safety">
+                                    <option value="Manual / Safety">
+                                    <option value="Cathead">
+                                    <option value="Donut">
+                                    <option value="Soil Probing Hammer">
+                                    <option value="None">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Sampler Setup</label>
-                                <select id="run_sampler" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="2&quot; O.D. Split Spoon" selected>2" O.D. Split Spoon</option>
-                                    <option value="3&quot; O.D. Split Spoon">3" O.D. Split Spoon</option>
-                                    <option value="3&quot; Shelby Tube">3" Shelby Tube</option>
-                                    <option value="4' Dual Tube Liner">4' Dual Tube Liner</option>
-                                    <option value="5' Dual Tube Liner">5' Dual Tube Liner</option>
-                                    <option value="None">None</option>
-                                </select>
+                                <input type="text" id="run_sampler" list="run_sampler_list" placeholder="Select or type..." autocomplete="off" style="font-size: 0.8rem; padding: 0.35rem;; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="run_sampler_list">
+                                    <option value="2&quot; O.D. Split Spoon">
+                                    <option value="3&quot; O.D. Split Spoon">
+                                    <option value="3&quot; Shelby Tube">
+                                    <option value="4' Dual Tube Liner">
+                                    <option value="5' Dual Tube Liner">
+                                    <option value="None">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Foreman</label>
-                                <select id="run_foreman" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="">Select Foreman...</option>
-                                    <option value="John Doe" selected>John Doe</option>
-                                </select>
+                                <input type="text" id="run_foreman" list="run_foreman_list" placeholder="Select or type..." autocomplete="off" style="font-size: 0.8rem; padding: 0.35rem;; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="run_foreman_list">
+                                    <option value="">
+                                    <option value="John Doe">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Helper</label>
-                                <select id="run_helper" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="">Select Helper...</option>
-                                    <option value="Jane Smith" selected>Jane Smith</option>
-                                </select>
+                                <input type="text" id="run_helper" list="run_helper_list" placeholder="Select or type..." autocomplete="off" style="font-size: 0.8rem; padding: 0.35rem;; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="run_helper_list">
+                                    <option value="">
+                                    <option value="Jane Smith">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Bit Type</label>
-                                <select id="run_bit_type" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="">Select Bit Type...</option>
-                                    <option value="Hollow Stem Auger" selected>Hollow Stem Auger</option>
-                                    <option value="Hollow Stem Auger (2.25&quot; O.D.)">Hollow Stem Auger (2.25" O.D.)</option>
-                                    <option value="Roller Bit with Wash">Roller Bit with Wash</option>
-                                    <option value="H.S.A. & Roller Bit with Wash">H.S.A. & Roller Bit with Wash</option>
-                                    <option value="Direct Push">Direct Push</option>
-                                    <option value="Hand Auger">Hand Auger</option>
-                                    <option value="Double Barrel">Double Barrel</option>
-                                    <option value="Diamond Bit">Diamond Bit</option>
-                                    <option value="Masonry Bit">Masonry Bit</option>
-                                    <option value="N/A">N/A</option>
-                                </select>
+                                <input type="text" id="run_bit_type" list="run_bit_type_list" placeholder="Select or type..." autocomplete="off" style="font-size: 0.8rem; padding: 0.35rem;; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="run_bit_type_list">
+                                    <option value="">
+                                    <option value="Hollow Stem Auger">
+                                    <option value="Hollow Stem Auger (2.25&quot; O.D.)">
+                                    <option value="Roller Bit with Wash">
+                                    <option value="H.S.A. & Roller Bit with Wash">
+                                    <option value="Direct Push">
+                                    <option value="Hand Auger">
+                                    <option value="Double Barrel">
+                                    <option value="Diamond Bit">
+                                    <option value="Masonry Bit">
+                                    <option value="N/A">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Rod Type</label>
-                                <select id="run_rod_type" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="">Select Rod Type...</option>
-                                    <option value="A (1 5/8&quot; O.D.)" selected>A (1 5/8" O.D.)</option>
-                                    <option value="N (2 3/8&quot; O.D.)">N (2 3/8" O.D.)</option>
-                                    <option value="A (1 5/8&quot; O.D.) & N (2 3/8&quot; O.D.)">A (1 5/8" O.D.) & N (2 3/8" O.D.)</option>
-                                    <option value="Probe Rod (2.25&quot; O.D.)">Probe Rod (2.25" O.D.)</option>
-                                    <option value="None">None</option>
-                                </select>
+                                <input type="text" id="run_rod_type" list="run_rod_type_list" placeholder="Select or type..." autocomplete="off" style="font-size: 0.8rem; padding: 0.35rem;; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="run_rod_type_list">
+                                    <option value="">
+                                    <option value="A (1 5/8&quot; O.D.)">
+                                    <option value="N (2 3/8&quot; O.D.)">
+                                    <option value="A (1 5/8&quot; O.D.) & N (2 3/8&quot; O.D.)">
+                                    <option value="Probe Rod (2.25&quot; O.D.)">
+                                    <option value="None">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Casing</label>
-                                <select id="run_casing" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="">Select Casing...</option>
-                                    <option value="Steel" selected>Steel</option>
-                                    <option value="PVC">PVC</option>
-                                    <option value="Galvanized">Galvanized</option>
-                                    <option value="None">None</option>
-                                    <option value="N/A">N/A</option>
-                                </select>
+                                <input type="text" id="run_casing" list="run_casing_list" placeholder="Select or type..." autocomplete="off" style="font-size: 0.8rem; padding: 0.35rem;; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="run_casing_list">
+                                    <option value="">
+                                    <option value="Steel">
+                                    <option value="PVC">
+                                    <option value="Galvanized">
+                                    <option value="None">
+                                    <option value="N/A">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Casing Linings</label>
-                                <select id="run_casing_lining" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="">Select Casing Lining...</option>
-                                    <option value="Carbide-Tipped Casing Shoes">Carbide-Tipped Casing Shoes</option>
-                                    <option value="Solid Steel Casing Shoes">Solid Steel Casing Shoes</option>
-                                    <option value="Drive Caps/Anvil Blocks">Drive Caps/Anvil Blocks</option>
-                                    <option value="Concentric Casing">Concentric Casing</option>
-                                    <option value="Eccentric System">Eccentric System</option>
-                                    <option value="None">None</option>
-                                </select>
+                                <input type="text" id="run_casing_lining" list="run_casing_lining_list" placeholder="Select or type..." autocomplete="off" style="font-size: 0.8rem; padding: 0.35rem;; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="run_casing_lining_list">
+                                    <option value="">
+                                    <option value="Carbide-Tipped Casing Shoes">
+                                    <option value="Solid Steel Casing Shoes">
+                                    <option value="Drive Caps/Anvil Blocks">
+                                    <option value="Concentric Casing">
+                                    <option value="Eccentric System">
+                                    <option value="None">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Case Diameter</label>
-                                <select id="run_case_diameter" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="">Select Diameter...</option>
-                                    <option value="2 inch">2 inch</option>
-                                    <option value="3 inch">3 inch</option>
-                                    <option value="4 inch" selected>4 inch</option>
-                                    <option value="6 inch">6 inch</option>
-                                    <option value="8 inch">8 inch</option>
-                                    <option value="N/A">N/A</option>
-                                </select>
+                                <input type="text" id="run_case_diameter" list="run_case_diameter_list" placeholder="Select or type..." autocomplete="off" style="font-size: 0.8rem; padding: 0.35rem;; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="run_case_diameter_list">
+                                    <option value="">
+                                    <option value="2 inch">
+                                    <option value="3 inch">
+                                    <option value="4 inch">
+                                    <option value="6 inch">
+                                    <option value="8 inch">
+                                    <option value="N/A">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Hammer Wgt</label>
-                                <select id="run_hammer_wgt" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="">Select Hammer Wgt...</option>
-                                    <option value="140 lb" selected>140 lb</option>
-                                    <option value="300 lb">300 lb</option>
-                                    <option value="N/A">N/A</option>
-                                </select>
+                                <input type="text" id="run_hammer_wgt" list="run_hammer_wgt_list" placeholder="Select or type..." autocomplete="off" style="font-size: 0.8rem; padding: 0.35rem;; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="run_hammer_wgt_list">
+                                    <option value="">
+                                    <option value="140 lb">
+                                    <option value="300 lb">
+                                    <option value="N/A">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Hammer Drop</label>
-                                <select id="run_hammer_drop" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="">Select Hammer Drop...</option>
-                                    <option value="30&quot;">30"</option>
-                                    <option value="N/A" selected>N/A</option>
-                                </select>
+                                <input type="text" id="run_hammer_drop" list="run_hammer_drop_list" placeholder="Select or type..." autocomplete="off" style="font-size: 0.8rem; padding: 0.35rem;; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="run_hammer_drop_list">
+                                    <option value="">
+                                    <option value="30&quot;">
+                                    <option value="N/A">
+</datalist>
                             </div>
 
                             <h5 style="margin: 0; font-size: 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.2rem; color: var(--slate-800); margin-top: 0.5rem;">Rock Coring</h5>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Hammer Type</label>
-                                <select id="run_rock_hammer_type" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="">Select Hammer Type...</option>
-                                    <option value="Automatic" selected>Automatic</option>
-                                    <option value="Double Barrel">Double Barrel</option>
-                                    <option value="Diamond Bit">Diamond Bit</option>
-                                    <option value="Masonry Bit">Masonry Bit</option>
-                                    <option value="N/A">N/A</option>
-                                </select>
+                                <input type="text" id="run_rock_hammer_type" list="run_rock_hammer_type_list" placeholder="Select or type..." autocomplete="off" style="font-size: 0.8rem; padding: 0.35rem;; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="run_rock_hammer_type_list">
+                                    <option value="">
+                                    <option value="Automatic">
+                                    <option value="Double Barrel">
+                                    <option value="Diamond Bit">
+                                    <option value="Masonry Bit">
+                                    <option value="N/A">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Hammer Wgt/Drop</label>
-                                <select id="run_rock_hammer_wgt_drop" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="">Select Wgt/Drop...</option>
-                                    <option value="140 lb / 30&quot;" selected>140 lb / 30"</option>
-                                    <option value="N/A">N/A</option>
-                                </select>
+                                <input type="text" id="run_rock_hammer_wgt_drop" list="run_rock_hammer_wgt_drop_list" placeholder="Select or type..." autocomplete="off" style="font-size: 0.8rem; padding: 0.35rem;; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="run_rock_hammer_wgt_drop_list">
+                                    <option value="">
+                                    <option value="140 lb / 30&quot;">
+                                    <option value="N/A">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Size</label>
-                                <select id="run_rock_size" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="">Select Size...</option>
-                                    <option value="NX" selected>NX</option>
-                                    <option value="2&quot;">2"</option>
-                                    <option value="2.5&quot;">2.5"</option>
-                                    <option value="3&quot;">3"</option>
-                                    <option value="4&quot;">4"</option>
-                                    <option value="6&quot;">6"</option>
-                                    <option value="N/A">N/A</option>
-                                </select>
+                                <input type="text" id="run_rock_size" list="run_rock_size_list" placeholder="Select or type..." autocomplete="off" style="font-size: 0.8rem; padding: 0.35rem;; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="run_rock_size_list">
+                                    <option value="">
+                                    <option value="NX">
+                                    <option value="2&quot;">
+                                    <option value="2.5&quot;">
+                                    <option value="3&quot;">
+                                    <option value="4&quot;">
+                                    <option value="6&quot;">
+                                    <option value="N/A">
+</datalist>
                             </div>
                         </div>
                     </details>
@@ -1338,174 +1354,178 @@
                             
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Drilling Contractor</label>
-                                <select id="layer_override_contractor" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="Seasons Environmental Drilling">Seasons Environmental Drilling</option>
-                                    <option value="Brighton Boring Co.">Brighton Boring Co.</option>
-                                    <option value="Seaboard Environmental Drilling">Seaboard Environmental Drilling</option>
-                                    <option value="Martin Geo Environmental">Martin Geo Environmental</option>
-                                    <option value="Witch Enterprises">Witch Enterprises</option>
-                                    <option value="Northern Drill Service, Inc.">Northern Drill Service, Inc.</option>
-                                    <option value="Aquifer Drilling and Testing, Inc. (ADT)">Aquifer Drilling and Testing, Inc. (ADT)</option>
-                                </select>
+                                <input type="text" id="layer_override_contractor" list="layer_override_contractor_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="layer_override_contractor_list">
+                                    <option value="Seasons Environmental Drilling">
+                                    <option value="Brighton Boring Co.">
+                                    <option value="Seaboard Environmental Drilling">
+                                    <option value="Martin Geo Environmental">
+                                    <option value="Witch Enterprises">
+                                    <option value="Northern Drill Service, Inc.">
+                                    <option value="Aquifer Drilling and Testing, Inc. (ADT)">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Drilling Equipment Rig</label>
-                                <select id="layer_override_equipment" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="Track Mounted Rig">Track Mounted Rig</option>
-                                    <option value="Truck Mounted Auger">Truck Mounted Auger</option>
-                                    <option value="B-53 Truck Mounted Rig">B-53 Truck Mounted Rig</option>
-                                    <option value="B-48 Track Mounted Rig">B-48 Track Mounted Rig</option>
-                                    <option value="D-50 Track Mounted Rig">D-50 Track Mounted Rig</option>
-                                    <option value="Geoprobe 6620-DT">Geoprobe 6620-DT</option>
-                                    <option value="Geoprobe 54-DT">Geoprobe 54-DT</option>
-                                    <option value="Skid Rig">Skid Rig</option>
-                                    <option value="Central Mining Equipment Mounted Rig">Central Mining Equipment Mounted Rig</option>
-                                    <option value="Drill Press">Drill Press</option>
-                                    <option value="Hand Auger">Hand Auger</option>
-                                    <option value="None">None</option>
-                                </select>
+                                <input type="text" id="layer_override_equipment" list="layer_override_equipment_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="layer_override_equipment_list">
+                                    <option value="Track Mounted Rig">
+                                    <option value="Truck Mounted Auger">
+                                    <option value="B-53 Truck Mounted Rig">
+                                    <option value="B-48 Track Mounted Rig">
+                                    <option value="D-50 Track Mounted Rig">
+                                    <option value="Geoprobe 6620-DT">
+                                    <option value="Geoprobe 54-DT">
+                                    <option value="Skid Rig">
+                                    <option value="Central Mining Equipment Mounted Rig">
+                                    <option value="Drill Press">
+                                    <option value="Hand Auger">
+                                    <option value="None">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Hammer Configuration</label>
-                                <select id="layer_override_hammer" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="Automatic">Automatic Hammer (140 lb / 30" Drop)</option>
-                                    <option value="Safety">Safety Hammer (140 lb / 30" Wire Line)</option>
-                                    <option value="Manual / Safety">Safety Manual Hammer (140 lb)</option>
-                                    <option value="Cathead">Cathead Hammer</option>
-                                    <option value="Donut">Donut Hammer</option>
-                                    <option value="Soil Probing Hammer">Soil Probing Hammer</option>
-                                    <option value="None">None</option>
-                                </select>
+                                <input type="text" id="layer_override_hammer" list="layer_override_hammer_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="layer_override_hammer_list">
+                                    <option value="Automatic">
+                                    <option value="Safety">
+                                    <option value="Manual / Safety">
+                                    <option value="Cathead">
+                                    <option value="Donut">
+                                    <option value="Soil Probing Hammer">
+                                    <option value="None">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Sampler Setup</label>
-                                <select id="layer_override_sampler" style="font-size: 0.8rem; padding: 0.35rem;">
-                                    <option value="2&quot; O.D. Split Spoon">2" O.D. Split Spoon</option>
-                                    <option value="3&quot; O.D. Split Spoon">3" O.D. Split Spoon</option>
-                                    <option value="3&quot; Shelby Tube">3" Shelby Tube</option>
-                                    <option value="4' Dual Tube Liner">4' Dual Tube Liner</option>
-                                    <option value="5' Dual Tube Liner">5' Dual Tube Liner</option>
-                                    <option value="None">None</option>
-                                </select>
+                                <input type="text" id="layer_override_sampler" list="layer_override_sampler_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="layer_override_sampler_list">
+                                    <option value="2&quot; O.D. Split Spoon">
+                                    <option value="3&quot; O.D. Split Spoon">
+                                    <option value="3&quot; Shelby Tube">
+                                    <option value="4' Dual Tube Liner">
+                                    <option value="5' Dual Tube Liner">
+                                    <option value="None">
+</datalist>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Foreman</label>
                                 <div class="input-addon-group">
-                                    <select id="layer_override_foreman" style="font-size: 0.8rem; padding: 0.35rem;">
-                                        <option value="">Select Foreman...</option>
-                                        <option value="John Doe">John Doe</option>
-                                    </select>
-                                    <button type="button" class="btn-small" onclick="promptAddChoice('layer_override_foreman')">➕ Choice</button>
+                                    <input type="text" id="layer_override_foreman" list="layer_override_foreman_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="layer_override_foreman_list">
+                                    <option value="">
+                                    <option value="John Doe">
+</datalist>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Helper</label>
                                 <div class="input-addon-group">
-                                    <select id="layer_override_helper" style="font-size: 0.8rem; padding: 0.35rem;">
-                                        <option value="">Select Helper...</option>
-                                        <option value="Jane Smith">Jane Smith</option>
-                                    </select>
-                                    <button type="button" class="btn-small" onclick="promptAddChoice('layer_override_helper')">➕ Choice</button>
+                                    <input type="text" id="layer_override_helper" list="layer_override_helper_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="layer_override_helper_list">
+                                    <option value="">
+                                    <option value="Jane Smith">
+</datalist>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Bit Type</label>
                                 <div class="input-addon-group">
-                                    <select id="layer_override_bit_type" style="font-size: 0.8rem; padding: 0.35rem;">
-                                        <option value="">Select Bit Type...</option>
-                                        <option value="Hollow Stem Auger">Hollow Stem Auger</option>
-                                        <option value="Hollow Stem Auger (2.25&quot; O.D.)">Hollow Stem Auger (2.25" O.D.)</option>
-                                        <option value="Roller Bit with Wash">Roller Bit with Wash</option>
-                                        <option value="H.S.A. & Roller Bit with Wash">H.S.A. & Roller Bit with Wash</option>
-                                        <option value="Direct Push">Direct Push</option>
-                                        <option value="Hand Auger">Hand Auger</option>
-                                        <option value="Double Barrel">Double Barrel</option>
-                                        <option value="Diamond Bit">Diamond Bit</option>
-                                        <option value="Masonry Bit">Masonry Bit</option>
-                                        <option value="N/A">N/A</option>
-                                    </select>
-                                    <button type="button" class="btn-small" onclick="promptAddChoice('layer_override_bit_type')">➕ Choice</button>
+                                    <input type="text" id="layer_override_bit_type" list="layer_override_bit_type_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="layer_override_bit_type_list">
+                                    <option value="">
+                                    <option value="Hollow Stem Auger">
+                                    <option value="Hollow Stem Auger (2.25&quot; O.D.)">
+                                    <option value="Roller Bit with Wash">
+                                    <option value="H.S.A. & Roller Bit with Wash">
+                                    <option value="Direct Push">
+                                    <option value="Hand Auger">
+                                    <option value="Double Barrel">
+                                    <option value="Diamond Bit">
+                                    <option value="Masonry Bit">
+                                    <option value="N/A">
+</datalist>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Rod Type</label>
                                 <div class="input-addon-group">
-                                    <select id="layer_override_rod_type" style="font-size: 0.8rem; padding: 0.35rem;">
-                                        <option value="">Select Rod Type...</option>
-                                        <option value="A (1 5/8&quot; O.D.)">A (1 5/8" O.D.)</option>
-                                        <option value="N (2 3/8&quot; O.D.)">N (2 3/8" O.D.)</option>
-                                        <option value="A (1 5/8&quot; O.D.) & N (2 3/8&quot; O.D.)">A (1 5/8" O.D.) & N (2 3/8" O.D.)</option>
-                                        <option value="Probe Rod (2.25&quot; O.D.)">Probe Rod (2.25" O.D.)</option>
-                                        <option value="None">None</option>
-                                    </select>
-                                    <button type="button" class="btn-small" onclick="promptAddChoice('layer_override_rod_type')">➕ Choice</button>
+                                    <input type="text" id="layer_override_rod_type" list="layer_override_rod_type_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="layer_override_rod_type_list">
+                                    <option value="">
+                                    <option value="A (1 5/8&quot; O.D.)">
+                                    <option value="N (2 3/8&quot; O.D.)">
+                                    <option value="A (1 5/8&quot; O.D.) & N (2 3/8&quot; O.D.)">
+                                    <option value="Probe Rod (2.25&quot; O.D.)">
+                                    <option value="None">
+</datalist>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Casing</label>
                                 <div class="input-addon-group">
-                                    <select id="layer_override_casing" style="font-size: 0.8rem; padding: 0.35rem;">
-                                        <option value="">Select Casing...</option>
-                                        <option value="Steel">Steel</option>
-                                        <option value="PVC">PVC</option>
-                                        <option value="Galvanized">Galvanized</option>
-                                        <option value="None">None</option>
-                                        <option value="N/A">N/A</option>
-                                    </select>
-                                    <button type="button" class="btn-small" onclick="promptAddChoice('layer_override_casing')">➕ Choice</button>
+                                    <input type="text" id="layer_override_casing" list="layer_override_casing_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="layer_override_casing_list">
+                                    <option value="">
+                                    <option value="Steel">
+                                    <option value="PVC">
+                                    <option value="Galvanized">
+                                    <option value="None">
+                                    <option value="N/A">
+</datalist>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Casing Linings</label>
                                 <div class="input-addon-group">
-                                    <select id="layer_override_casing_lining" style="font-size: 0.8rem; padding: 0.35rem;">
-                                        <option value="">Select Casing Lining...</option>
-                                        <option value="Carbide-Tipped Casing Shoes">Carbide-Tipped Casing Shoes</option>
-                                        <option value="Solid Steel Casing Shoes">Solid Steel Casing Shoes</option>
-                                        <option value="Drive Caps/Anvil Blocks">Drive Caps/Anvil Blocks</option>
-                                        <option value="Concentric Casing">Concentric Casing</option>
-                                        <option value="Eccentric System">Eccentric System</option>
-                                        <option value="None">None</option>
-                                    </select>
-                                    <button type="button" class="btn-small" onclick="promptAddChoice('layer_override_casing_lining')">➕ Choice</button>
+                                    <input type="text" id="layer_override_casing_lining" list="layer_override_casing_lining_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="layer_override_casing_lining_list">
+                                    <option value="">
+                                    <option value="Carbide-Tipped Casing Shoes">
+                                    <option value="Solid Steel Casing Shoes">
+                                    <option value="Drive Caps/Anvil Blocks">
+                                    <option value="Concentric Casing">
+                                    <option value="Eccentric System">
+                                    <option value="None">
+</datalist>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Case Diameter</label>
                                 <div class="input-addon-group">
-                                    <select id="layer_override_case_diameter" style="font-size: 0.8rem; padding: 0.35rem;">
-                                        <option value="">Select Diameter...</option>
-                                        <option value="2 inch">2 inch</option>
-                                        <option value="3 inch">3 inch</option>
-                                        <option value="4 inch">4 inch</option>
-                                        <option value="6 inch">6 inch</option>
-                                        <option value="8 inch">8 inch</option>
-                                        <option value="N/A">N/A</option>
-                                    </select>
-                                    <button type="button" class="btn-small" onclick="promptAddChoice('layer_override_case_diameter')">➕ Choice</button>
+                                    <input type="text" id="layer_override_case_diameter" list="layer_override_case_diameter_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="layer_override_case_diameter_list">
+                                    <option value="">
+                                    <option value="2 inch">
+                                    <option value="3 inch">
+                                    <option value="4 inch">
+                                    <option value="6 inch">
+                                    <option value="8 inch">
+                                    <option value="N/A">
+</datalist>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Hammer Wgt</label>
                                 <div class="input-addon-group">
-                                    <select id="layer_override_hammer_wgt" style="font-size: 0.8rem; padding: 0.35rem;">
-                                        <option value="">Select Hammer Wgt...</option>
-                                        <option value="140 lb">140 lb</option>
-                                        <option value="300 lb">300 lb</option>
-                                        <option value="N/A">N/A</option>
-                                    </select>
-                                    <button type="button" class="btn-small" onclick="promptAddChoice('layer_override_hammer_wgt')">➕ Choice</button>
+                                    <input type="text" id="layer_override_hammer_wgt" list="layer_override_hammer_wgt_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="layer_override_hammer_wgt_list">
+                                    <option value="">
+                                    <option value="140 lb">
+                                    <option value="300 lb">
+                                    <option value="N/A">
+</datalist>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Hammer Drop</label>
                                 <div class="input-addon-group">
-                                    <select id="layer_override_hammer_drop" style="font-size: 0.8rem; padding: 0.35rem;">
-                                        <option value="">Select Hammer Drop...</option>
-                                        <option value="30&quot;">30"</option>
-                                        <option value="N/A">N/A</option>
-                                    </select>
-                                    <button type="button" class="btn-small" onclick="promptAddChoice('layer_override_hammer_drop')">➕ Choice</button>
+                                    <input type="text" id="layer_override_hammer_drop" list="layer_override_hammer_drop_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="layer_override_hammer_drop_list">
+                                    <option value="">
+                                    <option value="30&quot;">
+                                    <option value="N/A">
+</datalist>
                                 </div>
                             </div>
                             <div class="form-group" style="grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: 0.5rem; margin-top: 0.25rem;">
@@ -1514,42 +1534,42 @@
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Hammer Type</label>
                                 <div class="input-addon-group">
-                                    <select id="layer_override_rock_hammer_type" style="font-size: 0.8rem; padding: 0.35rem;">
-                                        <option value="">Select Hammer Type...</option>
-                                        <option value="Automatic">Automatic</option>
-                                        <option value="Double Barrel">Double Barrel</option>
-                                        <option value="Diamond Bit">Diamond Bit</option>
-                                        <option value="Masonry Bit">Masonry Bit</option>
-                                        <option value="N/A">N/A</option>
-                                    </select>
-                                    <button type="button" class="btn-small" onclick="promptAddChoice('layer_override_rock_hammer_type')">➕ Choice</button>
+                                    <input type="text" id="layer_override_rock_hammer_type" list="layer_override_rock_hammer_type_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="layer_override_rock_hammer_type_list">
+                                    <option value="">
+                                    <option value="Automatic">
+                                    <option value="Double Barrel">
+                                    <option value="Diamond Bit">
+                                    <option value="Masonry Bit">
+                                    <option value="N/A">
+</datalist>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Hammer Wgt/Drop</label>
                                 <div class="input-addon-group">
-                                    <select id="layer_override_rock_hammer_wgt_drop" style="font-size: 0.8rem; padding: 0.35rem;">
-                                        <option value="">Select Wgt/Drop...</option>
-                                        <option value="140 lb / 30&quot;">140 lb / 30"</option>
-                                        <option value="N/A">N/A</option>
-                                    </select>
-                                    <button type="button" class="btn-small" onclick="promptAddChoice('layer_override_rock_hammer_wgt_drop')">➕ Choice</button>
+                                    <input type="text" id="layer_override_rock_hammer_wgt_drop" list="layer_override_rock_hammer_wgt_drop_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="layer_override_rock_hammer_wgt_drop_list">
+                                    <option value="">
+                                    <option value="140 lb / 30&quot;">
+                                    <option value="N/A">
+</datalist>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label style="font-size: 0.75rem;">Size</label>
                                 <div class="input-addon-group">
-                                    <select id="layer_override_rock_size" style="font-size: 0.8rem; padding: 0.35rem;">
-                                        <option value="">Select Size...</option>
-                                        <option value="NX">NX</option>
-                                        <option value="2&quot;">2"</option>
-                                        <option value="2.5&quot;">2.5"</option>
-                                        <option value="3&quot;">3"</option>
-                                        <option value="4&quot;">4"</option>
-                                        <option value="6&quot;">6"</option>
-                                        <option value="N/A">N/A</option>
-                                    </select>
-                                    <button type="button" class="btn-small" onclick="promptAddChoice('layer_override_rock_size')">➕ Choice</button>
+                                    <input type="text" id="layer_override_rock_size" list="layer_override_rock_size_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="layer_override_rock_size_list">
+                                    <option value="">
+                                    <option value="NX">
+                                    <option value="2&quot;">
+                                    <option value="2.5&quot;">
+                                    <option value="3&quot;">
+                                    <option value="4&quot;">
+                                    <option value="6&quot;">
+                                    <option value="N/A">
+</datalist>
                                 </div>
                             </div>
                         </div>
@@ -1559,14 +1579,14 @@
                         <div class="form-group">
                             <label>Layer Num</label>
                             <div class="input-addon-group">
-                                <select id="rel_layer_id">
-                                    <option value="L-1" selected>L-1</option>
-                                    <option value="L-2">L-2</option>
-                                    <option value="L-3">L-3</option>
-                                    <option value="L-4">L-4</option>
-                                    <option value="L-5">L-5</option>
-                                </select>
-                                <button type="button" class="btn-small" onclick="promptAddChoice('rel_layer_id')">➕ Choice</button>
+                                <input type="text" id="rel_layer_id" list="rel_layer_id_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="rel_layer_id_list">
+                                    <option value="L-1">
+                                    <option value="L-2">
+                                    <option value="L-3">
+                                    <option value="L-4">
+                                    <option value="L-5">
+</datalist>
                             </div>
                         </div>
                         <div class="form-group">
@@ -1576,22 +1596,24 @@
                         <div class="form-group">
                             <label>Layer Depths (ft)</label>
                             <div style="display: flex; gap: 0.25rem; align-items: center;">
-                                <select id="rel_top" style="width: 50%;">
-                                    <option value="0.0" selected>0.0</option>
-                                    <option value="0.5">0.5</option>
-                                    <option value="1.0">1.0</option>
-                                    <option value="2.0">2.0</option>
-                                    <option value="4.0">4.0</option>
-                                </select>
+                                <input type="text" id="rel_top" list="rel_top_list" placeholder="Select or type..." autocomplete="off" style="width: 50%; font-size: 0.85rem; padding: 0.35rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="rel_top_list">
+                                    <option value="0.0">
+                                    <option value="0.5">
+                                    <option value="1.0">
+                                    <option value="2.0">
+                                    <option value="4.0">
+</datalist>
                                 <span style="font-size: 0.75rem; color: #94a3b8;">to</span>
-                                <select id="rel_bottom" style="width: 50%;">
-                                    <option value="0.5" selected>0.5</option>
-                                    <option value="1.0">1.0</option>
-                                    <option value="2.0">2.0</option>
-                                    <option value="4.0">4.0</option>
-                                    <option value="6.0">6.0</option>
-                                    <option value="10.0">10.0</option>
-                                </select>
+                                <input type="text" id="rel_bottom" list="rel_bottom_list" placeholder="Select or type..." autocomplete="off" style="width: 50%; font-size: 0.85rem; padding: 0.35rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="rel_bottom_list">
+                                    <option value="0.5">
+                                    <option value="1.0">
+                                    <option value="2.0">
+                                    <option value="4.0">
+                                    <option value="6.0">
+                                    <option value="10.0">
+</datalist>
                             </div>
                         </div>
                     </div>
@@ -1605,27 +1627,27 @@
                         <div class="form-group">
                             <label>Color</label>
                             <div class="input-addon-group">
-                                <select id="rel_color">
-                                    <option value="">-</option>
-                                    <option value="Brown" selected>Brown</option>
-                                    <option value="Gray">Gray</option>
-                                    <option value="Red">Red</option>
-                                    <option value="Yellow">Yellow</option>
-                                </select>
-                                <button type="button" class="btn-small" onclick="promptAddChoice('rel_color')">➕ Choice</button>
+                                <input type="text" id="rel_color" list="rel_color_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="rel_color_list">
+                                    <option value="">
+                                    <option value="Brown">
+                                    <option value="Gray">
+                                    <option value="Red">
+                                    <option value="Yellow">
+</datalist>
                             </div>
                         </div>
                         <div class="form-group">
                             <label>Primary Grain Size</label>
                             <div class="input-addon-group">
-                                <select id="rel_primary_size">
-                                    <option value="">-</option>
-                                    <option value="fine" selected>fine</option>
-                                    <option value="medium">medium</option>
-                                    <option value="coarse">coarse</option>
-                                    <option value="medium to fine">medium to fine</option>
-                                </select>
-                                <button type="button" class="btn-small" onclick="promptAddChoice('rel_primary_size')">➕ Choice</button>
+                                <input type="text" id="rel_primary_size" list="rel_primary_size_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="rel_primary_size_list">
+                                    <option value="">
+                                    <option value="fine">
+                                    <option value="medium">
+                                    <option value="coarse">
+                                    <option value="medium to fine">
+</datalist>
                             </div>
                         </div>
                     </div>
@@ -1633,17 +1655,17 @@
                     <div class="form-group">
                         <label>Major Burmister Soil Classification Type</label>
                         <div class="input-addon-group">
-                            <select id="rel_soil">
-                                <option value="TOPSOIL" selected>TOPSOIL</option>
-                                <option value="ASPHALT">ASPHALT</option>
-                                <option value="BASE COURSE">BASE COURSE</option>
-                                <option value="FILL/REWORKED">FILL/REWORKED</option>
-                                <option value="FINE SAND">FINE SAND</option>
-                                <option value="FINE TO MEDIUM SAND">FINE TO MEDIUM SAND</option>
-                                <option value="SILTY FINE SAND">SILTY FINE SAND</option>
-                                <option value="CLAYEY SILT">CLAYEY SILT</option>
-                            </select>
-                            <button type="button" class="btn-small" onclick="promptAddChoice('rel_soil')">➕ Choice</button>
+                            <input type="text" id="rel_soil" list="rel_soil_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="rel_soil_list">
+                                    <option value="TOPSOIL">
+                                    <option value="ASPHALT">
+                                    <option value="BASE COURSE">
+                                    <option value="FILL/REWORKED">
+                                    <option value="FINE SAND">
+                                    <option value="FINE TO MEDIUM SAND">
+                                    <option value="SILTY FINE SAND">
+                                    <option value="CLAYEY SILT">
+</datalist>
                         </div>
                     </div>
                     
@@ -1653,36 +1675,21 @@
                         <div class="form-group">
                             <label style="font-size: 0.75rem;">Minor 1 (some 20-35%)</label>
                             <div class="input-addon-group">
-                                <select id="rel_minor_1" style="font-size: 0.8rem;">
-                                    <option value="">-</option>
-                                    <option value="some fine Gravel" selected>some fine Gravel</option>
-                                    <option value="some Silt">some Silt</option>
-                                </select>
-                                <button type="button" class="btn-small" onclick="promptAddChoice('rel_minor_1')">➕ Choice</button>
+                                <input type="text" id="rel_minor_1" list="rel_soil_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
                             </div>
                         </div>
                         
                         <div class="form-group">
                             <label style="font-size: 0.75rem;">Minor 2 (little 10-20%)</label>
                             <div class="input-addon-group">
-                                <select id="rel_minor_2" style="font-size: 0.8rem;">
-                                    <option value="">-</option>
-                                    <option value="little Silt" selected>little Silt</option>
-                                    <option value="little Sand">little Sand</option>
-                                </select>
-                                <button type="button" class="btn-small" onclick="promptAddChoice('rel_minor_2')">➕ Choice</button>
+                                <input type="text" id="rel_minor_2" list="rel_soil_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
                             </div>
                         </div>
                         
                         <div class="form-group">
                             <label style="font-size: 0.75rem;">Minor 3 (trace 1-10%)</label>
                             <div class="input-addon-group">
-                                <select id="rel_minor_3" style="font-size: 0.8rem;">
-                                    <option value="">-</option>
-                                    <option value="trace coarse Sand" selected>trace coarse Sand</option>
-                                    <option value="trace Gravel">trace Gravel</option>
-                                </select>
-                                <button type="button" class="btn-small" onclick="promptAddChoice('rel_minor_3')">➕ Choice</button>
+                                <input type="text" id="rel_minor_3" list="rel_soil_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
                             </div>
                         </div>
                     </div>
@@ -1706,13 +1713,13 @@
                         <div class="form-group">
                             <label>Moisture Variant</label>
                             <div class="input-addon-group">
-                                <select id="rel_moisture">
-                                    <option value="dry" selected>dry</option>
-                                    <option value="damp">damp</option>
-                                    <option value="moist">moist</option>
-                                    <option value="wet">wet</option>
-                                </select>
-                                <button type="button" class="btn-small" onclick="promptAddChoice('rel_moisture')">➕ Choice</button>
+                                <input type="text" id="rel_moisture" list="rel_moisture_list" placeholder="Select or type..." autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" onclick="this.setAttribute('data-val', this.value); this.value='';" onblur="if(this.value=='') this.value=this.getAttribute('data-val');">
+<datalist id="rel_moisture_list">
+                                    <option value="dry">
+                                    <option value="damp">
+                                    <option value="moist">
+                                    <option value="wet">
+</datalist>
                             </div>
                         </div>
                         <div class="form-group">
