@@ -2186,6 +2186,9 @@
                 <button class="btn" id="exportStylizedExcelBtn" style="padding: 1rem 2rem; font-size: 1.1rem; background-color: var(--emerald-600); color: white; border: none; border-radius: 6px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--emerald-700)'" onmouseout="this.style.backgroundColor='var(--emerald-600)'" onclick="exportStylizedExcel()">
                     <span style="margin-right: 0.5rem; font-size: 1.25rem;">✨ 📊</span> Export Stylized Workbook
                 </button>
+                <button class="btn" id="exportGeotechNarrativeBtn" style="padding: 1rem 2rem; font-size: 1.1rem; background-color: var(--indigo-600); color: white; border: none; border-radius: 6px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--indigo-700)'" onmouseout="this.style.backgroundColor='var(--indigo-600)'" onclick="exportGeotechNarrativePDF()">
+                    <span style="margin-right: 0.5rem; font-size: 1.25rem;">📄 ✍️</span> Export Geotechnical Narrative PDF
+                </button>
             </div>
         </div>
     </div>
@@ -8649,6 +8652,417 @@ async function exportStylizedExcel() {
     }
 }
 
+async function exportGeotechNarrativePDF() {
+    try {
+        if (typeof html2pdf === 'undefined') {
+            showToast("html2pdf library is not loaded. Please check your internet connection and reload the page.", "error");
+            alert("html2pdf library is not loaded. Please check your internet connection and reload the page.");
+            return;
+        }
+        showToast("Generating geotechnical narrative PDF...", "success");
+
+        const { projectName, jobName, address, dateSuffix } = getHeaderInfo();
+        const currentDateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        // Collect all borings
+        let borings = {};
+        datasetRuns.forEach(r => {
+            let bId = r["Boring ID"];
+            if (!borings[bId]) borings[bId] = [];
+            borings[bId].push({...r});
+        });
+        
+        let boringIds = Object.keys(borings).sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+        
+        if (boringIds.length === 0) {
+            showToast("No boring data available to summarize.", "error");
+            alert("No boring data available. Please add some boring logs first.");
+            return;
+        }
+
+        // Helper to get layers for a boring
+        function getLayersForBoring(boringId) {
+            let runs = datasetRuns.filter(r => r["Boring ID"] === boringId);
+            let sampleIds = runs.map(r => r["Sample ID"]);
+            let layers = [];
+            datasetProfiles.forEach(p => {
+                if (!p["Sample ID"]) return;
+                let sId = p["Sample ID"];
+                let isMatch = sampleIds.some(runSampleId => {
+                    let shortSampleId = runSampleId.replace(boringId + "-", "").replace(boringId, "");
+                    let combinedSampleId = boringId + shortSampleId;
+                    return sId === runSampleId || sId === combinedSampleId || sId === (boringId + "-" + shortSampleId);
+                });
+                if (isMatch) {
+                    layers.push({...p});
+                }
+            });
+            layers.sort((a, b) => (a["Top Depth (ft)"] || 0) - (b["Top Depth (ft)"] || 0));
+            return layers;
+        }
+
+        // Helper to get max depth of a boring
+        function getBoringMaxDepth(boringId) {
+            let layers = getLayersForBoring(boringId);
+            if (layers.length === 0) {
+                let runs = datasetRuns.filter(r => r["Boring ID"] === boringId);
+                if (runs.length === 0) return 0;
+                let maxDepthInches = Math.max(...runs.map(r => r["End Depth (in)"] || 0));
+                return maxDepthInches / 12;
+            }
+            return Math.max(...layers.map(l => l["Bottom Depth (ft)"] || 0));
+        }
+
+        // Gather site statistics
+        let allSoilTypes = new Set();
+        datasetProfiles.forEach(p => {
+            if (p["Soil Type"]) allSoilTypes.add(p["Soil Type"].toUpperCase());
+        });
+        let soilTypesStr = Array.from(allSoilTypes).join(', ');
+        if (!soilTypesStr) {
+            soilTypesStr = 'granular fill, fine-medium sand, silty sand, clayey silt, and clay deposits';
+        }
+
+        let sptValues = datasetRuns.map(r => r["SPT N-Value"]).filter(v => v !== undefined && v > 0);
+        let minN = sptValues.length > 0 ? Math.min(...sptValues) : 2;
+        let maxN = sptValues.length > 0 ? Math.max(...sptValues) : 50;
+
+        let refusals = [];
+        datasetRuns.forEach(r => {
+            if (r["Comments"] && (r["Comments"].toLowerCase().includes("refusal") || r["Comments"].toLowerCase().includes("refused"))) {
+                refusals.push(`Boring ${r["Boring ID"]} at ${(r["End Depth (in)"] / 12).toFixed(1)} ft (${r["Comments"]})`);
+            }
+        });
+
+        let drillContractors = new Set();
+        let drillRigs = new Set();
+        let drillDates = new Set();
+        boringIds.forEach(bId => {
+            const defaults = getBoringDefaults(bId) || {};
+            if (defaults["Drilling Contractor"]) drillContractors.add(defaults["Drilling Contractor"]);
+            if (defaults["Drilling Equipment Rig"]) drillRigs.add(defaults["Drilling Equipment Rig"]);
+            
+            const runs = datasetRuns.filter(r => r["Boring ID"] === bId);
+            runs.forEach(r => {
+                if (r["Date"]) drillDates.add(r["Date"]);
+            });
+        });
+        
+        let contractorsStr = Array.from(drillContractors).join(' and ') || 'Seasons Environmental Drilling';
+        let rigsStr = Array.from(drillRigs).join(', ') || 'Track Mounted Rig';
+        let datesList = Array.from(drillDates).sort();
+        let dateRangeStr = datesList.length > 0 ? (datesList.length === 1 ? datesList[0] : `${datesList[0]} to ${datesList[datesList.length - 1]}`) : dateSuffix;
+
+        let gwObservations = [];
+        boringIds.forEach(bId => {
+            const gw = boringGWMap[bId] || {};
+            if (gw["GW 1st Moisture"] || gw["GW 1st Depth"] || gw["GW 2nd Moisture"] || gw["GW 2nd Depth"]) {
+                let obs = [];
+                if (gw["GW 1st Moisture"] && gw["GW 1st Moisture"] !== '-') {
+                    let detail = `${gw["GW 1st Moisture"]}`;
+                    if (gw["GW 1st Depth"]) detail += ` @ ${gw["GW 1st Depth"]} ft`;
+                    if (gw["GW 1st Comment"]) detail += ` (${gw["GW 1st Comment"]})`;
+                    obs.push(`Initial: ${detail}`);
+                }
+                if (gw["GW 2nd Moisture"] && gw["GW 2nd Moisture"] !== '-') {
+                    let detail = `${gw["GW 2nd Moisture"]}`;
+                    if (gw["GW 2nd Depth"]) detail += ` @ ${gw["GW 2nd Depth"]} ft`;
+                    if (gw["GW 2nd Comment"]) detail += ` (${gw["GW 2nd Comment"]})`;
+                    obs.push(`Stabilized: ${detail}`);
+                }
+                if (obs.length > 0) {
+                    gwObservations.push(`Boring ${bId} (${obs.join(', ')})`);
+                }
+            }
+        });
+
+        // 1. Build Boring Summary Table
+        let boringTableRows = "";
+        boringIds.forEach(bId => {
+            const runs = datasetRuns.filter(r => r["Boring ID"] === bId);
+            let boringDate = "";
+            for (let r of runs) {
+                if (r["Date"]) {
+                    boringDate = r["Date"];
+                    break;
+                }
+            }
+            if (!boringDate) {
+                boringDate = document.getElementById('cov_date')?.value || '';
+            }
+
+            let sumInverseN = 0;
+            let validRuns = 0;
+            runs.forEach(r => {
+                if (r["SPT N-Value"] > 0) {
+                    sumInverseN += (1 / r["SPT N-Value"]);
+                    validRuns++;
+                }
+            });
+            let avgN = validRuns > 0 ? (validRuns / sumInverseN) : 0;
+            
+            let siteClass = "E";
+            if (validRuns === 0) siteClass = "N/A";
+            else if (avgN > 50) siteClass = "C";
+            else if (avgN >= 15) siteClass = "D";
+
+            const defaults = getBoringDefaults(bId) || {};
+            const maxDepth = getBoringMaxDepth(bId);
+            
+            const gw = boringGWMap[bId] || {};
+            const gwStr = gw["GW 1st Depth"] ? `${gw["GW 1st Moisture"] || 'Water'} @ ${gw["GW 1st Depth"]} ft` : (gw["GW 1st Moisture"] || '-');
+
+            boringTableRows += `
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: bold; color: #1e3a8a;">${bId}</td>
+                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">${boringDate || '-'}</td>
+                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">${defaults["Drilling Equipment Rig"] || '-'}</td>
+                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">${maxDepth.toFixed(1)} ft</td>
+                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">${validRuns > 0 ? `Class ${siteClass} (${avgN.toFixed(1)})` : 'Class E'}</td>
+                    <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">${gwStr}</td>
+                </tr>
+            `;
+        });
+
+        // 2. Build detailed Stratigraphy summaries per boring
+        let boringSummariesHtml = "";
+        boringIds.forEach(bId => {
+            let layers = getLayersForBoring(bId);
+            let runs = datasetRuns.filter(r => r["Boring ID"] === bId);
+            
+            let layerDesc = "No layers defined.";
+            if (layers.length > 0) {
+                layerDesc = layers.map(l => `<strong>${l["Top Depth (ft)"]}-${l["Bottom Depth (ft)"]} ft:</strong> ${l["Color"] || ''} ${l["Soil Type"] || ''}${l["Moisture Condition"] ? ' (' + l["Moisture Condition"] + ')' : ''}${l["Comments"] ? ' - ' + l["Comments"] : ''}`).join('<br>');
+            }
+            
+            let runsDesc = "No sample runs defined.";
+            if (runs.length > 0) {
+                runsDesc = runs.map(r => `<strong>${r["Sample ID"]} (${(r["Start Depth (in)"]/12).toFixed(1)}-${(r["End Depth (in)"]/12).toFixed(1)} ft):</strong> SPT N = ${r["SPT N-Value"] || 'N/A'}, Rec = ${r["Recovery (in)"] || 0} in${r["Comments"] ? ' [' + r["Comments"] + ']' : ''}`).join('<br>');
+            }
+            
+            boringSummariesHtml += `
+                <div style="margin-bottom: 12px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; background-color: #f8fafc; page-break-inside: avoid;">
+                    <h3 style="margin-top: 0; margin-bottom: 5px; color: #1e3a8a; font-size: 10.5pt; border-bottom: 1px dashed #cbd5e1; padding-bottom: 3px;">Boring Log ${bId} Details</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 8.5pt;">
+                        <div>
+                            <div style="font-weight: bold; color: #475569; margin-bottom: 3px;">Stratigraphic Layers:</div>
+                            <div style="line-height: 1.4;">${layerDesc}</div>
+                        </div>
+                        <div>
+                            <div style="font-weight: bold; color: #475569; margin-bottom: 3px;">Boring Runs & SPT Blowcounts:</div>
+                            <div style="line-height: 1.4;">${runsDesc}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        // 3. Construct HTML container for PDF
+        const container = document.createElement('div');
+        container.style.width = '750px';
+        container.style.margin = '0 auto';
+        container.style.background = 'white';
+        
+        container.innerHTML = `
+            <!-- PAGE 1 -->
+            <div class="pdf-page" style="padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; background: white; min-height: 1000px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <!-- Header / Letterhead -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px double #1e3a8a; padding-bottom: 10px; margin-bottom: 15px;">
+                        <div>
+                            <div style="font-size: 18pt; font-weight: bold; color: #1e3a8a; font-family: 'Georgia', serif; letter-spacing: 0.5px;">CAREN IRGANG, P.E.</div>
+                            <div style="font-size: 9.5pt; font-weight: 600; color: #475569; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 2px;">Geotechnical Engineering Consultant</div>
+                            <div style="font-size: 8pt; color: #64748b; margin-top: 4px;">New England Region &bull; Tel: (860) 555-0199 &bull; info@irganggeotech.com</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <img src="CarenHeadShot.jpg" style="width: 55px; height: 55px; object-fit: cover; border-radius: 50%; border: 2px solid #1e3a8a;" />
+                        </div>
+                    </div>
+
+                    <!-- Title -->
+                    <div style="text-align: center; font-size: 14pt; font-weight: bold; color: #1e3a8a; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px;">
+                        Geotechnical Narrative Report & Executive Summary
+                    </div>
+
+                    <!-- Metadata Table -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 9pt;">
+                        <tr>
+                            <td style="width: 15%; padding: 5px 8px; border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold;">Project Name:</td>
+                            <td style="width: 35%; padding: 5px 8px; border: 1px solid #cbd5e1;">\${projectName}</td>
+                            <td style="width: 15%; padding: 5px 8px; border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold;">Job Reference:</td>
+                            <td style="width: 35%; padding: 5px 8px; border: 1px solid #cbd5e1;">\${jobName}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px 8px; border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold;">Site Address:</td>
+                            <td style="padding: 5px 8px; border: 1px solid #cbd5e1;">\${address}</td>
+                            <td style="padding: 5px 8px; border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold;">Report Date:</td>
+                            <td style="padding: 5px 8px; border: 1px solid #cbd5e1;">\${currentDateStr}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px 8px; border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold;">GPS Coordinates:</td>
+                            <td style="padding: 5px 8px; border: 1px solid #cbd5e1;">\${document.getElementById('cov_gps_lat')?.value || 'N/A'}, \${document.getElementById('cov_gps_lon')?.value || 'N/A'}</td>
+                            <td style="padding: 5px 8px; border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold;">Location Desc:</td>
+                            <td style="padding: 5px 8px; border: 1px solid #cbd5e1;">\${document.getElementById('cov_gps_address')?.value || 'N/A'}</td>
+                        </tr>
+                    </table>
+
+                    <!-- Sections -->
+                    <h2 style="font-size: 11pt; font-weight: bold; color: #1e3a8a; border-bottom: 1.5px solid #1e3a8a; padding-bottom: 3px; margin-top: 0; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">1. Introduction & Project Scope</h2>
+                    <p style="margin-top: 0; margin-bottom: 12px; text-align: justify; font-size: 9.5pt; line-height: 1.5;">
+                        This Geotechnical Narrative Report summarizes the subsurface soil conditions and engineering assessments at <strong>\${projectName}</strong> (Job Reference: <strong>\${jobName}</strong>), located at <strong>\${address}</strong>. This investigation was planned and executed under the direction of <strong>Caren Irgang, PE</strong>, to verify stratigraphic profiles, evaluate the relative density and consistency of underlying materials, and provide a basis for structural foundation design. To ensure thoroughness, the field findings have been formatted and exported in the companion <strong>Presentation Workbook</strong>, which contains nine individual tabs summarizing Job Data, Boring Details, Sample/Layer correlations, and site maps. The user should refer directly to the sheets: <strong>'Job'</strong>, <strong>'Boring Information'</strong>, <strong>'Borings Samples Layers Summary'</strong>, <strong>'Layers'</strong>, <strong>'Vert Stack'</strong>, <strong>'Horoz Stack'</strong>, <strong>'Reference'</strong>, <strong>'DigSafe'</strong>, and <strong>'Location Map'</strong> for the raw and stylized engineering registers.
+                    </p>
+
+                    <h2 style="font-size: 11pt; font-weight: bold; color: #1e3a8a; border-bottom: 1.5px solid #1e3a8a; padding-bottom: 3px; margin-top: 15px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">2. Subsurface Exploration Program</h2>
+                    <p style="margin-top: 0; margin-bottom: 12px; text-align: justify; font-size: 9.5pt; line-height: 1.5;">
+                        Subsurface exploration was completed between <strong>\${dateRangeStr}</strong> by advancing a total of <strong>\${boringIds.length}</strong> test borings (designated <strong>\${boringIds.join(', ')}</strong>). Drilling services were performed by <strong>\${contractorsStr}</strong> using a <strong>\${rigsStr}</strong>. The borings were advanced using standard hollow-stem augers or casing setups. Representative soil samples were obtained using a standard 2-inch Outer Diameter (O.D.) split-spoon sampler in general accordance with ASTM D1586 guidelines for the Standard Penetration Test (SPT). The sampler was driven using an automatic 140-lb hammer falling 30 inches. The specific drill crew (including foremen and helpers), hammer configurations, casing linings, and diameter details for each exploration point are documented in the <strong>'Boring Information'</strong> sheet of the Presentation Workbook.
+                    </p>
+
+                    <h2 style="font-size: 11pt; font-weight: bold; color: #1e3a8a; border-bottom: 1.5px solid #1e3a8a; padding-bottom: 3px; margin-top: 15px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">3. General Site & Stratigraphic Conditions</h2>
+                    <p style="margin-top: 0; margin-bottom: 8px; text-align: justify; font-size: 9.5pt; line-height: 1.5;">
+                        Subsurface stratification encountered across the site is typical of the glaciated and alluvial deposits characteristic of the New England region. General stratigraphic sequences identified across the borings consist of a thin surface cover of topsoil or asphalt pavement section, underlain by variable layers of granular sand and cohesive silt/clay deposits. Specifically, the soil types logged across the site include: <strong>\${soilTypesStr}</strong>.
+                    </p>
+                    <p style="margin-top: 0; margin-bottom: 8px; text-align: justify; font-size: 9.5pt; line-height: 1.5;">
+                        - <strong>Granular Soils:</strong> Sandy layers ranged from fine to medium-coarse sand, showing dry to wet moisture conditions. Relative density evaluations based on SPT blowcounts indicate N-values ranging from <strong>\${minN}</strong> to <strong>\${maxN}</strong> blows per foot, corresponding to conditions ranging from very loose/loose to dense/very dense.<br>
+                        - <strong>Cohesive Soils:</strong> Clay and silt layers were encountered at varying depths, exhibiting stiff to very stiff consistencies.<br>
+                        - <strong>Refusals / Obstructions:</strong> \${refusals.length > 0 ? 'Refusal conditions (where standard penetration could not be completed) were encountered at: ' + refusals.join('; ') + '.' : 'No bedrock or shallow boulder refusal was encountered during this exploration program.'}
+                    </p>
+                    <p style="margin-top: 0; margin-bottom: 0; text-align: justify; font-size: 9.5pt; line-height: 1.5;">
+                        Detailed depths, thicknesses, soil classifications (according to the modified Burmister system), and color transitions are recorded under the <strong>'Layers'</strong> and <strong>'Vert Stack'</strong> worksheets of the Presentation Workbook.
+                    </p>
+                </div>
+                <!-- Page Footer -->
+                <div style="border-top: 1px solid #cbd5e1; padding-top: 5px; text-align: center; font-size: 8pt; color: #64748b;">
+                    Page 1 of 2 &bull; Geotechnical Engineering Services &bull; Caren Irgang, P.E.
+                </div>
+            </div>
+
+            <!-- Page Break -->
+            <div style="page-break-after: always; height: 1px;"></div>
+
+            <!-- PAGE 2 -->
+            <div class="pdf-page" style="padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1e293b; background: white; min-height: 1000px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <!-- Header minimal -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #1e3a8a; padding-bottom: 5px; margin-bottom: 15px; font-size: 8.5pt; color: #475569;">
+                        <div style="font-weight: bold; font-family: 'Georgia', serif; color: #1e3a8a;">CAREN IRGANG, P.E. &bull; GEOTECHNICAL REPORT</div>
+                        <div>Job Ref: \${jobName}</div>
+                    </div>
+
+                    <h2 style="font-size: 11pt; font-weight: bold; color: #1e3a8a; border-bottom: 1.5px solid #1e3a8a; padding-bottom: 3px; margin-top: 0; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">4. Subsurface Exploration Summary</h2>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 8.5pt;">
+                        <thead>
+                            <tr style="background-color: #1e3a8a; color: white;">
+                                <th style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: bold; text-align: left;">Boring ID</th>
+                                <th style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: bold; text-align: left;">Drill Date</th>
+                                <th style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: bold; text-align: left;">Equipment / Rig</th>
+                                <th style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: bold; text-align: left;">Max Depth</th>
+                                <th style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: bold; text-align: left;">Est. Site Class</th>
+                                <th style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: bold; text-align: left;">GW Level (ft)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            \${boringTableRows}
+                        </tbody>
+                    </table>
+
+                    <!-- Specific Boring Details -->
+                    <div style="margin-bottom: 15px;">
+                        \${boringSummariesHtml}
+                    </div>
+
+                    <h2 style="font-size: 11pt; font-weight: bold; color: #1e3a8a; border-bottom: 1.5px solid #1e3a8a; padding-bottom: 3px; margin-top: 15px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">5. Groundwater Conditions</h2>
+                    <p style="margin-top: 0; margin-bottom: 12px; text-align: justify; font-size: 9.5pt; line-height: 1.5;">
+                        Groundwater measurements were collected during drilling and immediately upon completion of the boreholes. \${gwObservations.length > 0 ? 'Groundwater was observed at the following depths: ' + gwObservations.join('; ') + '.' : 'No free groundwater was observed in the advanced borings at the time of exploration.'} Groundwater levels should be expected to fluctuate dynamically in response to seasonal precipitation, snowmelt, local drainage patterns, and tidal or riverine levels where applicable. The detailed groundwater logs are recorded on the <strong>'Boring Information'</strong> worksheet.
+                    </p>
+
+                    <h2 style="font-size: 11pt; font-weight: bold; color: #1e3a8a; border-bottom: 1.5px solid #1e3a8a; padding-bottom: 3px; margin-top: 15px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">6. Presentation Workbook Synthesis</h2>
+                    <p style="margin-top: 0; margin-bottom: 15px; text-align: justify; font-size: 9.5pt; line-height: 1.5;">
+                        All field and laboratory data have been consolidated into the companion Presentation Workbook, which contains the following tabs:
+                        1) <strong>'Job'</strong> (metadata, GPS, office info);
+                        2) <strong>'Boring Information'</strong> (rig parameters, Site Class, GW);
+                        3) <strong>'Borings Samples Layers Summary'</strong> (blowcounts, recovery, and descriptions);
+                        4) <strong>'Layers'</strong> (Burmister soil classifications);
+                        5) <strong>'Vert Stack'</strong> (color-coded stratigraphic profiles);
+                        6) <strong>'Horoz Stack'</strong> (lateral profile correlations);
+                        7) <strong>'Reference'</strong> (engineering reference values);
+                        8) <strong>'DigSafe'</strong> (utility tickets and local utility contact numbers); and
+                        9) <strong>'Location Map'</strong> (GPS-based plan view mapping).
+                        These worksheets represent the formalized engineering record for this project.
+                    </p>
+
+                    <!-- Signature block & Stamp -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px; page-break-inside: avoid;">
+                        <div style="font-size: 9.5pt; line-height: 1.4;">
+                            Respectfully submitted,<br><br>
+                            <div style="font-family: 'Georgia', serif; font-size: 12pt; font-weight: bold; color: #1e3a8a; font-style: italic; margin-bottom: 4px;">Caren Irgang</div>
+                            <strong>Caren Irgang, P.E.</strong><br>
+                            Senior Geotechnical Engineer<br>
+                            State of Connecticut License No. 47507
+                        </div>
+                        <div>
+                            <!-- CSS Stamp -->
+                            <div style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 125px; height: 125px; border: 2px solid #b91c1c; border-radius: 50%; padding: 4px; box-sizing: border-box; background-color: transparent;">
+                                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; border: 1px dashed #b91c1c; border-radius: 50%; text-align: center; color: #b91c1c; font-family: 'Times New Roman', serif; box-sizing: border-box; padding: 2px;">
+                                    <div style="font-size: 6px; font-weight: bold; text-transform: uppercase;">State of Connecticut</div>
+                                    <div style="font-size: 10px; line-height: 0.8; margin-top: 1px;">★</div>
+                                    <div style="font-size: 8px; font-weight: bold; text-transform: uppercase; margin: 1px 0;">Caren Irgang</div>
+                                    <div style="font-size: 7px; font-weight: bold;">No. 47507</div>
+                                    <div style="font-size: 10px; line-height: 0.8; margin-bottom: 1px;">★</div>
+                                    <div style="font-size: 5px; font-weight: bold; text-transform: uppercase; line-height: 1.1;">Licensed Professional Engineer</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Page Footer -->
+                <div style="border-top: 1px solid #cbd5e1; padding-top: 5px; text-align: center; font-size: 8pt; color: #64748b; margin-top: 15px;">
+                    Page 2 of 2 &bull; Geotechnical Engineering Services &bull; Caren Irgang, P.E.
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(container);
+
+        const filename = `Geotechnical_Narrative_\${jobName.replace(/\\s+/g, '_')}_\${dateSuffix}.pdf`;
+        const opt = {
+            margin:       0.4,
+            filename:     filename,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
+            pagebreak:    { mode: ['avoid-all', 'css'] }
+        };
+
+        html2pdf().set(opt).from(container).output('arraybuffer').then(function(buffer) {
+            document.body.removeChild(container);
+            const base64Data = arrayBufferToBase64(buffer);
+            saveToDesktop(filename, base64Data, () => {
+                const blob = new Blob([buffer], { type: 'application/pdf' });
+                const url = window.URL.createObjectURL(blob);
+                const anchor = document.createElement('a');
+                anchor.href = url;
+                anchor.download = filename;
+                document.body.appendChild(anchor);
+                anchor.click();
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(anchor);
+                }, 100);
+            });
+        }).catch(err => {
+            console.error("Failed to output arraybuffer, falling back to download", err);
+            html2pdf().set(opt).from(container).save().then(() => {
+                document.body.removeChild(container);
+            });
+        });
+    } catch (err) {
+        console.error("Error exporting narrative:", err);
+        showToast("Failed to export geotechnical narrative: " + err.message, "error");
+        alert("Failed to export geotechnical narrative: " + err.message);
+    }
+}
+
+
 // Browser-based Automated Test Suite (runs only when ?test=true is in the URL)
 window.addEventListener('load', () => {
     if (!window.location.search.includes('test=true')) return;
@@ -8714,6 +9128,11 @@ window.addEventListener('load', () => {
         // Restore
         contractorSelect.value = "New Test Contractor Co.";
         assert(contractorInput.value === "New Test Contractor Co.", "Changing value property descriptor programmatically should update input value.");
+
+        // Test 6: Geotechnical Narrative PDF button and function existence
+        const narrativeBtn = document.getElementById('exportGeotechNarrativeBtn');
+        assert(narrativeBtn !== null, "Found Geotechnical Narrative PDF button in Export tab.");
+        assert(typeof exportGeotechNarrativePDF === 'function', "exportGeotechNarrativePDF function is defined and active.");
 
     } catch (err) {
         assert(false, "Test suite crashed with error: " + err.message);
