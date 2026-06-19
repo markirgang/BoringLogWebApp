@@ -4247,9 +4247,16 @@
         let list = [];
         
         let sortedRuns = [...datasetRuns].sort((a, b) => {
-            if (a["Boring ID"] !== b["Boring ID"]) {
-                return a["Boring ID"].localeCompare(b["Boring ID"], undefined, {numeric: true});
-            }
+            let boringA = a["Boring ID"] || "";
+            let boringB = b["Boring ID"] || "";
+            let boringCompare = boringA.localeCompare(boringB, undefined, {numeric: true});
+            if (boringCompare !== 0) return boringCompare;
+
+            let sampleA = a["Sample ID"] || "";
+            let sampleB = b["Sample ID"] || "";
+            let sampleCompare = sampleA.localeCompare(sampleB, undefined, {numeric: true});
+            if (sampleCompare !== 0) return sampleCompare;
+
             return (a["Start Depth (in)"] || 0) - (b["Start Depth (in)"] || 0);
         });
         
@@ -4279,7 +4286,14 @@
                 p["Sample ID"] === sampleId || 
                 p["Sample ID"] === (boringId + "-" + shortSampleId)
             );
-            layers.sort((a, b) => (a["Top Depth (ft)"] || 0) - (b["Top Depth (ft)"] || 0));
+            layers.sort((a, b) => {
+                let layerA = a["Layer ID"] || "";
+                let layerB = b["Layer ID"] || "";
+                let layerCompare = layerA.localeCompare(layerB, undefined, {numeric: true});
+                if (layerCompare !== 0) return layerCompare;
+
+                return (a["Top Depth (ft)"] || 0) - (b["Top Depth (ft)"] || 0);
+            });
             
             let startD = run["Start Depth (in)"] !== undefined ? Number(run["Start Depth (in)"]).toFixed(1) : "";
             let endD = run["End Depth (in)"] !== undefined ? Number(run["End Depth (in)"]).toFixed(1) : "";
@@ -4375,9 +4389,16 @@
         let html = '';
         
         let sortedRuns = [...datasetRuns].sort((a, b) => {
-            if (a["Boring ID"] !== b["Boring ID"]) {
-                return a["Boring ID"].localeCompare(b["Boring ID"], undefined, {numeric: true});
-            }
+            let boringA = a["Boring ID"] || "";
+            let boringB = b["Boring ID"] || "";
+            let boringCompare = boringA.localeCompare(boringB, undefined, {numeric: true});
+            if (boringCompare !== 0) return boringCompare;
+
+            let sampleA = a["Sample ID"] || "";
+            let sampleB = b["Sample ID"] || "";
+            let sampleCompare = sampleA.localeCompare(sampleB, undefined, {numeric: true});
+            if (sampleCompare !== 0) return sampleCompare;
+
             return (a["Start Depth (in)"] || 0) - (b["Start Depth (in)"] || 0);
         });
         
@@ -4393,7 +4414,14 @@
                 p["Sample ID"] === (boringId + "-" + shortSampleId)
             );
             
-            layers.sort((a, b) => (a["Top Depth (ft)"] || 0) - (b["Top Depth (ft)"] || 0));
+            layers.sort((a, b) => {
+                let layerA = a["Layer ID"] || "";
+                let layerB = b["Layer ID"] || "";
+                let layerCompare = layerA.localeCompare(layerB, undefined, {numeric: true});
+                if (layerCompare !== 0) return layerCompare;
+
+                return (a["Top Depth (ft)"] || 0) - (b["Top Depth (ft)"] || 0);
+            });
             
             let startD = run["Start Depth (in)"] !== undefined ? Number(run["Start Depth (in)"]).toFixed(1) : "";
             let endD = run["End Depth (in)"] !== undefined ? Number(run["End Depth (in)"]).toFixed(1) : "";
@@ -4529,9 +4557,16 @@
     
     function buildSummaryRowsData() {
         let sortedRuns = [...datasetRuns].sort((a, b) => {
-            if (a["Boring ID"] !== b["Boring ID"]) {
-                return a["Boring ID"].localeCompare(b["Boring ID"], undefined, {numeric: true});
-            }
+            let boringA = a["Boring ID"] || "";
+            let boringB = b["Boring ID"] || "";
+            let boringCompare = boringA.localeCompare(boringB, undefined, {numeric: true});
+            if (boringCompare !== 0) return boringCompare;
+
+            let sampleA = a["Sample ID"] || "";
+            let sampleB = b["Sample ID"] || "";
+            let sampleCompare = sampleA.localeCompare(sampleB, undefined, {numeric: true});
+            if (sampleCompare !== 0) return sampleCompare;
+
             return (a["Start Depth (in)"] || 0) - (b["Start Depth (in)"] || 0);
         });
 
@@ -4560,7 +4595,14 @@
                 p["Sample ID"] === sampleId || 
                 p["Sample ID"] === (boringId + "-" + shortSampleId)
             );
-            layers.sort((a, b) => (a["Top Depth (ft)"] || 0) - (b["Top Depth (ft)"] || 0));
+            layers.sort((a, b) => {
+                let layerA = a["Layer ID"] || "";
+                let layerB = b["Layer ID"] || "";
+                let layerCompare = layerA.localeCompare(layerB, undefined, {numeric: true});
+                if (layerCompare !== 0) return layerCompare;
+
+                return (a["Top Depth (ft)"] || 0) - (b["Top Depth (ft)"] || 0);
+            });
 
             let runDepth = "";
             let blowcounts = "-";
@@ -7937,8 +7979,15 @@ async function exportStylizedExcel() {
 
         try {
             const mapBase64 = await getBoringMapCanvasImage(excelBorings, minLat, maxLat, minLon, maxLon, 752, 380);
+            let cleanBase64 = mapBase64;
+            if (mapBase64.startsWith("data:image/")) {
+                const commaIdx = mapBase64.indexOf(",");
+                if (commaIdx !== -1) {
+                    cleanBase64 = mapBase64.substring(commaIdx + 1);
+                }
+            }
             const imageId = workbook.addImage({
-                base64: mapBase64,
+                base64: cleanBase64,
                 extension: 'png',
             });
             sheetMap.addImage(imageId, {
