@@ -2944,8 +2944,8 @@
 
     function calculateSampleRecovery(boringId, shortSampleId) {
         if (!boringId || !shortSampleId) return 0;
-        const activeBoring = boringId.trim();
-        const activeSample = shortSampleId.replace(/^S-?/, "").trim();
+        const activeBoring = boringId.trim().toLowerCase();
+        const activeSample = shortSampleId.replace(/^S-?/i, "").trim().toLowerCase();
 
         let layers = datasetProfiles.filter(p => {
             let details = getLayerDetails(p);
@@ -2975,8 +2975,8 @@
             return;
         }
 
-        const activeBoring = runBoring;
-        const activeSample = sampleRaw.replace(/^S-?/, "").trim();
+        const activeBoring = runBoring.toLowerCase();
+        const activeSample = sampleRaw.replace(/^S-?/i, "").trim().toLowerCase();
 
         let layers = datasetProfiles.filter(p => {
             let details = getLayerDetails(p);
@@ -3841,8 +3841,8 @@
 
     function getLayerDetails(p) {
         if (!p) return { boring: "", sample: "", layer: "" };
-        let sampleId = p["Sample ID"] || "";
-        let layerIdStr = p["Layer ID"] || "";
+        let sampleId = (p["Sample ID"] || "").toString().trim();
+        let layerIdStr = (p["Layer ID"] || "").toString().trim();
         
         let boringId = "";
         const sIndex = sampleId.indexOf('S');
@@ -3863,7 +3863,7 @@
         if (boringId) {
             shortSampleId = shortSampleId.replace(boringId + "-", "").replace(boringId, "");
         }
-        let cleanSample = shortSampleId.replace(/^S-?/, "");
+        let cleanSample = shortSampleId.replace(/^S-?/i, "");
         
         let combinedSampleId = boringId + shortSampleId;
         let shortLayerId = layerIdStr
@@ -3872,12 +3872,12 @@
             .replace(boringId + "-" + shortSampleId, "")
             .replace(boringId + shortSampleId, "");
             
-        let cleanLayer = shortLayerId.replace(/^-?L-?/, "");
+        let cleanLayer = shortLayerId.replace(/^-?[Ll]-?/, "");
         
         return {
-            boring: boringId.trim(),
-            sample: cleanSample.trim(),
-            layer: cleanLayer.trim()
+            boring: boringId.trim().toLowerCase(),
+            sample: cleanSample.trim().toLowerCase(),
+            layer: cleanLayer.trim().toLowerCase()
         };
     }
 
@@ -3900,9 +3900,9 @@
         if (!isNaN(runStartVal) && !isNaN(runEndVal) && !isNaN(relTopVal) && !isNaN(relBottomVal)) {
             const sampleLength = runEndVal - runStartVal; // in inches
             const currentLayerThickness = relBottomVal - relTopVal; // in feet
-            const newBoring = boringRaw;
-            const newSample = sampleRaw.replace(/^S-?/, "");
-            const newLayer = document.getElementById('rel_layer_id').value.replace(/^-?L-?/, "");
+            const newBoring = boringRaw.trim().toLowerCase();
+            const newSample = sampleRaw.replace(/^S-?/i, "").trim().toLowerCase();
+            const newLayer = document.getElementById('rel_layer_id').value.replace(/^-?[Ll]-?/, "").trim().toLowerCase();
             
             let otherLayersThickness = 0;
             datasetProfiles.forEach(p => {
@@ -4070,9 +4070,9 @@
         let layerNum = document.getElementById('rel_layer_id').value;
         let layerId = combinedSampleId + layerNum; // e.g. B-1S-1L-1
         
-        let newBoring = boringRaw;
-        let newSample = sampleRaw.replace(/^S-?/, "");
-        let newLayer = layerNum.replace(/^-?L-?/, "");
+        let newBoring = boringRaw.trim().toLowerCase();
+        let newSample = sampleRaw.replace(/^S-?/i, "").trim().toLowerCase();
+        let newLayer = layerNum.replace(/^-?[Ll]-?/, "").trim().toLowerCase();
         
         let existingProfileIndex = datasetProfiles.findIndex(p => {
             let details = getLayerDetails(p);
