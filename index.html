@@ -2182,12 +2182,12 @@
             <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--slate-800);">Export Stylized Presentation Workbook</h2>
             <span style="font-weight: 700; color: #dc2626; font-size: 0.95rem; display: block; margin-bottom: 0.5rem;">FOR EXPORT ONLY-DO NOT RE-IMPORT THESE INTO STRATAPRO!</span>
             <p style="margin-top: 0;">Generate formatted, presentation-ready reports containing all project data by tab</p>
-            <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem; align-items: flex-start;">
-                <button class="btn" id="exportStylizedExcelBtn" style="padding: 1rem 2rem; font-size: 1.1rem; background-color: var(--emerald-600); color: white; border: none; border-radius: 6px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--emerald-700)'" onmouseout="this.style.backgroundColor='var(--emerald-600)'" onclick="exportStylizedExcel()">
-                    <span style="margin-right: 0.5rem; font-size: 1.25rem;">✨ 📊</span> Export Stylized Workbook
+            <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem; align-items: flex-start; width: 100%;">
+                <button class="btn" id="exportStylizedExcelBtn" style="padding: 1.25rem 2.5rem; font-size: 1.2rem; font-weight: 700; background-color: var(--emerald-600); color: white; border: none; border-radius: 6px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); cursor: pointer; transition: background-color 0.2s; width: 100%; max-width: 450px;" onmouseover="this.style.backgroundColor='var(--emerald-700)'" onmouseout="this.style.backgroundColor='var(--emerald-600)'" onclick="exportStylizedExcel()">
+                    <span style="margin-right: 0.5rem; font-size: 1.35rem;">✨ 📊</span> Export Stylized Workbook
                 </button>
-                <button class="btn" id="exportGeotechNarrativeBtn" style="padding: 1rem 2rem; font-size: 1.1rem; background-color: var(--indigo-600); color: white; border: none; border-radius: 6px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--indigo-700)'" onmouseout="this.style.backgroundColor='var(--indigo-600)'" onclick="exportGeotechNarrativePDF()">
-                    <span style="margin-right: 0.5rem; font-size: 1.25rem;">📄 ✍️</span> Export Geotechnical Narrative PDF
+                <button class="btn" id="exportGeotechNarrativeBtn" style="padding: 1.25rem 2.5rem; font-size: 1.2rem; font-weight: 700; background-color: var(--indigo-600); color: white; border: none; border-radius: 6px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); cursor: pointer; transition: background-color 0.2s; width: 100%; max-width: 450px;" onmouseover="this.style.backgroundColor='var(--indigo-700)'" onmouseout="this.style.backgroundColor='var(--indigo-600)'" onclick="exportGeotechNarrativePDF()">
+                    <span style="margin-right: 0.5rem; font-size: 1.35rem;">📄 ✍️</span> Export Geotechnical Narrative PDF
                 </button>
             </div>
         </div>
@@ -8653,16 +8653,50 @@ async function exportStylizedExcel() {
 }
 
 async function exportGeotechNarrativePDF() {
+    const btn = document.getElementById('exportGeotechNarrativeBtn');
+    if (!btn) return;
+    const originalText = btn.innerHTML;
+    
     try {
         if (typeof html2pdf === 'undefined') {
             showToast("html2pdf library is not loaded. Please check your internet connection and reload the page.", "error");
             alert("html2pdf library is not loaded. Please check your internet connection and reload the page.");
             return;
         }
-        showToast("Generating geotechnical narrative PDF...", "success");
 
         const { projectName, jobName, address, dateSuffix } = getHeaderInfo();
-        const currentDateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const filename = `Geotechnical_Narrative_${jobName.replace(/\s+/g, '_')}_${dateSuffix}.pdf`;
+
+        // 1. Trigger Save File Picker immediately inside the user gesture context
+        let fileHandle = null;
+        let useFileSystemAccess = false;
+        
+        if (window.showSaveFilePicker) {
+            try {
+                const acceptObj = { 'application/pdf': ['.pdf'] };
+                const options = {
+                    suggestedName: filename,
+                    startIn: 'desktop',
+                    types: [{
+                        description: 'PDF File',
+                        accept: acceptObj
+                    }]
+                };
+                fileHandle = await window.showSaveFilePicker(options);
+                useFileSystemAccess = true;
+            } catch (err) {
+                if (err.name === 'AbortError') {
+                    console.log('User cancelled save operation');
+                    return; // exit quietly
+                }
+                console.warn("showSaveFilePicker failed or was blocked, falling back to direct download:", err);
+            }
+        }
+
+        // 2. Change button text and disable to provide instant loading feedback
+        btn.innerHTML = `⏳ Generating PDF...`;
+        btn.disabled = true;
+        showToast("Generating narrative report PDF... Please wait.", "info");
 
         // Collect all borings
         let borings = {};
@@ -8677,6 +8711,8 @@ async function exportGeotechNarrativePDF() {
         if (boringIds.length === 0) {
             showToast("No boring data available to summarize.", "error");
             alert("No boring data available. Please add some boring logs first.");
+            btn.innerHTML = originalText;
+            btn.disabled = false;
             return;
         }
 
@@ -8857,11 +8893,15 @@ async function exportGeotechNarrativePDF() {
             `;
         });
 
-        // 3. Construct HTML container for PDF
+        // 3. Construct HTML container for PDF (positioned off-screen)
         const container = document.createElement('div');
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        container.style.top = '0';
         container.style.width = '750px';
-        container.style.margin = '0 auto';
         container.style.background = 'white';
+        
+        const currentDateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         
         container.innerHTML = `
             <!-- PAGE 1 -->
@@ -9023,7 +9063,6 @@ async function exportGeotechNarrativePDF() {
         
         document.body.appendChild(container);
 
-        const filename = `Geotechnical_Narrative_${jobName.replace(/\s+/g, '_')}_${dateSuffix}.pdf`;
         const opt = {
             margin:       0.4,
             filename:     filename,
@@ -9033,10 +9072,21 @@ async function exportGeotechNarrativePDF() {
             pagebreak:    { mode: ['avoid-all', 'css'] }
         };
 
-        html2pdf().set(opt).from(container).output('arraybuffer').then(function(buffer) {
-            document.body.removeChild(container);
+        // 3. Generate PDF to ArrayBuffer
+        const buffer = await html2pdf().set(opt).from(container).output('arraybuffer');
+        document.body.removeChild(container);
+
+        if (useFileSystemAccess && fileHandle) {
+            // Write PDF directly to the user-chosen File Handle
+            const writable = await fileHandle.createWritable();
+            await writable.write(buffer);
+            await writable.close();
+            showToast("Report PDF saved successfully!", "success");
+            alert(`Geotechnical Narrative PDF saved successfully.`);
+        } else {
+            // Fallback: save to Desktop via server dialog or fallback browser download
             const base64Data = arrayBufferToBase64(buffer);
-            saveToDesktop(filename, base64Data, () => {
+            await saveToDesktop(filename, base64Data, () => {
                 const blob = new Blob([buffer], { type: 'application/pdf' });
                 const url = window.URL.createObjectURL(blob);
                 const anchor = document.createElement('a');
@@ -9049,16 +9099,15 @@ async function exportGeotechNarrativePDF() {
                     document.body.removeChild(anchor);
                 }, 100);
             });
-        }).catch(err => {
-            console.error("Failed to output arraybuffer, falling back to download", err);
-            html2pdf().set(opt).from(container).save().then(() => {
-                document.body.removeChild(container);
-            });
-        });
+            showToast("Report PDF generated successfully!", "success");
+        }
     } catch (err) {
         console.error("Error exporting narrative:", err);
         showToast("Failed to export geotechnical narrative: " + err.message, "error");
         alert("Failed to export geotechnical narrative: " + err.message);
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
     }
 }
 
