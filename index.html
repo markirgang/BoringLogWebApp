@@ -1329,18 +1329,7 @@
                     
                     <div class="form-group">
                         <label>Core Matrix Recovery Depth (inches)</label>
-                        <div class="input-addon-group">
-                            <select id="run_rec">
-                                <option value="0">0</option>
-                                <option value="12">12</option>
-                                <option value="14">14</option>
-                                <option value="16">16</option>
-                                <option value="18" selected>18</option>
-                                <option value="20">20</option>
-                                <option value="22">22</option>
-                            </select>
-                            <button type="button" class="btn-small" onclick="promptAddChoice('run_rec')">➕ Choice</button>
-                        </div>
+                        <input type="text" id="run_rec" readonly style="background-color: #f1f5f9; font-weight: bold; color: var(--blue-700); font-size: 0.95rem; border: 1px solid var(--border); border-radius: 4px; padding: 0.5rem;" placeholder="0.0" value="0.0">
                     </div>
                     
                     <div class="form-group">
@@ -2953,6 +2942,26 @@
         }, 3000);
     }
 
+    function calculateSampleRecovery(boringId, shortSampleId) {
+        if (!boringId || !shortSampleId) return 0;
+        const activeBoring = boringId.trim();
+        const activeSample = shortSampleId.replace(/^S-?/, "").trim();
+
+        let layers = datasetProfiles.filter(p => {
+            let details = getLayerDetails(p);
+            return details.boring === activeBoring && details.sample === activeSample;
+        });
+
+        let totalFt = 0;
+        layers.forEach(p => {
+            const top = parseFloat(p["Top Depth (ft)"]) || 0;
+            const bottom = parseFloat(p["Bottom Depth (ft)"]) || 0;
+            totalFt += Math.max(0, bottom - top);
+        });
+
+        return Math.round(totalFt * 12 * 10) / 10;
+    }
+
     function updateLayersSubform() {
         const listContainer = document.getElementById('subform-layers-list');
         const totalSpan = document.getElementById('subform-layers-total');
@@ -2982,9 +2991,18 @@
             return layerA - layerB;
         });
 
+        const runRecInput = document.getElementById('run_rec');
+        const runSampleId = activeBoring + "-" + sampleRaw;
+        const combinedSampleId = activeBoring + sampleRaw;
+        let run = datasetRuns.find(r => r["Sample ID"] === runSampleId || r["Sample ID"] === combinedSampleId);
+
         if (layers.length === 0) {
             listContainer.innerHTML = `<div style="color: #94a3b8; font-style: italic; font-size: 0.8rem; text-align: center; padding: 0.5rem 0;">No layers logged yet</div>`;
             totalSpan.textContent = `0.0 ft (0")`;
+            if (runRecInput) runRecInput.value = '0.0';
+            if (run) {
+                run["Recovery (in)"] = 0;
+            }
             return;
         }
 
@@ -3016,6 +3034,13 @@
         listContainer.innerHTML = html;
         const totalInches = totalFt * 12;
         totalSpan.textContent = `${totalFt.toFixed(2)} ft (${totalInches.toFixed(1)}")`;
+
+        if (runRecInput) {
+            runRecInput.value = totalInches.toFixed(1);
+        }
+        if (run) {
+            run["Recovery (in)"] = Math.round(totalInches * 10) / 10;
+        }
     }
 
     function deleteSubformProfile(layerId) {
@@ -3558,7 +3583,7 @@
         document.getElementById('run_bc_in_4').value = 6;
         
         document.getElementById('run_nval').value = '';
-        document.getElementById('run_rec').value = '18';
+        document.getElementById('run_rec').value = '0.0';
         document.getElementById('run_comments').value = '';
         
         if (boringRuns.length > 0) {
@@ -3871,17 +3896,10 @@
         const relTopVal = parseFloat(document.getElementById('rel_top').value);
         const relBottomVal = parseFloat(document.getElementById('rel_bottom').value);
         
-        // 1. Check if core recovery exceeds the length of the sample
-        if (!isNaN(runStartVal) && !isNaN(runEndVal) && !isNaN(runRecVal)) {
-            const sampleLength = runEndVal - runStartVal;
-            if (runRecVal > sampleLength) {
-                return `Core Matrix Recovery Depth (${runRecVal}") cannot exceed the sample run's total length (${sampleLength.toFixed(1)}").`;
-            }
-        }
-
-        // 2. Check if the sum of all layers for this sample (including this layer) exceeds the core recovery length
-        if (!isNaN(relTopVal) && !isNaN(relBottomVal) && !isNaN(runRecVal)) {
-            const currentLayerThickness = relBottomVal - relTopVal;
+        // 1. Check if the sum of all layers for this sample (including this layer) exceeds the sample run's total length
+        if (!isNaN(runStartVal) && !isNaN(runEndVal) && !isNaN(relTopVal) && !isNaN(relBottomVal)) {
+            const sampleLength = runEndVal - runStartVal; // in inches
+            const currentLayerThickness = relBottomVal - relTopVal; // in feet
             const newBoring = boringRaw;
             const newSample = sampleRaw.replace(/^S-?/, "");
             const newLayer = document.getElementById('rel_layer_id').value.replace(/^-?L-?/, "");
@@ -3903,8 +3921,8 @@
             const totalLayersThicknessFt = otherLayersThickness + currentLayerThickness;
             const totalLayersThicknessInches = totalLayersThicknessFt * 12;
             
-            if (totalLayersThicknessInches > (runRecVal + 0.01)) {
-                return `The total thickness of all layers in this sample (${totalLayersThicknessInches.toFixed(1)}") cannot exceed the core matrix recovery length (${runRecVal.toFixed(1)}").`;
+            if (totalLayersThicknessInches > (sampleLength + 0.01)) {
+                return `The total thickness of all layers in this sample (${totalLayersThicknessInches.toFixed(1)}") cannot exceed the sample run's total length (${sampleLength.toFixed(1)}").`;
             }
         }
         
@@ -6102,6 +6120,14 @@
                     "PID (ppm)", "Pocket Penetrometer (tsf)", "Pocket Torvane (tsf)"
                 ];
                 datasetRuns = parseSheetToObjects(sheetRuns, numericFieldsRuns);
+                
+                // Automatically recalculate Recovery for imported runs based on profiles
+                datasetRuns.forEach(run => {
+                    const bId = run["Boring ID"];
+                    const sampleId = run["Sample ID"] || "";
+                    const shortSampleId = sampleId.replace(bId + "-", "").replace(bId, "");
+                    run["Recovery (in)"] = calculateSampleRecovery(bId, shortSampleId);
+                });
             }
 
             // Import Boring GPS
@@ -6245,6 +6271,14 @@
 
         alert("All project and sample data has been cleared.");
     }
+
+    // Automatically calculate initial sample run recovery based on profiles
+    datasetRuns.forEach(run => {
+        const bId = run["Boring ID"];
+        const sampleId = run["Sample ID"] || "";
+        const shortSampleId = sampleId.replace(bId + "-", "").replace(bId, "");
+        run["Recovery (in)"] = calculateSampleRecovery(bId, shortSampleId);
+    });
 
     // Run baseline initialization loops on system load
     rebuildBoringMapsFromDatasets();
