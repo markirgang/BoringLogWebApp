@@ -8888,43 +8888,43 @@ async function exportGeotechNarrativePDF() {
                     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 9pt;">
                         <tr>
                             <td style="width: 15%; padding: 5px 8px; border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold;">Project Name:</td>
-                            <td style="width: 35%; padding: 5px 8px; border: 1px solid #cbd5e1;">\${projectName}</td>
+                            <td style="width: 35%; padding: 5px 8px; border: 1px solid #cbd5e1;">${projectName}</td>
                             <td style="width: 15%; padding: 5px 8px; border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold;">Job Reference:</td>
-                            <td style="width: 35%; padding: 5px 8px; border: 1px solid #cbd5e1;">\${jobName}</td>
+                            <td style="width: 35%; padding: 5px 8px; border: 1px solid #cbd5e1;">${jobName}</td>
                         </tr>
                         <tr>
                             <td style="padding: 5px 8px; border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold;">Site Address:</td>
-                            <td style="padding: 5px 8px; border: 1px solid #cbd5e1;">\${address}</td>
+                            <td style="padding: 5px 8px; border: 1px solid #cbd5e1;">${address}</td>
                             <td style="padding: 5px 8px; border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold;">Report Date:</td>
-                            <td style="padding: 5px 8px; border: 1px solid #cbd5e1;">\${currentDateStr}</td>
+                            <td style="padding: 5px 8px; border: 1px solid #cbd5e1;">${currentDateStr}</td>
                         </tr>
                         <tr>
                             <td style="padding: 5px 8px; border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold;">GPS Coordinates:</td>
-                            <td style="padding: 5px 8px; border: 1px solid #cbd5e1;">\${document.getElementById('cov_gps_lat')?.value || 'N/A'}, \${document.getElementById('cov_gps_lon')?.value || 'N/A'}</td>
+                            <td style="padding: 5px 8px; border: 1px solid #cbd5e1;">${document.getElementById('cov_gps_lat')?.value || 'N/A'}, ${document.getElementById('cov_gps_lon')?.value || 'N/A'}</td>
                             <td style="padding: 5px 8px; border: 1px solid #cbd5e1; background-color: #f1f5f9; font-weight: bold;">Location Desc:</td>
-                            <td style="padding: 5px 8px; border: 1px solid #cbd5e1;">\${document.getElementById('cov_gps_address')?.value || 'N/A'}</td>
+                            <td style="padding: 5px 8px; border: 1px solid #cbd5e1;">${document.getElementById('cov_gps_address')?.value || 'N/A'}</td>
                         </tr>
                     </table>
 
                     <!-- Sections -->
                     <h2 style="font-size: 11pt; font-weight: bold; color: #1e3a8a; border-bottom: 1.5px solid #1e3a8a; padding-bottom: 3px; margin-top: 0; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">1. Introduction & Project Scope</h2>
                     <p style="margin-top: 0; margin-bottom: 12px; text-align: justify; font-size: 9.5pt; line-height: 1.5;">
-                        This Geotechnical Narrative Report summarizes the subsurface soil conditions and engineering assessments at <strong>\${projectName}</strong> (Job Reference: <strong>\${jobName}</strong>), located at <strong>\${address}</strong>. This investigation was planned and executed under the direction of <strong>Caren Irgang, PE</strong>, to verify stratigraphic profiles, evaluate the relative density and consistency of underlying materials, and provide a basis for structural foundation design. To ensure thoroughness, the field findings have been formatted and exported in the companion <strong>Presentation Workbook</strong>, which contains nine individual tabs summarizing Job Data, Boring Details, Sample/Layer correlations, and site maps. The user should refer directly to the sheets: <strong>'Job'</strong>, <strong>'Boring Information'</strong>, <strong>'Borings Samples Layers Summary'</strong>, <strong>'Layers'</strong>, <strong>'Vert Stack'</strong>, <strong>'Horoz Stack'</strong>, <strong>'Reference'</strong>, <strong>'DigSafe'</strong>, and <strong>'Location Map'</strong> for the raw and stylized engineering registers.
+                        This Geotechnical Narrative Report summarizes the subsurface soil conditions and engineering assessments at <strong>${projectName}</strong> (Job Reference: <strong>${jobName}</strong>), located at <strong>${address}</strong>. This investigation was planned and executed under the direction of <strong>Caren Irgang, PE</strong>, to verify stratigraphic profiles, evaluate the relative density and consistency of underlying materials, and provide a basis for structural foundation design. To ensure thoroughness, the field findings have been formatted and exported in the companion <strong>Presentation Workbook</strong>, which contains nine individual tabs summarizing Job Data, Boring Details, Sample/Layer correlations, and site maps. The user should refer directly to the sheets: <strong>'Job'</strong>, <strong>'Boring Information'</strong>, <strong>'Borings Samples Layers Summary'</strong>, <strong>'Layers'</strong>, <strong>'Vert Stack'</strong>, <strong>'Horoz Stack'</strong>, <strong>'Reference'</strong>, <strong>'DigSafe'</strong>, and <strong>'Location Map'</strong> for the raw and stylized engineering registers.
                     </p>
 
                     <h2 style="font-size: 11pt; font-weight: bold; color: #1e3a8a; border-bottom: 1.5px solid #1e3a8a; padding-bottom: 3px; margin-top: 15px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">2. Subsurface Exploration Program</h2>
                     <p style="margin-top: 0; margin-bottom: 12px; text-align: justify; font-size: 9.5pt; line-height: 1.5;">
-                        Subsurface exploration was completed between <strong>\${dateRangeStr}</strong> by advancing a total of <strong>\${boringIds.length}</strong> test borings (designated <strong>\${boringIds.join(', ')}</strong>). Drilling services were performed by <strong>\${contractorsStr}</strong> using a <strong>\${rigsStr}</strong>. The borings were advanced using standard hollow-stem augers or casing setups. Representative soil samples were obtained using a standard 2-inch Outer Diameter (O.D.) split-spoon sampler in general accordance with ASTM D1586 guidelines for the Standard Penetration Test (SPT). The sampler was driven using an automatic 140-lb hammer falling 30 inches. The specific drill crew (including foremen and helpers), hammer configurations, casing linings, and diameter details for each exploration point are documented in the <strong>'Boring Information'</strong> sheet of the Presentation Workbook.
+                        Subsurface exploration was completed between <strong>${dateRangeStr}</strong> by advancing a total of <strong>${boringIds.length}</strong> test borings (designated <strong>${boringIds.join(', ')}</strong>). Drilling services were performed by <strong>${contractorsStr}</strong> using a <strong>${rigsStr}</strong>. The borings were advanced using standard hollow-stem augers or casing setups. Representative soil samples were obtained using a standard 2-inch Outer Diameter (O.D.) split-spoon sampler in general accordance with ASTM D1586 guidelines for the Standard Penetration Test (SPT). The sampler was driven using an automatic 140-lb hammer falling 30 inches. The specific drill crew (including foremen and helpers), hammer configurations, casing linings, and diameter details for each exploration point are documented in the <strong>'Boring Information'</strong> sheet of the Presentation Workbook.
                     </p>
 
                     <h2 style="font-size: 11pt; font-weight: bold; color: #1e3a8a; border-bottom: 1.5px solid #1e3a8a; padding-bottom: 3px; margin-top: 15px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">3. General Site & Stratigraphic Conditions</h2>
                     <p style="margin-top: 0; margin-bottom: 8px; text-align: justify; font-size: 9.5pt; line-height: 1.5;">
-                        Subsurface stratification encountered across the site is typical of the glaciated and alluvial deposits characteristic of the New England region. General stratigraphic sequences identified across the borings consist of a thin surface cover of topsoil or asphalt pavement section, underlain by variable layers of granular sand and cohesive silt/clay deposits. Specifically, the soil types logged across the site include: <strong>\${soilTypesStr}</strong>.
+                        Subsurface stratification encountered across the site is typical of the glaciated and alluvial deposits characteristic of the New England region. General stratigraphic sequences identified across the borings consist of a thin surface cover of topsoil or asphalt pavement section, underlain by variable layers of granular sand and cohesive silt/clay deposits. Specifically, the soil types logged across the site include: <strong>${soilTypesStr}</strong>.
                     </p>
                     <p style="margin-top: 0; margin-bottom: 8px; text-align: justify; font-size: 9.5pt; line-height: 1.5;">
-                        - <strong>Granular Soils:</strong> Sandy layers ranged from fine to medium-coarse sand, showing dry to wet moisture conditions. Relative density evaluations based on SPT blowcounts indicate N-values ranging from <strong>\${minN}</strong> to <strong>\${maxN}</strong> blows per foot, corresponding to conditions ranging from very loose/loose to dense/very dense.<br>
+                        - <strong>Granular Soils:</strong> Sandy layers ranged from fine to medium-coarse sand, showing dry to wet moisture conditions. Relative density evaluations based on SPT blowcounts indicate N-values ranging from <strong>${minN}</strong> to <strong>${maxN}</strong> blows per foot, corresponding to conditions ranging from very loose/loose to dense/very dense.<br>
                         - <strong>Cohesive Soils:</strong> Clay and silt layers were encountered at varying depths, exhibiting stiff to very stiff consistencies.<br>
-                        - <strong>Refusals / Obstructions:</strong> \${refusals.length > 0 ? 'Refusal conditions (where standard penetration could not be completed) were encountered at: ' + refusals.join('; ') + '.' : 'No bedrock or shallow boulder refusal was encountered during this exploration program.'}
+                        - <strong>Refusals / Obstructions:</strong> ${refusals.length > 0 ? 'Refusal conditions (where standard penetration could not be completed) were encountered at: ' + refusals.join('; ') + '.' : 'No bedrock or shallow boulder refusal was encountered during this exploration program.'}
                     </p>
                     <p style="margin-top: 0; margin-bottom: 0; text-align: justify; font-size: 9.5pt; line-height: 1.5;">
                         Detailed depths, thicknesses, soil classifications (according to the modified Burmister system), and color transitions are recorded under the <strong>'Layers'</strong> and <strong>'Vert Stack'</strong> worksheets of the Presentation Workbook.
@@ -8945,7 +8945,7 @@ async function exportGeotechNarrativePDF() {
                     <!-- Header minimal -->
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #1e3a8a; padding-bottom: 5px; margin-bottom: 15px; font-size: 8.5pt; color: #475569;">
                         <div style="font-weight: bold; font-family: 'Georgia', serif; color: #1e3a8a;">CAREN IRGANG, P.E. &bull; GEOTECHNICAL REPORT</div>
-                        <div>Job Ref: \${jobName}</div>
+                        <div>Job Ref: ${jobName}</div>
                     </div>
 
                     <h2 style="font-size: 11pt; font-weight: bold; color: #1e3a8a; border-bottom: 1.5px solid #1e3a8a; padding-bottom: 3px; margin-top: 0; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">4. Subsurface Exploration Summary</h2>
@@ -8961,18 +8961,18 @@ async function exportGeotechNarrativePDF() {
                             </tr>
                         </thead>
                         <tbody>
-                            \${boringTableRows}
+                            ${boringTableRows}
                         </tbody>
                     </table>
 
                     <!-- Specific Boring Details -->
                     <div style="margin-bottom: 15px;">
-                        \${boringSummariesHtml}
+                        ${boringSummariesHtml}
                     </div>
 
                     <h2 style="font-size: 11pt; font-weight: bold; color: #1e3a8a; border-bottom: 1.5px solid #1e3a8a; padding-bottom: 3px; margin-top: 15px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">5. Groundwater Conditions</h2>
                     <p style="margin-top: 0; margin-bottom: 12px; text-align: justify; font-size: 9.5pt; line-height: 1.5;">
-                        Groundwater measurements were collected during drilling and immediately upon completion of the boreholes. \${gwObservations.length > 0 ? 'Groundwater was observed at the following depths: ' + gwObservations.join('; ') + '.' : 'No free groundwater was observed in the advanced borings at the time of exploration.'} Groundwater levels should be expected to fluctuate dynamically in response to seasonal precipitation, snowmelt, local drainage patterns, and tidal or riverine levels where applicable. The detailed groundwater logs are recorded on the <strong>'Boring Information'</strong> worksheet.
+                        Groundwater measurements were collected during drilling and immediately upon completion of the boreholes. ${gwObservations.length > 0 ? 'Groundwater was observed at the following depths: ' + gwObservations.join('; ') + '.' : 'No free groundwater was observed in the advanced borings at the time of exploration.'} Groundwater levels should be expected to fluctuate dynamically in response to seasonal precipitation, snowmelt, local drainage patterns, and tidal or riverine levels where applicable. The detailed groundwater logs are recorded on the <strong>'Boring Information'</strong> worksheet.
                     </p>
 
                     <h2 style="font-size: 11pt; font-weight: bold; color: #1e3a8a; border-bottom: 1.5px solid #1e3a8a; padding-bottom: 3px; margin-top: 15px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">6. Presentation Workbook Synthesis</h2>
@@ -9023,7 +9023,7 @@ async function exportGeotechNarrativePDF() {
         
         document.body.appendChild(container);
 
-        const filename = `Geotechnical_Narrative_\${jobName.replace(/\\s+/g, '_')}_\${dateSuffix}.pdf`;
+        const filename = `Geotechnical_Narrative_${jobName.replace(/\s+/g, '_')}_${dateSuffix}.pdf`;
         const opt = {
             margin:       0.4,
             filename:     filename,
