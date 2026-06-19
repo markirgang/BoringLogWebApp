@@ -1744,7 +1744,7 @@
                             <div style="color: #94a3b8; font-style: italic; font-size: 0.8rem; text-align: center; padding: 0.5rem 0;">No layers logged yet</div>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.25rem 0.5rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; font-size: 0.8rem; font-weight: 700; color: var(--blue-800);">
-                            <span>Total Logged Layer Thickness:</span>
+                            <span>Total Layer Depth (Thickness):</span>
                             <span id="subform-layers-total">0.0 ft (0")</span>
                         </div>
                     </div>
@@ -3050,6 +3050,83 @@
         }
     }
 
+    function updateDynamicDepthsAndRecovery() {
+        const runBoring = (document.getElementById('run_boring_id')?.value || '').trim();
+        const sampleRaw = (document.getElementById('run_id')?.value || '').trim();
+        if (!runBoring || !sampleRaw) return;
+
+        const activeBoring = runBoring.toLowerCase();
+        const activeSample = sampleRaw.replace(/^S-?/i, "").trim().toLowerCase();
+
+        const layerSelect = document.getElementById('rel_layer_id');
+        const currentLayerNum = (layerSelect?.value || '').replace(/^-?[Ll]-?/, "").trim().toLowerCase();
+
+        const relTopVal = parseFloat(document.getElementById('rel_top')?.value);
+        const relBottomVal = parseFloat(document.getElementById('rel_bottom')?.value);
+
+        let otherLayersThickness = 0;
+        datasetProfiles.forEach(p => {
+            let details = getLayerDetails(p);
+            const isMatch = details.boring === activeBoring && details.sample === activeSample;
+            const isCurrentLayer = isMatch && details.layer === currentLayerNum;
+            
+            if (isMatch && !isCurrentLayer) {
+                const t = parseFloat(p["Bottom Depth (ft)"]) - parseFloat(p["Top Depth (ft)"]);
+                if (!isNaN(t) && t > 0) {
+                    otherLayersThickness += t;
+                }
+            }
+        });
+
+        let currentThickness = 0;
+        if (!isNaN(relTopVal) && !isNaN(relBottomVal) && relBottomVal > relTopVal) {
+            currentThickness = relBottomVal - relTopVal;
+        } else {
+            let existingLayer = datasetProfiles.find(p => {
+                let details = getLayerDetails(p);
+                return details.boring === activeBoring && details.sample === activeSample && details.layer === currentLayerNum;
+            });
+            if (existingLayer) {
+                const t = parseFloat(existingLayer["Bottom Depth (ft)"]) - parseFloat(existingLayer["Top Depth (ft)"]);
+                if (!isNaN(t) && t > 0) {
+                    currentThickness = t;
+                }
+            }
+        }
+
+        const totalFt = otherLayersThickness + currentThickness;
+        const totalInches = totalFt * 12;
+
+        const totalSpan = document.getElementById('subform-layers-total');
+        if (totalSpan) {
+            totalSpan.textContent = `${totalFt.toFixed(2)} ft (${totalInches.toFixed(1)}")`;
+        }
+
+        const runRecInput = document.getElementById('run_rec');
+        if (runRecInput) {
+            runRecInput.value = totalInches.toFixed(1);
+        }
+    }
+
+    function recalculateAllRunsRecovery() {
+        datasetRuns.forEach(run => {
+            const bId = run["Boring ID"];
+            const sampleId = run["Sample ID"] || "";
+            const shortSampleId = sampleId.replace(bId + "-", "").replace(bId, "");
+            run["Recovery (in)"] = calculateSampleRecovery(bId, shortSampleId);
+        });
+    }
+
+    function refreshAllAfterDataChange() {
+        recalculateAllRunsRecovery();
+        if (typeof renderRunsTable === 'function') renderRunsTable();
+        if (typeof renderProfilesTable === 'function') renderProfilesTable();
+        if (typeof renderMergedBoringInfoTable === 'function') renderMergedBoringInfoTable();
+        if (typeof calculateGeotechOutputs === 'function') calculateGeotechOutputs();
+        if (typeof renderBurmisterTable === 'function') renderBurmisterTable();
+        if (typeof populateSampleDropdown === 'function') populateSampleDropdown();
+    }
+
     // Active View Tab switcher
     function switchTab(event, tabId) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -3759,9 +3836,27 @@
 
         const relTop = document.getElementById('rel_top');
         const relBottom = document.getElementById('rel_bottom');
-        if (relTop) relTop.addEventListener('change', updateLayerLengthUI);
-        if (relBottom) relBottom.addEventListener('change', updateLayerLengthUI);
-        updateLayerLengthUI();
+        const relLayerId = document.getElementById('rel_layer_id');
+
+        const updateLayersAndRecovery = () => {
+            updateLayerLengthUI();
+            updateDynamicDepthsAndRecovery();
+        };
+
+        if (relTop) {
+            relTop.addEventListener('change', updateLayersAndRecovery);
+            relTop.addEventListener('input', updateLayersAndRecovery);
+        }
+        if (relBottom) {
+            relBottom.addEventListener('change', updateLayersAndRecovery);
+            relBottom.addEventListener('input', updateLayersAndRecovery);
+        }
+        if (relLayerId) {
+            relLayerId.addEventListener('change', updateLayersAndRecovery);
+            relLayerId.addEventListener('input', updateLayersAndRecovery);
+        }
+
+        updateLayersAndRecovery();
         updateSampleLengthUI();
     });
 
@@ -3987,6 +4082,35 @@
         let newSampleId = boringRaw + "-" + sampleRaw;
         let combinedSampleId = boringRaw + sampleRaw; // e.g. B-1S-1
         
+        let newBoring = boringRaw.trim().toLowerCase();
+        let newSample = sampleRaw.replace(/^S-?/i, "").trim().toLowerCase();
+        let layerNum = document.getElementById('rel_layer_id').value;
+        let newLayer = layerNum.replace(/^-?[Ll]-?/, "").trim().toLowerCase();
+
+        // Calculate recovery value to save based on current inputs
+        const relTopVal = parseFloat(document.getElementById('rel_top').value);
+        const relBottomVal = parseFloat(document.getElementById('rel_bottom').value);
+        let calculatedRecInches = 0;
+        if (!isNaN(relTopVal) && !isNaN(relBottomVal) && relBottomVal > relTopVal) {
+            const currentLayerThickness = relBottomVal - relTopVal;
+            let otherLayersThickness = 0;
+            datasetProfiles.forEach(p => {
+                let details = getLayerDetails(p);
+                const isMatch = details.boring === newBoring && details.sample === newSample;
+                const isCurrentLayer = isMatch && details.layer === newLayer;
+                if (isMatch && !isCurrentLayer) {
+                    const t = parseFloat(p["Bottom Depth (ft)"]) - parseFloat(p["Top Depth (ft)"]);
+                    if (!isNaN(t) && t > 0) {
+                        otherLayersThickness += t;
+                    }
+                }
+            });
+            calculatedRecInches = Math.round((otherLayersThickness + currentLayerThickness) * 12 * 10) / 10;
+        }
+        if (document.getElementById('run_rec')) {
+            document.getElementById('run_rec').value = calculatedRecInches.toFixed(1);
+        }
+
         // Sync legacy selectors
         const relBoring = document.getElementById('rel_boring_id');
         const relSample = document.getElementById('rel_sample_id');
@@ -4024,7 +4148,7 @@
             "Blowcount 4 (18-24)": parseInt(document.getElementById('run_bc_4').value) || 0,
             
             "SPT N-Value": parseInt(document.getElementById('run_nval').value) || 0,
-            "Recovery (in)": parseInt(document.getElementById('run_rec').value) || 0,
+            "Recovery (in)": calculatedRecInches,
             "PID (ppm)": 0.0,
             "Pocket Penetrometer (tsf)": 0.0,
             "Pocket Torvane (tsf)": 0.0,
@@ -4071,12 +4195,7 @@
         saveBoringFieldsFromUI(boringRaw);
         
         // 2. Process Layer Data
-        let layerNum = document.getElementById('rel_layer_id').value;
         let layerId = combinedSampleId + layerNum; // e.g. B-1S-1L-1
-        
-        let newBoring = boringRaw.trim().toLowerCase();
-        let newSample = sampleRaw.replace(/^S-?/i, "").trim().toLowerCase();
-        let newLayer = layerNum.replace(/^-?[Ll]-?/, "").trim().toLowerCase();
         
         let existingProfileIndex = datasetProfiles.findIndex(p => {
             let details = getLayerDetails(p);
@@ -4145,12 +4264,7 @@
         layerCounters[newSampleId]++;
         
         // Refresh everything
-        renderRunsTable();
-        renderProfilesTable();
-        renderMergedBoringInfoTable();
-        calculateGeotechOutputs();
-        renderBurmisterTable();
-        populateSampleDropdown();
+        refreshAllAfterDataChange();
         
         // Auto-increment depths for next run
         let endDepth = parseFloat(document.getElementById('run_end').value) || 0;
@@ -4253,10 +4367,7 @@
 
     function deleteProfile(index) {
         datasetProfiles.splice(index, 1);
-        renderProfilesTable();
-        renderMergedBoringInfoTable();
-        calculateGeotechOutputs();
-        renderBurmisterTable();
+        refreshAllAfterDataChange();
     }
 
     function updateProfileInlineComment(index, val) {
@@ -5036,10 +5147,7 @@
     function deleteMergedLayer(index) {
         if (confirm("Are you sure you want to delete this layer?")) {
             datasetProfiles.splice(index, 1);
-            renderProfilesTable();
-            renderMergedBoringInfoTable();
-            calculateGeotechOutputs();
-            renderBurmisterTable();
+            refreshAllAfterDataChange();
         }
     }
     
@@ -5059,12 +5167,7 @@
             
             datasetRuns.splice(index, 1);
             
-            renderRunsTable();
-            renderProfilesTable();
-            renderMergedBoringInfoTable();
-            calculateGeotechOutputs();
-            renderBurmisterTable();
-            populateSampleDropdown();
+            refreshAllAfterDataChange();
         }
     }
 
@@ -6264,13 +6367,7 @@
         updateBlowcountPlaceholders();
 
         // 6. Refresh UI components
-        if (typeof populateSampleDropdown === 'function') populateSampleDropdown();
-        if (typeof renderProfilesTable === 'function') renderProfilesTable();
-        if (typeof renderRunsTable === 'function') renderRunsTable();
-        if (typeof renderMergedBoringInfoTable === 'function') renderMergedBoringInfoTable();
-        if (typeof calculateGeotechOutputs === 'function') calculateGeotechOutputs();
-        if (typeof renderBurmisterTable === 'function') renderBurmisterTable();
-        if (typeof renderStackingReport === 'function') renderStackingReport();
+        refreshAllAfterDataChange();
         if (typeof renderBoringMapTab === 'function') renderBoringMapTab();
 
         alert("All project and sample data has been cleared.");
