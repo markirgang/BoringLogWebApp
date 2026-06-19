@@ -1302,7 +1302,7 @@
                     </div>
                     
                     <div class="form-group">
-                        <label>Core Matrix Recovery Length (inches)</label>
+                        <label>Core Matrix Recovery Depth (inches)</label>
                         <div class="input-addon-group">
                             <select id="run_rec">
                                 <option value="0">0</option>
@@ -1582,7 +1582,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Length (ft)</label>
+                            <label>Depth (ft)</label>
                             <input type="text" id="layer_length_calc" readonly style="width: 100%; background-color: #f1f5f9; font-weight: bold; color: var(--blue-700); font-size: 0.8rem; padding: 0.35rem; text-align: center; border: 1px solid var(--border); border-radius: 4px;" placeholder="0.0">
                         </div>
                         <div class="form-group">
@@ -1721,6 +1721,11 @@
                     </div>
                 </div>
                 
+                <!-- ERROR MESSAGE CONTAINER -->
+                <div id="boringFormError" style="grid-column: 1 / -1; display: none; background-color: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; padding: 0.75rem 1rem; border-radius: 6px; font-weight: bold; font-size: 0.95rem; margin-top: 0.5rem; align-items: center; gap: 0.5rem;">
+                    ⚠️ <span id="boringFormErrorText"></span>
+                </div>
+                
                 <!-- SUBMIT BUTTON centered across grid -->
                 <div style="grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 1rem;">
                     <button type="submit" class="btn btn-success" style="padding: 0.75rem 2.5rem; font-size: 1.15rem; font-weight: 700; border-radius: 8px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.25);">
@@ -1762,7 +1767,7 @@
                         <th style="min-width: 160px;">Field Testing (PID/PP/TV)</th>
                         <th style="min-width: 70px;">Layer ID</th>
                         <th style="min-width: 100px;">Layer Depth (ft)</th>
-                        <th style="min-width: 100px;">Layer Length (ft)</th>
+                        <th style="min-width: 100px;">Depth (ft)</th>
                         <th style="min-width: 110px;">Soil Type</th>
                         <th style="min-width: 80px;">Color</th>
                         <th style="min-width: 85px;">Moisture</th>
@@ -2869,6 +2874,7 @@
                     overrideEl.value = cleanValue;
                 }
             }
+            selectElement.dispatchEvent(new Event('change'));
         }
     }
 
@@ -3237,6 +3243,23 @@
         setFieldVal('rel_pid', defaults["Default PID"]);
         setFieldVal('rel_pp', defaults["Default PP"]);
         setFieldVal('rel_tv', defaults["Default TV"]);
+        
+        setFieldVal('layer_override_contractor', defaults["Drilling Contractor"]);
+        setFieldVal('layer_override_equipment', defaults["Drilling Equipment Rig"]);
+        setFieldVal('layer_override_hammer', defaults["Hammer Configuration Type"]);
+        setFieldVal('layer_override_sampler', defaults["Sampler Setup"]);
+        setFieldVal('layer_override_foreman', defaults["Foreman"]);
+        setFieldVal('layer_override_helper', defaults["Helper"]);
+        setFieldVal('layer_override_bit_type', defaults["Bit Type"]);
+        setFieldVal('layer_override_rod_type', defaults["Rod Type"]);
+        setFieldVal('layer_override_casing', defaults["Casing"]);
+        setFieldVal('layer_override_casing_lining', defaults["Casing Lining"]);
+        setFieldVal('layer_override_case_diameter', defaults["Case Diameter"]);
+        setFieldVal('layer_override_hammer_wgt', defaults["Hammer Wgt"]);
+        setFieldVal('layer_override_hammer_drop', defaults["Hammer Drop"]);
+        setFieldVal('layer_override_rock_hammer_type', defaults["Rock Hammer Type"]);
+        setFieldVal('layer_override_rock_hammer_wgt_drop', defaults["Rock Hammer Wgt/Drop"]);
+        setFieldVal('layer_override_rock_size', defaults["Rock Size"]);
         
         setFieldVal('run_gw_moisture_1', gw["GW 1st Moisture"]);
         setFieldVal('run_gw_depth_1', gw["GW 1st Depth"]);
@@ -3643,11 +3666,156 @@
         }
     });
 
+    function getLayerDetails(p) {
+        if (!p) return { boring: "", sample: "", layer: "" };
+        let sampleId = p["Sample ID"] || "";
+        let layerIdStr = p["Layer ID"] || "";
+        
+        let boringId = "";
+        const sIndex = sampleId.indexOf('S');
+        if (sIndex !== -1) {
+            boringId = sampleId.substring(0, sIndex);
+        } else {
+            const sIndex2 = layerIdStr.indexOf('S');
+            if (sIndex2 !== -1) {
+                boringId = layerIdStr.substring(0, sIndex2);
+            }
+        }
+        
+        if (boringId.endsWith('-')) {
+            boringId = boringId.slice(0, -1);
+        }
+        
+        let shortSampleId = sampleId;
+        if (boringId) {
+            shortSampleId = shortSampleId.replace(boringId + "-", "").replace(boringId, "");
+        }
+        let cleanSample = shortSampleId.replace(/^S-?/, "");
+        
+        let combinedSampleId = boringId + shortSampleId;
+        let shortLayerId = layerIdStr
+            .replace(combinedSampleId, "")
+            .replace(sampleId, "")
+            .replace(boringId + "-" + shortSampleId, "")
+            .replace(boringId + shortSampleId, "");
+            
+        let cleanLayer = shortLayerId.replace(/^-?L-?/, "");
+        
+        return {
+            boring: boringId.trim(),
+            sample: cleanSample.trim(),
+            layer: cleanLayer.trim()
+        };
+    }
+
+    function validateBoringInfoFormInputs() {
+        const runBoringEl = document.getElementById('run_boring_id');
+        const runIdEl = document.getElementById('run_id');
+        if (!runBoringEl || !runIdEl) return null;
+        
+        const boringRaw = runBoringEl.value;
+        const sampleRaw = runIdEl.value;
+        const newSampleId = boringRaw + "-" + sampleRaw;
+        const combinedSampleId = boringRaw + sampleRaw;
+        
+        const runStartVal = parseFloat(document.getElementById('run_start').value);
+        const runEndVal = parseFloat(document.getElementById('run_end').value);
+        const runRecVal = parseFloat(document.getElementById('run_rec').value);
+        
+        const relTopVal = parseFloat(document.getElementById('rel_top').value);
+        const relBottomVal = parseFloat(document.getElementById('rel_bottom').value);
+        
+        // 1. Check if recovery exceeds sample run drive length
+        if (!isNaN(runStartVal) && !isNaN(runEndVal) && !isNaN(runRecVal)) {
+            const sampleRunTotalDepth = runEndVal - runStartVal;
+            if (runRecVal > sampleRunTotalDepth) {
+                return `Core Matrix Recovery Depth (${runRecVal}") cannot exceed the sample run's total depth (${sampleRunTotalDepth.toFixed(1)}").`;
+            }
+        }
+        
+        // 2. Check if the current layer's bottom depth exceeds the sample's drive end depth
+        if (!isNaN(runEndVal) && !isNaN(relBottomVal)) {
+            const sampleRunEndDepthFt = runEndVal / 12;
+            if (relBottomVal > sampleRunEndDepthFt) {
+                return `Layer Bottom Depth (${relBottomVal} ft) cannot exceed the sample run's end depth (${sampleRunEndDepthFt.toFixed(2)} ft).`;
+            }
+        }
+        
+        // 3. Check if the current layer's top depth is less than the sample's drive start depth
+        if (!isNaN(runStartVal) && !isNaN(relTopVal)) {
+            const sampleRunStartDepthFt = runStartVal / 12;
+            if (relTopVal < sampleRunStartDepthFt) {
+                return `Layer Top Depth (${relTopVal} ft) cannot be less than the sample run's start depth (${sampleRunStartDepthFt.toFixed(2)} ft).`;
+            }
+        }
+
+        // 4. Check if the sum of all layers for this sample (including this layer) exceeds the sample run's total depth
+        if (!isNaN(runStartVal) && !isNaN(runEndVal) && !isNaN(relTopVal) && !isNaN(relBottomVal)) {
+            const sampleRunTotalDepthFt = (runEndVal - runStartVal) / 12;
+            const newBoring = boringRaw;
+            const newSample = sampleRaw.replace(/^S-?/, "");
+            const newLayer = document.getElementById('rel_layer_id').value.replace(/^-?L-?/, "");
+            
+            let otherLayersThickness = 0;
+            datasetProfiles.forEach(p => {
+                let details = getLayerDetails(p);
+                const isMatch = details.boring === newBoring && details.sample === newSample;
+                const isCurrentLayer = isMatch && details.layer === newLayer;
+                
+                if (isMatch && !isCurrentLayer) {
+                    const t = parseFloat(p["Bottom Depth (ft)"]) - parseFloat(p["Top Depth (ft)"]);
+                    if (!isNaN(t) && t > 0) {
+                        otherLayersThickness += t;
+                    }
+                }
+            });
+            
+            const currentLayerThickness = relBottomVal - relTopVal;
+            const totalLayersThickness = otherLayersThickness + currentLayerThickness;
+            
+            if (totalLayersThickness > sampleRunTotalDepthFt) {
+                return `The total depth of all layers in this sample (${totalLayersThickness.toFixed(2)} ft) would exceed the sample run's total depth (${sampleRunTotalDepthFt.toFixed(2)} ft).`;
+            }
+        }
+        
+        return null;
+    }
+
+    const clearValidationErrorOnInput = () => {
+        const validationError = validateBoringInfoFormInputs();
+        const errorDiv = document.getElementById('boringFormError');
+        if (!validationError && errorDiv) {
+            errorDiv.style.display = 'none';
+        }
+    };
+    
+    ['run_start', 'run_end', 'run_rec', 'rel_top', 'rel_bottom',
+     'run_bc_in_1', 'run_bc_in_2', 'run_bc_in_3', 'run_bc_in_4'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', clearValidationErrorOnInput);
+            el.addEventListener('change', clearValidationErrorOnInput);
+        }
+    });
+
     document.getElementById('boringInfoForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
         // Force calculation update
         updateBlowcounts();
+
+        const validationError = validateBoringInfoFormInputs();
+        if (validationError) {
+            alert(validationError);
+            const errorDiv = document.getElementById('boringFormError');
+            const errorText = document.getElementById('boringFormErrorText');
+            if (errorDiv && errorText) {
+                errorText.innerText = validationError;
+                errorDiv.style.display = 'flex';
+                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return;
+        }
         
         let boringRaw = document.getElementById('run_boring_id').value;
         let sampleRaw = document.getElementById('run_id').value;
@@ -3740,7 +3908,15 @@
         // 2. Process Layer Data
         let layerNum = document.getElementById('rel_layer_id').value;
         let layerId = combinedSampleId + layerNum; // e.g. B-1S-1L-1
-        let existingProfileIndex = datasetProfiles.findIndex(p => p["Layer ID"] === layerId);
+        
+        let newBoring = boringRaw;
+        let newSample = sampleRaw.replace(/^S-?/, "");
+        let newLayer = layerNum.replace(/^-?L-?/, "");
+        
+        let existingProfileIndex = datasetProfiles.findIndex(p => {
+            let details = getLayerDetails(p);
+            return details.boring === newBoring && details.sample === newSample && details.layer === newLayer;
+        });
         
         let newProfileObj = {
             "Sample ID": combinedSampleId,
@@ -3779,10 +3955,25 @@
         };
         
         if (existingProfileIndex !== -1) {
-            datasetProfiles[existingProfileIndex] = newProfileObj;
+            datasetProfiles.splice(existingProfileIndex, 1);
+            datasetProfiles.push(newProfileObj);
         } else {
             datasetProfiles.push(newProfileObj);
         }
+
+        // Post-save duplicate elimination: keep only the most recently added layer (backward traversal)
+        let seen = new Set();
+        let uniqueProfiles = [];
+        for (let i = datasetProfiles.length - 1; i >= 0; i--) {
+            let p = datasetProfiles[i];
+            let details = getLayerDetails(p);
+            let uniqKey = `${details.boring}_${details.sample}_${details.layer}`;
+            if (!seen.has(uniqKey)) {
+                seen.add(uniqKey);
+                uniqueProfiles.unshift(p);
+            }
+        }
+        datasetProfiles = uniqueProfiles;
         
         // Update layer counters
         if (!layerCounters[newSampleId]) layerCounters[newSampleId] = 0;
@@ -3854,6 +4045,19 @@
         if (document.getElementById('rel_pid')) document.getElementById('rel_pid').value = defaults["Default PID"] !== undefined ? defaults["Default PID"] : '0.0';
         if (document.getElementById('rel_pp')) document.getElementById('rel_pp').value = defaults["Default PP"] !== undefined ? defaults["Default PP"] : '0.0';
         if (document.getElementById('rel_tv')) document.getElementById('rel_tv').value = defaults["Default TV"] !== undefined ? defaults["Default TV"] : '0.0';
+        
+        // Visual feedback for save
+        const submitBtn = document.querySelector('#boringInfoForm button[type="submit"]');
+        if (submitBtn) {
+            const originalColor = submitBtn.style.backgroundColor;
+            const originalText = submitBtn.innerHTML;
+            submitBtn.style.backgroundColor = '#059669'; // darker green
+            submitBtn.innerHTML = '✅ Saved!';
+            setTimeout(() => {
+                submitBtn.style.backgroundColor = originalColor;
+                submitBtn.innerHTML = originalText;
+            }, 1000);
+        }
     });
 
     // Tab 2 Live Profile Table Inline Comment Field Binder
@@ -4484,7 +4688,7 @@
                         "Field Testing (PID/PP/TV)": fieldTesting,
                         "Layer ID": layerShortId,
                         "Layer Depth (ft)": layerDepth,
-                        "Layer Length (ft)": thickness,
+                        "Depth (ft)": thickness,
                         "Soil Type": profile["Soil Type"] || '-',
                         "Color": profile["Color"] || '-',
                         "Moisture": profile["Moisture Condition"] || '-',
@@ -4542,7 +4746,7 @@
                     "Field Testing (PID/PP/TV)": "PID: -, PP: -, TV: -",
                     "Layer ID": "-",
                     "Layer Depth (ft)": "-",
-                    "Layer Length (ft)": "-",
+                    "Depth (ft)": "-",
                     "Soil Type": "No layers defined",
                     "Color": "-",
                     "Moisture": "-",
@@ -4592,7 +4796,7 @@
                     <td style="white-space: nowrap; font-size: 0.8rem;"><small>${row["Field Testing (PID/PP/TV)"]}</small></td>
                     <td style="font-weight: bold; color: #8b5cf6; white-space: nowrap;">${row["Layer ID"]}</td>
                     <td style="white-space: nowrap;">${row["Layer Depth (ft)"]}</td>
-                    <td style="font-weight: bold; white-space: nowrap;">${row["Layer Length (ft)"]}</td>
+                    <td style="font-weight: bold; white-space: nowrap;">${row["Depth (ft)"]}</td>
                     <td style="white-space: nowrap;">${row["Soil Type"]}</td>
                     <td style="white-space: nowrap;">${row["Color"]}</td>
                     <td style="white-space: nowrap;">${row["Moisture"]}</td>
@@ -4802,10 +5006,15 @@
                     'layer_override_rock_hammer_wgt_drop': 'Rock Hammer Wgt/Drop',
                     'layer_override_rock_size': 'Rock Size'
                 };
+                let boringDefaults = getBoringDefaults(boringId);
                 for (let id in overrideMap) {
                     let key = overrideMap[id];
-                    if (layer[key] !== undefined) {
+                    if (layer[key] !== undefined && layer[key] !== "") {
                         setSelectVal(id, layer[key]);
+                    } else if (boringDefaults && boringDefaults[key] !== undefined) {
+                        setSelectVal(id, boringDefaults[key]);
+                    } else {
+                        setSelectVal(id, "");
                     }
                 }
                 
@@ -6739,7 +6948,7 @@ async function exportStylizedExcel() {
     const summaryHeaders = [
         "Boring ID", "Drill Date", "Site Class", "GPS Coordinates", "Groundwater Obs 1", "Groundwater Obs 2",
         "Sample ID", "Run Depth (in)", "Blows and Inches", "N-Value", "Recovery (in)", "Field Testing (PID/PP/TV)",
-        "Layer ID", "Layer Depth (ft)", "Layer Length (ft)", "Soil Type", "Color", "Moisture",
+        "Layer ID", "Layer Depth (ft)", "Depth (ft)", "Soil Type", "Color", "Moisture",
         "Burmister Description", "Max Unit Weight (pcf)", "Min Unit Weight (pcf)", "Comments"
     ];
 
@@ -6822,7 +7031,7 @@ async function exportStylizedExcel() {
             else if (h === 'Field Testing (PID/PP/TV)') colWidth = 24;
             else if (h === 'Layer ID') colWidth = 12;
             else if (h === 'Layer Depth (ft)') colWidth = 16;
-            else if (h === 'Layer Length (ft)') colWidth = 16;
+            else if (h === 'Depth (ft)') colWidth = 16;
             else if (h === 'Soil Type') colWidth = 16;
             else if (h === 'Color') colWidth = 12;
             else if (h === 'Moisture') colWidth = 12;
@@ -6900,7 +7109,7 @@ async function exportStylizedExcel() {
         { width: 24 }, // Field Testing
         { width: 12 }, // Layer ID
         { width: 16 }, // Layer Depth
-        { width: 16 }, // Layer Length
+        { width: 16 }, // Depth
         { width: 16 }, // Soil Type
         { width: 12 }, // Color
         { width: 12 }, // Moisture
