@@ -565,12 +565,12 @@
             <button class="tab-btn" onclick="switchTab(event, 'tab-boring-info')">2. Boring Information</button>
             <button class="tab-btn" onclick="switchTab(event, 'tab-summary')">📊 3. Boring Summary</button>
             <button class="tab-btn" onclick="switchTab(event, 'tab-layer-description')">📄 4. Layer Description</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-stacking')">5. Stack</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-reference')">📖 6. Ref</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-digsafe')">🚜 7. DigSafe</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-export')">📤 8. Import/Export</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-boring-map')">🗺️ 9. Location Map</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-horizontal-stack')">↔️ 10. Horizontal Stack</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-stacking')">5. Vert Stack</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-horizontal-stack')">↔️ 6. Horoz Stack</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-reference')">📖 7. Ref</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-digsafe')">🚜 8. DigSafe</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-export')">📤 9. Import/Export</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-boring-map')">🗺️ 10. Location Map</button>
         </div>
 
 
@@ -4058,6 +4058,7 @@
                 submitBtn.innerHTML = originalText;
             }, 1000);
         }
+        alert('layer saved');
     });
 
     // Tab 2 Live Profile Table Inline Comment Field Binder
@@ -5246,31 +5247,121 @@
         if (!container) return;
         
         let borings = {};
+        let maxDepthFt = 0;
         
-        // Group runs (samples) by boring
+        // Group runs (samples) by boring to find max depth
         datasetRuns.forEach(r => {
             let bId = r["Boring ID"];
             if (!borings[bId]) borings[bId] = [];
             borings[bId].push({...r});
+            if (r["End Depth (in)"] / 12 > maxDepthFt) {
+                maxDepthFt = r["End Depth (in)"] / 12;
+            }
         });
 
-        // Group layers by sample
-        let layersBySample = {};
+        // Group layers by boring as well
+        let layersByBoring = {};
         datasetProfiles.forEach(layer => {
             let sId = layer["Sample ID"];
-            if (!layersBySample[sId]) layersBySample[sId] = [];
-            layersBySample[sId].push({...layer});
+            let matchedRun = datasetRuns.find(r => sId.startsWith(r["Boring ID"]) || r["Sample ID"] === sId);
+            let bId = matchedRun ? matchedRun["Boring ID"] : (datasetRuns[0] ? datasetRuns[0]["Boring ID"] : "");
+            
+            if (bId) {
+                if (!layersByBoring[bId]) layersByBoring[bId] = [];
+                layersByBoring[bId].push({...layer});
+                if (layer["Bottom Depth (ft)"] > maxDepthFt) {
+                    maxDepthFt = layer["Bottom Depth (ft)"];
+                }
+            }
         });
 
         let html = '';
-        
-        // Sort borings alphabetically
         let boringIds = Object.keys(borings).sort();
         
+        if (boringIds.length === 0 || maxDepthFt === 0) {
+            container.innerHTML = '<p style="color: #64748b; font-style: italic; width: 100%; text-align: center;">No boring data available to stack.</p>';
+            return;
+        }
+
+        const pxPerFt = 80; // 80 pixels per foot
+        const totalHeightPx = maxDepthFt * pxPerFt;
+
+        // Render Ruler Column (vertical)
+        let tickInterval = 5;
+        if (maxDepthFt <= 10) {
+            tickInterval = 1;
+        } else if (maxDepthFt <= 25) {
+            tickInterval = 2;
+        } else if (maxDepthFt <= 100) {
+            tickInterval = 5;
+        } else {
+            tickInterval = 10;
+        }
+
+        let rulerHtml = `<div class="stacking-ruler-column" style="width: 60px; flex-shrink: 0; position: relative; height: ${totalHeightPx}px; border-right: 2px solid #cbd5e1; margin-top: 2.5rem; margin-right: 0.5rem;">`;
+        for (let d = 0; d <= maxDepthFt; d += tickInterval) {
+            rulerHtml += `<div style="position: absolute; top: ${d * pxPerFt}px; right: 8px; transform: translateY(-50%); font-size: 0.8rem; font-weight: bold; color: #475569; display: flex; align-items: center; gap: 4px;">
+                <span>${d}'</span>
+                <div style="width: 6px; height: 1px; background: #cbd5e1;"></div>
+            </div>`;
+        }
+        if (maxDepthFt % tickInterval !== 0) {
+            rulerHtml += `<div style="position: absolute; top: ${maxDepthFt * pxPerFt}px; right: 8px; transform: translateY(-50%); font-size: 0.8rem; font-weight: bold; color: #475569; display: flex; align-items: center; gap: 4px;">
+                <span>${maxDepthFt.toFixed(1)}'</span>
+                <div style="width: 6px; height: 1px; background: #cbd5e1;"></div>
+            </div>`;
+        }
+        rulerHtml += `</div>`;
+        
+        html += rulerHtml;
+
+        let boringColsHtml = '';
         boringIds.forEach(bId => {
-            let runs = borings[bId];
+            let runs = borings[bId] || [];
+            let layers = layersByBoring[bId] || [];
             
-            // Calculate Site Class for this boring
+            // Sort
+            runs.sort((a, b) => a["Start Depth (in)"] - b["Start Depth (in)"]);
+            layers.sort((a, b) => a["Top Depth (ft)"] - b["Top Depth (ft)"]);
+            
+            let elementsHtml = '';
+            
+            // Render samples (left side of the boring column)
+            runs.forEach(run => {
+                let sId = run["Sample ID"];
+                let sTopFt = run["Start Depth (in)"] / 12;
+                let sBottomFt = run["End Depth (in)"] / 12;
+                let t = sTopFt * pxPerFt;
+                let h = (sBottomFt - sTopFt) * pxPerFt;
+                
+                elementsHtml += `
+                    <div style="position: absolute; left: 0; width: 60px; top: ${t}px; height: ${h}px; background: #dbeafe; border: 1px solid #3b82f6; border-radius: 2px; font-size: 0.65rem; padding: 2px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #1e3a8a; font-weight: bold; box-sizing: border-box;" title="${sId}\nSPT N-Value: ${run["SPT N-Value"]}\nRecovery: ${run["Recovery (in)"]} in">
+                        <div style="font-size: 0.7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%;">${sId}</div>
+                        <div style="font-size: 0.6rem; font-weight: normal; color: #1d4ed8;">N=${run["SPT N-Value"] || 'N/A'}</div>
+                    </div>
+                `;
+            });
+
+            // Render layers (right side of the boring column)
+            layers.forEach(layer => {
+                let lTop = layer["Top Depth (ft)"];
+                let lBottom = layer["Bottom Depth (ft)"];
+                let soilType = layer["Soil Type"] || "-";
+                let desc = generateBurmisterDescription(layer);
+                let soilClass = getSoilGraphicClass(soilType);
+                
+                let t = lTop * pxPerFt;
+                let h = (lBottom - lTop) * pxPerFt;
+                
+                elementsHtml += `
+                    <div class="${soilClass}" style="position: absolute; left: 65px; width: 185px; top: ${t}px; height: ${h}px; border: 1px solid #94a3b8; border-radius: 2px; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px; box-sizing: border-box; box-shadow: 0 1px 2px rgba(0,0,0,0.05);" title="${soilType} (${lTop}' - ${lBottom}')\n${desc}">
+                        <div style="background: rgba(255,255,255,0.85); padding: 1px 4px; font-size: 0.7rem; font-weight: bold; border-radius: 2px; max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1e293b;">${soilType}</div>
+                        ${h >= 30 ? `<div style="font-size: 0.6rem; color: #475569; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-align: center; margin-top: 1px; max-width: 95%;">${desc}</div>` : ''}
+                    </div>
+                `;
+            });
+
+            // Calculate Site Class
             let sumInverseN = 0;
             let validRuns = 0;
             runs.forEach(r => {
@@ -5280,87 +5371,27 @@
                 }
             });
             let avgN = validRuns > 0 ? (validRuns / sumInverseN) : 0;
-            
             let siteClass = "E";
             if (validRuns === 0) siteClass = "N/A";
             else if (avgN > 50) siteClass = "C";
             else if (avgN >= 15) siteClass = "D";
 
-            // Sort samples by start depth
-            runs.sort((a, b) => a["Start Depth (in)"] - b["Start Depth (in)"]);
-            
-            let samplesHtml = '';
-            
-            runs.forEach(run => {
-                let sampleFullId = run["Sample ID"];
-                if (!sampleFullId.startsWith(run["Boring ID"])) {
-                    sampleFullId = run["Boring ID"] + sampleFullId;
-                }
-                
-                let startDepth = run["Start Depth (in)"];
-                let endDepth = run["End Depth (in)"];
-                let totalInches = (endDepth - startDepth).toFixed(1);
-                
-                let layers = layersBySample[sampleFullId] || [];
-                // Sort layers by top depth
-                layers.sort((a, b) => a["Top Depth (ft)"] - b["Top Depth (ft)"]);
-                
-                let layersHtml = '';
-                layers.forEach(layer => {
-                    let lTop = layer["Top Depth (ft)"];
-                    let lBottom = layer["Bottom Depth (ft)"];
-                    let soilType = layer["Soil Type"] || "-";
-                    let desc = generateBurmisterDescription(layer);
-                    
-                    let heightPx = Math.max(40, (lBottom - lTop) * 60);
-                    let soilClass = getSoilGraphicClass(soilType);
-                    
-                    layersHtml += `
-                        <div class="stacking-layer-block" style="min-height: ${heightPx}px; display: flex; padding: 0; flex-direction: row;">
-                            <div class="${soilClass}" style="width: 40px; border-right: 1px solid #cbd5e1; flex-shrink: 0;"></div>
-                            <div style="padding: 0.5rem; flex: 1; display: flex; flex-direction: column; overflow: hidden;">
-                                <div class="stacking-layer-depth">${lTop.toFixed(1)}' - ${lBottom.toFixed(1)}'</div>
-                                <div class="stacking-layer-soil">${soilType}</div>
-                                <div class="stacking-layer-desc" style="margin-top: 0.25rem;">${desc}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                if (layers.length === 0) {
-                    layersHtml = `<div class="stacking-layer-block" style="color: #94a3b8; font-style: italic; text-align: center;">No layers defined</div>`;
-                }
-
-                let sampleHeightPx = Math.max(80, (totalInches / 12.0) * 60);
-                
-                samplesHtml += `
-                    <div class="stacking-sample-block" style="min-height: ${sampleHeightPx}px;">
-                        <div class="stacking-sample-header">${sampleFullId} (${totalInches} in) [${startDepth.toFixed(1)}" - ${endDepth.toFixed(1)}"]</div>
-                        ${layersHtml}
+            boringColsHtml += `
+                <div class="stacking-boring-col" style="display: flex; flex-direction: column; width: 250px; flex-shrink: 0;">
+                    <div class="stacking-boring-name" style="font-size: 1.1rem; font-weight: bold; padding-bottom: 0.5rem; text-align: center; border-bottom: 2px solid #cbd5e1; margin-bottom: 0.5rem; height: 1.8rem; line-height: 1.8rem;">${bId}</div>
+                    <div class="stacking-boring-track" style="position: relative; width: 100%; height: ${totalHeightPx}px; background: #fafafa; border-radius: 4px; border: 1px dashed #cbd5e1; box-sizing: border-box;">
+                        ${elementsHtml}
                     </div>
-                `;
-            });
-            
-            if (runs.length === 0) {
-                samplesHtml = `<div style="padding: 1rem; color: #94a3b8; text-align: center;">No samples</div>`;
-            }
-            
-            html += `
-                <div class="stacking-boring-col" style="display: flex; flex-direction: column;">
-                    <div class="stacking-boring-name" style="font-size: 1.1rem; font-weight: bold; padding-bottom: 0.5rem; text-align: center; border-bottom: 2px solid #cbd5e1; margin-bottom: 0.5rem;">${bId}</div>
-                    <div class="stacking-samples-container" style="flex: 1;">
-                        ${samplesHtml}
-                    </div>
-                    <div style="background: var(--slate-800); color: white; padding: 0.5rem; text-align: center; font-weight: bold; border-radius: 0 0 4px 4px; font-size: 0.9rem; margin-top: auto;">
+                    <div style="background: var(--slate-800); color: white; padding: 0.5rem; text-align: center; font-weight: bold; border-radius: 4px; font-size: 0.9rem; margin-top: 10px; width: 100%; box-sizing: border-box;">
                         Site Class: ${siteClass}
                     </div>
                 </div>
             `;
         });
         
-        if (boringIds.length === 0) {
-            html = '<p style="color: #64748b; font-style: italic; width: 100%; text-align: center;">No boring data available to stack.</p>';
-        }
+        html += `<div class="stacking-boring-cols-wrapper" style="display: flex; gap: 2rem; flex: 1;">
+            ${boringColsHtml}
+        </div>`;
         
         container.innerHTML = html;
     }
@@ -5386,7 +5417,6 @@
         let layersByBoring = {};
         datasetProfiles.forEach(layer => {
             let sId = layer["Sample ID"];
-            // Extract boring ID (assuming it's the prefix of Sample ID or we find the corresponding run)
             let matchedRun = datasetRuns.find(r => sId.startsWith(r["Boring ID"]) || r["Sample ID"] === sId);
             let bId = matchedRun ? matchedRun["Boring ID"] : (datasetRuns[0] ? datasetRuns[0]["Boring ID"] : "");
             
@@ -5402,19 +5432,38 @@
         let html = '';
         let boringIds = Object.keys(borings).sort();
         
-        if (boringIds.length === 0) {
+        if (boringIds.length === 0 || maxDepthFt === 0) {
             container.innerHTML = '<p style="color: #64748b; font-style: italic; width: 100%; text-align: center;">No boring data available to stack.</p>';
             return;
         }
 
-        const pxPerFt = 24; // 24 pixels per foot
-        const timelineWidth = Math.max(800, maxDepthFt * pxPerFt + 100);
+        const containerWidth = container.clientWidth || 1000;
+        const availableWidth = Math.max(600, containerWidth - 180); // account for name col (150px) + margins/padding
+        const pxPerFt = availableWidth / maxDepthFt;
+        const timelineWidth = availableWidth;
 
         // Render ruler
-        let rulerHtml = `<div style="position: relative; width: ${timelineWidth}px; height: 30px; border-bottom: 2px solid #334155; margin-left: 150px; margin-bottom: 1rem;">`;
-        for (let d = 0; d <= maxDepthFt + 10; d += 5) {
+        let tickInterval = 5;
+        if (maxDepthFt <= 10) {
+            tickInterval = 1;
+        } else if (maxDepthFt <= 25) {
+            tickInterval = 2;
+        } else if (maxDepthFt <= 100) {
+            tickInterval = 5;
+        } else {
+            tickInterval = 10;
+        }
+
+        let rulerHtml = `<div style="position: relative; width: ${timelineWidth}px; height: 35px; border-bottom: 2px solid #334155; margin-left: 150px; margin-bottom: 1rem;">`;
+        for (let d = 0; d <= maxDepthFt; d += tickInterval) {
             rulerHtml += `<div style="position: absolute; left: ${d * pxPerFt}px; bottom: 0; transform: translateX(-50%); font-size: 0.8rem; font-weight: bold; color: #334155;">
                 <div style="text-align: center;">${d}'</div>
+                <div style="height: 5px; width: 1px; background: #334155; margin: 0 auto;"></div>
+            </div>`;
+        }
+        if (maxDepthFt % tickInterval !== 0) {
+            rulerHtml += `<div style="position: absolute; left: ${maxDepthFt * pxPerFt}px; bottom: 0; transform: translateX(-50%); font-size: 0.8rem; font-weight: bold; color: #334155;">
+                <div style="text-align: center;">${maxDepthFt.toFixed(1)}'</div>
                 <div style="height: 5px; width: 1px; background: #334155; margin: 0 auto;"></div>
             </div>`;
         }
@@ -6019,6 +6068,13 @@
     renderMergedBoringInfoTable();
     calculateGeotechOutputs();
     renderBurmisterTable();
+
+    window.addEventListener('resize', () => {
+        const tabEl = document.getElementById('tab-horizontal-stack');
+        if (tabEl && tabEl.classList.contains('active')) {
+            if (typeof renderHorizontalStackingReport === 'function') renderHorizontalStackingReport();
+        }
+    });
 
     // Set Default Job Information values
     window.addEventListener('DOMContentLoaded', () => {
@@ -6672,6 +6728,54 @@ function getHeaderInfo() {
 async function exportStylizedExcel() {
     const { projectName, jobName, address, dateSuffix } = getHeaderInfo();
     const workbook = new ExcelJS.Workbook();
+
+    let borings = {};
+    datasetRuns.forEach(r => {
+        let bId = r["Boring ID"];
+        if (!borings[bId]) borings[bId] = [];
+        borings[bId].push({...r});
+    });
+
+    let boringIds = Object.keys(borings).sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+
+    function getColLetter(colIdx) {
+        let temp, letter = '';
+        while (colIdx > 0) {
+            temp = (colIdx - 1) % 26;
+            letter = String.fromCharCode(temp + 65) + letter;
+            colIdx = (colIdx - temp - 1) / 26;
+        }
+        return letter;
+    }
+
+    function getSoilColorHex(soilType) {
+        if (!soilType) return 'FFF8FAFC';
+        const st = soilType.toLowerCase();
+        if (st.includes('asphalt')) return 'FF334155';
+        if (st.includes('topsoil')) return 'FF274E13';
+        if (st.includes('fill')) return 'FFE2E8F0';
+        if (st.includes('base course') || st.includes('gravel')) return 'FF94A3B8';
+        if (st.includes('silty sand') || st.includes('silty-sand')) return 'FFE2DFA0';
+        if (st.includes('medium sand')) return 'FFFFD966';
+        if (st.includes('fine sand')) return 'FFFFF2B2';
+        if (st.includes('clay') || st.includes('silt')) return 'FFD9EAD3';
+        return 'FFF8FAFC';
+    }
+
+    function getLayersForRun(run) {
+        let boringId = run["Boring ID"];
+        let sampleId = run["Sample ID"];
+        let shortSampleId = sampleId.replace(boringId + "-", "").replace(boringId, "");
+        let combinedSampleId = boringId + shortSampleId;
+
+        let layers = datasetProfiles.filter(p => 
+            p["Sample ID"] === combinedSampleId || 
+            p["Sample ID"] === sampleId || 
+            p["Sample ID"] === (boringId + "-" + shortSampleId)
+        );
+        layers.sort((a, b) => (a["Top Depth (ft)"] || 0) - (b["Top Depth (ft)"] || 0));
+        return layers;
+    }
     
     // 1. Job Sheet
     const sheetJob = workbook.addWorksheet('Job');
@@ -7118,70 +7222,104 @@ async function exportStylizedExcel() {
         { width: 16 }  // Min Unit Weight
     ];
 
-    // 4. Stacking Report Sheet
-    const sheetStack = workbook.addWorksheet('Stack');
-    sheetStack.views = [{ showGridLines: true }];
+    // 4. Layers Sheet (from Tab 4: Layer Description)
+    const sheetPres = workbook.addWorksheet('Layers');
+    sheetPres.views = [{ showGridLines: false }];
+    sheetPres.columns = [{ width: 5 }, { width: 15 }, { width: 25 }, { width: 50 }, { width: 15 }, { width: 25 }];
+    
+    // Header
+    sheetPres.mergeCells('B1:F1');
+    sheetPres.getCell('B1').value = `StrataPro 1.0 New England Region | TAB: LAYERS`;
+    sheetPres.getCell('B1').font = { name: 'Segoe UI', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
+    sheetPres.getCell('B1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
+    sheetPres.getCell('B1').alignment = { vertical: 'middle', horizontal: 'left' };
+    sheetPres.getRow(1).height = 35;
+    
+    let presRow = 3;
+    
+    // Iterating borings
+    boringIds.forEach(bId => {
+        sheetPres.mergeCells(`B${presRow}:F${presRow}`);
+        let bCell = sheetPres.getCell(`B${presRow}`);
+        bCell.value = `Boring: ${bId}`;
+        bCell.font = { name: 'Segoe UI', size: 14, bold: true, color: { argb: 'FF1E293B' } };
+        bCell.border = { bottom: {style: 'thick', color: {argb: 'FF2563EB'}} };
+        presRow += 2;
+        
+        let runs = borings[bId] || [];
+        runs.forEach(run => {
+            let sampleFullId = run["Sample ID"];
+            if (!sampleFullId.startsWith(run["Boring ID"])) {
+                sampleFullId = run["Boring ID"] + sampleFullId;
+            }
+            let startDepth = Number((run["Start Depth (in)"] || 0) / 12).toFixed(1);
+            let endDepth = Number((run["End Depth (in)"] || 0) / 12).toFixed(1);
+            
+            sheetPres.mergeCells(`B${presRow}:F${presRow}`);
+            let sCell = sheetPres.getCell(`B${presRow}`);
+            sCell.value = `${sampleFullId} (${startDepth}' - ${endDepth}') | N-Value: ${run["SPT N-Value"]} | Recovery: ${run["Recovery (in)"]}"`;
+            sCell.font = { name: 'Segoe UI', size: 11, bold: true, color: { argb: 'FF1E293B' } };
+            sCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+            presRow++;
+            
+            let layers = getLayersForRun(run);
+            if (layers.length > 0) {
+                layers.forEach(layer => {
+                    let lTop = Number(layer["Top Depth (ft)"] || 0).toFixed(1);
+                    let lBottom = Number(layer["Bottom Depth (ft)"] || 0).toFixed(1);
+                    let desc = generateBurmisterDescription(layer);
+                    
+                    sheetPres.getCell(`B${presRow}`).value = ""; // margin
+                    let dCell1 = sheetPres.getCell(`C${presRow}`);
+                    dCell1.value = `${lTop}' - ${lBottom}'`;
+                    dCell1.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FF1D4ED8' } };
+                    
+                    let dCell2 = sheetPres.getCell(`D${presRow}`);
+                    dCell2.value = desc;
+                    dCell2.font = { name: 'Segoe UI', size: 10, color: { argb: 'FF334155' } };
+                    sheetPres.mergeCells(`D${presRow}:E${presRow}`);
+                    dCell2.alignment = { wrapText: true, vertical: 'top' };
+                    
+                    let cCell = sheetPres.getCell(`F${presRow}`);
+                    cCell.value = layer["Comments"] || "";
+                    cCell.font = { name: 'Segoe UI', size: 9, italic: true, color: { argb: 'FF64748B' } };
+                    cCell.alignment = { wrapText: true, vertical: 'top' };
 
-    // Set row heights for visual chart
-    for (let r = 1; r <= 300; r++) {
-        sheetStack.getRow(r).height = 18;
-    }
-    sheetStack.getRow(1).height = 35;
-    sheetStack.getRow(2).height = 24;
-    sheetStack.getRow(3).height = 20;
-    sheetStack.getRow(5).height = 28;
-
-    let borings = {};
-    datasetRuns.forEach(r => {
-        let bId = r["Boring ID"];
-        if (!borings[bId]) borings[bId] = [];
-        borings[bId].push({...r});
+                    let descHeight = Math.ceil(desc.length / 65) * 15;
+                    let commHeight = Math.ceil((layer["Comments"] || "").length / 30) * 15;
+                    sheetPres.getRow(presRow).height = Math.max(20, descHeight, commHeight);
+                    presRow++;
+                });
+            } else {
+                sheetPres.getCell(`D${presRow}`).value = "No layers defined";
+                sheetPres.getCell(`D${presRow}`).font = { name: 'Segoe UI', size: 10, italic: true, color: { argb: 'FF94A3B8' } };
+                presRow++;
+            }
+            presRow++; // space after sample
+        });
+        presRow++; // space after boring
     });
 
-    let boringIds = Object.keys(borings).sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+    // 5. Vertical Stacking Report Sheet (Vert Stack)
+    const sheetStack = workbook.addWorksheet('Vert Stack');
+    sheetStack.views = [{ showGridLines: true }];
 
-    function getColLetter(colIdx) {
-        let temp, letter = '';
-        while (colIdx > 0) {
-            temp = (colIdx - 1) % 26;
-            letter = String.fromCharCode(temp + 65) + letter;
-            colIdx = (colIdx - temp - 1) / 26;
+    // Find max depth across all borings
+    let maxVertDepthFt = 0;
+    datasetRuns.forEach(r => {
+        if (r["End Depth (in)"] / 12 > maxVertDepthFt) {
+            maxVertDepthFt = r["End Depth (in)"] / 12;
         }
-        return letter;
-    }
+    });
+    datasetProfiles.forEach(layer => {
+        if (layer["Bottom Depth (ft)"] > maxVertDepthFt) {
+            maxVertDepthFt = layer["Bottom Depth (ft)"];
+        }
+    });
 
-    function getSoilColorHex(soilType) {
-        if (!soilType) return 'FFF8FAFC';
-        const st = soilType.toLowerCase();
-        if (st.includes('asphalt')) return 'FF334155';
-        if (st.includes('topsoil')) return 'FF274E13';
-        if (st.includes('fill')) return 'FFE2E8F0';
-        if (st.includes('base course') || st.includes('gravel')) return 'FF94A3B8';
-        if (st.includes('silty sand') || st.includes('silty-sand')) return 'FFE2DFA0';
-        if (st.includes('medium sand')) return 'FFFFD966';
-        if (st.includes('fine sand')) return 'FFFFF2B2';
-        if (st.includes('clay') || st.includes('silt')) return 'FFD9EAD3';
-        return 'FFF8FAFC';
-    }
-
-    function getLayersForRun(run) {
-        let boringId = run["Boring ID"];
-        let sampleId = run["Sample ID"];
-        let shortSampleId = sampleId.replace(boringId + "-", "").replace(boringId, "");
-        let combinedSampleId = boringId + shortSampleId;
-
-        let layers = datasetProfiles.filter(p => 
-            p["Sample ID"] === combinedSampleId || 
-            p["Sample ID"] === sampleId || 
-            p["Sample ID"] === (boringId + "-" + shortSampleId)
-        );
-        layers.sort((a, b) => (a["Top Depth (ft)"] || 0) - (b["Top Depth (ft)"] || 0));
-        return layers;
-    }
-
-    if (boringIds.length === 0) {
+    if (boringIds.length === 0 || maxVertDepthFt === 0) {
         sheetStack.mergeCells('A1:G1');
-        sheetStack.getCell('A1').value = `StrataPro 1.0 New England Region | TAB: BORING STACKING REPORT`;
+        sheetStack.getCell('A1').value = `StrataPro 1.0 New England Region | TAB: VERTICAL STACKING REPORT`;
         sheetStack.getCell('A1').font = { name: 'Segoe UI', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
         sheetStack.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
         sheetStack.getCell('A1').alignment = { vertical: 'middle', horizontal: 'left' };
@@ -7200,42 +7338,134 @@ async function exportStylizedExcel() {
         sheetStack.getCell('A5').value = "No boring logs defined";
         sheetStack.getCell('A5').font = { name: 'Segoe UI', size: 11, italic: true };
     } else {
-        const maxCol = 2 + boringIds.length * 2;
+        const maxRow = 6 + Math.round(maxVertDepthFt / 0.5);
+        const maxCol = 2 + boringIds.length * 3;
         const maxColLetter = getColLetter(maxCol);
 
         sheetStack.mergeCells(`A1:${maxColLetter}1`);
-        sheetStack.getCell('A1').value = `StrataPro 1.0 New England Region | TAB: BORING STACKING REPORT`;
+        sheetStack.getCell('A1').value = `StrataPro 1.0 New England Region | TAB: VERTICAL STACKING REPORT`;
         sheetStack.getCell('A1').font = { name: 'Segoe UI', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
         sheetStack.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
         sheetStack.getCell('A1').alignment = { vertical: 'middle', horizontal: 'left' };
+        sheetStack.getRow(1).height = 35;
 
         sheetStack.mergeCells(`A2:${maxColLetter}2`);
         sheetStack.getCell('A2').value = `Job Name: ${projectName} | Job Ref: ${jobName}`;
         sheetStack.getCell('A2').font = { name: 'Segoe UI', size: 12, bold: true };
         sheetStack.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
+        sheetStack.getRow(2).height = 24;
 
         sheetStack.mergeCells(`A3:${maxColLetter}3`);
         sheetStack.getCell('A3').value = `Address: ${address}`;
         sheetStack.getCell('A3').font = { name: 'Segoe UI', size: 12, italic: true };
         sheetStack.getCell('A3').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
+        sheetStack.getRow(3).height = 20;
 
-        sheetStack.getColumn(1).width = 4;
-        let maxStackRow = 5;
+        sheetStack.getRow(4).height = 15; // Spacer
+
+        sheetStack.getColumn(1).width = 8;
+        sheetStack.getRow(5).height = 25;
+        const rulerHeader = sheetStack.getCell('A5');
+        rulerHeader.value = "Depth";
+        rulerHeader.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+        rulerHeader.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } };
+        rulerHeader.alignment = { vertical: 'middle', horizontal: 'center' };
+        rulerHeader.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+
+        for (let r = 6; r <= maxRow; r++) {
+            sheetStack.getRow(r).height = 20;
+            const depth = (r - 6) * 0.5;
+            const rCell = sheetStack.getCell(r, 1);
+            rCell.value = `${depth.toFixed(1)}'`;
+            rCell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+            rCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF475569' } };
+            rCell.alignment = { vertical: 'middle', horizontal: 'center' };
+            rCell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+        }
 
         boringIds.forEach((bId, idx) => {
-            let colIndex = 2 + idx * 2;
-            sheetStack.getColumn(colIndex).width = 45;
-            sheetStack.getColumn(colIndex + 1).width = 4;
-
+            const colIndex = 2 + idx * 3;
+            sheetStack.getColumn(colIndex).width = 12; // Samples
+            sheetStack.getColumn(colIndex + 1).width = 35; // Layers
+            sheetStack.getColumn(colIndex + 2).width = 3; // Spacer column
+            
             // Boring Header in Row 5
+            sheetStack.mergeCells(5, colIndex, 5, colIndex + 1);
             const bHeaderCell = sheetStack.getCell(5, colIndex);
-            bHeaderCell.value = `Boring ID: ${bId}`;
-            bHeaderCell.font = { name: 'Segoe UI', size: 12, bold: true, color: { argb: 'FFFFFFFF' } };
+            bHeaderCell.value = bId;
+            bHeaderCell.font = { name: 'Segoe UI', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
             bHeaderCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
             bHeaderCell.alignment = { vertical: 'middle', horizontal: 'center' };
             bHeaderCell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
 
-            let runs = borings[bId];
+            // Default borders for slots
+            for (let r = 6; r <= maxRow; r++) {
+                sheetStack.getCell(r, colIndex).border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+                sheetStack.getCell(r, colIndex + 1).border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+            }
+
+            // Render Samples
+            let runs = borings[bId] || [];
+            runs.forEach(run => {
+                let sId = run["Sample ID"];
+                let sTopFt = run["Start Depth (in)"] / 12;
+                let sBottomFt = run["End Depth (in)"] / 12;
+
+                let rowStart = 6 + Math.round(sTopFt / 0.5);
+                let rowEnd = 6 + Math.round(sBottomFt / 0.5) - 1;
+                if (rowEnd < rowStart) rowEnd = rowStart;
+                if (rowEnd > maxRow) rowEnd = maxRow;
+
+                if (rowStart <= maxRow) {
+                    sheetStack.mergeCells(rowStart, colIndex, rowEnd, colIndex);
+                    for (let r = rowStart; r <= rowEnd; r++) {
+                        const cell = sheetStack.getCell(r, colIndex);
+                        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
+                    }
+                    const sCell = sheetStack.getCell(rowStart, colIndex);
+                    sCell.value = `Sample ${sId}\nN=${run["SPT N-Value"] || 'N/A'}`;
+                    sCell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: 'FF1E3A8A' } };
+                    sCell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                }
+            });
+
+            // Render Layers
+            let layersForBoring = datasetProfiles.filter(layer => {
+                let sId = layer["Sample ID"];
+                let matchedRun = datasetRuns.find(r => sId.startsWith(r["Boring ID"]) || r["Sample ID"] === sId);
+                let runBId = matchedRun ? matchedRun["Boring ID"] : (datasetRuns[0] ? datasetRuns[0]["Boring ID"] : "");
+                return runBId === bId;
+            });
+            layersForBoring.sort((a, b) => (a["Top Depth (ft)"] || 0) - (b["Top Depth (ft)"] || 0));
+
+            layersForBoring.forEach(layer => {
+                let lTop = layer["Top Depth (ft)"];
+                let lBottom = layer["Bottom Depth (ft)"];
+                let soilType = layer["Soil Type"] || "-";
+                let desc = generateBurmisterDescription(layer);
+
+                let rowStart = 6 + Math.round(lTop / 0.5);
+                let rowEnd = 6 + Math.round(lBottom / 0.5) - 1;
+                if (rowEnd < rowStart) rowEnd = rowStart;
+                if (rowEnd > maxRow) rowEnd = maxRow;
+
+                if (rowStart <= maxRow) {
+                    sheetStack.mergeCells(rowStart, colIndex + 1, rowEnd, colIndex + 1);
+                    let bgHex = getSoilColorHex(soilType);
+                    let fgHex = (bgHex === 'FF334155' || bgHex === 'FF274E13') ? 'FFFFFFFF' : 'FF1E293B';
+
+                    for (let r = rowStart; r <= rowEnd; r++) {
+                        const cell = sheetStack.getCell(r, colIndex + 1);
+                        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgHex } };
+                    }
+                    const lCell = sheetStack.getCell(rowStart, colIndex + 1);
+                    lCell.value = `${soilType}\n${desc}`;
+                    lCell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: fgHex } };
+                    lCell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                }
+            });
+
+            // Calculate Site Class
             let sumInverseN = 0;
             let validRuns = 0;
             runs.forEach(r => {
@@ -7245,89 +7475,196 @@ async function exportStylizedExcel() {
                 }
             });
             let avgN = validRuns > 0 ? (validRuns / sumInverseN) : 0;
-            
             let siteClass = "E";
             if (validRuns === 0) siteClass = "N/A";
             else if (avgN > 50) siteClass = "C";
             else if (avgN >= 15) siteClass = "D";
 
-            runs.sort((a, b) => (a["Start Depth (in)"] || 0) - (b["Start Depth (in)"] || 0));
+            // Site Class Footer
+            const footerRow = maxRow + 1;
+            sheetStack.mergeCells(footerRow, colIndex, footerRow + 1, colIndex + 1);
+            for (let r = footerRow; r <= footerRow + 1; r++) {
+                sheetStack.getRow(r).height = 18;
+                for (let c = colIndex; c <= colIndex + 1; c++) {
+                    const cell = sheetStack.getCell(r, c);
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF334155' } };
+                    cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+                }
+            }
+            const fCell = sheetStack.getCell(footerRow, colIndex);
+            fCell.value = `Site Class: ${siteClass}`;
+            fCell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+            fCell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+        });
+    }
 
-            let currentRow = 6;
+    // 6. Horizontal Stacking Report Sheet (Horoz Stack)
+    const sheetHorizStack = workbook.addWorksheet('Horoz Stack');
+    sheetHorizStack.views = [{ showGridLines: true }];
+
+    // Find max depth across all borings
+    let maxHorizDepthFt = 0;
+    datasetRuns.forEach(r => {
+        if (r["End Depth (in)"] / 12 > maxHorizDepthFt) {
+            maxHorizDepthFt = r["End Depth (in)"] / 12;
+        }
+    });
+    datasetProfiles.forEach(layer => {
+        if (layer["Bottom Depth (ft)"] > maxHorizDepthFt) {
+            maxHorizDepthFt = layer["Bottom Depth (ft)"];
+        }
+    });
+
+    if (boringIds.length === 0 || maxHorizDepthFt === 0) {
+        sheetHorizStack.mergeCells('A1:G1');
+        sheetHorizStack.getCell('A1').value = `StrataPro 1.0 New England Region | TAB: HORIZONTAL STACKING REPORT`;
+        sheetHorizStack.getCell('A1').font = { name: 'Segoe UI', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
+        sheetHorizStack.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
+        sheetHorizStack.getCell('A1').alignment = { vertical: 'middle', horizontal: 'left' };
+
+        sheetHorizStack.mergeCells('A2:G2');
+        sheetHorizStack.getCell('A2').value = `Job Name: ${projectName} | Job Ref: ${jobName}`;
+        sheetHorizStack.getCell('A2').font = { name: 'Segoe UI', size: 12, bold: true };
+        sheetHorizStack.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
+
+        sheetHorizStack.mergeCells('A3:G3');
+        sheetHorizStack.getCell('A3').value = `Address: ${address}`;
+        sheetHorizStack.getCell('A3').font = { name: 'Segoe UI', size: 12, italic: true };
+        sheetHorizStack.getCell('A3').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
+
+        sheetHorizStack.mergeCells('A5:E5');
+        sheetHorizStack.getCell('A5').value = "No boring logs defined";
+        sheetHorizStack.getCell('A5').font = { name: 'Segoe UI', size: 11, italic: true };
+    } else {
+        const maxCol = 2 + Math.round(maxHorizDepthFt / 0.5);
+        const maxColLetter = getColLetter(maxCol);
+
+        sheetHorizStack.mergeCells(`A1:${maxColLetter}1`);
+        sheetHorizStack.getCell('A1').value = `StrataPro 1.0 New England Region | TAB: HORIZONTAL STACKING REPORT`;
+        sheetHorizStack.getCell('A1').font = { name: 'Segoe UI', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
+        sheetHorizStack.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
+        sheetHorizStack.getCell('A1').alignment = { vertical: 'middle', horizontal: 'left' };
+        sheetHorizStack.getRow(1).height = 35;
+
+        sheetHorizStack.mergeCells(`A2:${maxColLetter}2`);
+        sheetHorizStack.getCell('A2').value = `Job Name: ${projectName} | Job Ref: ${jobName}`;
+        sheetHorizStack.getCell('A2').font = { name: 'Segoe UI', size: 12, bold: true };
+        sheetHorizStack.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
+        sheetHorizStack.getRow(2).height = 24;
+
+        sheetHorizStack.mergeCells(`A3:${maxColLetter}3`);
+        sheetHorizStack.getCell('A3').value = `Address: ${address}`;
+        sheetHorizStack.getCell('A3').font = { name: 'Segoe UI', size: 12, italic: true };
+        sheetHorizStack.getCell('A3').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
+        sheetHorizStack.getRow(3).height = 20;
+
+        sheetHorizStack.getRow(4).height = 15; // Spacer
+
+        sheetHorizStack.getColumn(1).width = 18;
+        for (let col = 2; col <= maxCol; col++) {
+            sheetHorizStack.getColumn(col).width = 8;
+        }
+
+        sheetHorizStack.getRow(5).height = 25;
+        const bIdHeader = sheetHorizStack.getCell('A5');
+        bIdHeader.value = "Boring ID";
+        bIdHeader.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+        bIdHeader.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } };
+        bIdHeader.alignment = { vertical: 'middle', horizontal: 'center' };
+        bIdHeader.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+
+        for (let col = 2; col <= maxCol; col++) {
+            const depth = (col - 2) * 0.5;
+            const rCell = sheetHorizStack.getCell(5, col);
+            rCell.value = `${depth.toFixed(1)}'`;
+            rCell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+            rCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF475569' } };
+            rCell.alignment = { vertical: 'middle', horizontal: 'center' };
+            rCell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+        }
+
+        let currentRow = 6;
+        boringIds.forEach(bId => {
+            sheetHorizStack.getRow(currentRow).height = 22;
+            sheetHorizStack.getRow(currentRow + 1).height = 35;
+            sheetHorizStack.getRow(currentRow + 2).height = 15; // Spacer
+
+            sheetHorizStack.mergeCells(currentRow, 1, currentRow + 1, 1);
+            const idCell = sheetHorizStack.getCell(currentRow, 1);
+            idCell.value = bId;
+            idCell.font = { name: 'Segoe UI', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+            idCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
+            idCell.alignment = { vertical: 'middle', horizontal: 'center' };
+            idCell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+
+            for (let r = currentRow; r <= currentRow + 1; r++) {
+                for (let col = 2; col <= maxCol; col++) {
+                    const cell = sheetHorizStack.getCell(r, col);
+                    cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+                }
+            }
+
+            // Render Samples
+            let runs = borings[bId] || [];
             runs.forEach(run => {
-                let startD = run["Start Depth (in)"] !== undefined ? Number(run["Start Depth (in)"]).toFixed(1) : "";
-                let endD = run["End Depth (in)"] !== undefined ? Number(run["End Depth (in)"]).toFixed(1) : "";
+                let sId = run["Sample ID"];
+                let sTopFt = run["Start Depth (in)"] / 12;
+                let sBottomFt = run["End Depth (in)"] / 12;
 
-                // Render Sample Header cell
-                const sHeaderCell = sheetStack.getCell(currentRow, colIndex);
-                sHeaderCell.value = `Sample ${run["Sample ID"]} (${startD}" - ${endD}")`;
-                sHeaderCell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FF1E3A8A' } };
-                sHeaderCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
-                sHeaderCell.alignment = { vertical: 'middle', horizontal: 'center' };
-                sHeaderCell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-                currentRow++;
+                let colStart = 2 + Math.round(sTopFt / 0.5);
+                let colEnd = 2 + Math.round(sBottomFt / 0.5) - 1;
+                if (colEnd < colStart) colEnd = colStart;
+                if (colEnd > maxCol) colEnd = maxCol;
 
-                // Get layers
-                let layers = getLayersForRun(run);
-
-                if (layers.length > 0) {
-                    layers.forEach(layer => {
-                        let lTop = layer["Top Depth (ft)"] !== undefined ? Number(layer["Top Depth (ft)"]).toFixed(1) : "";
-                        let lBottom = layer["Bottom Depth (ft)"] !== undefined ? Number(layer["Bottom Depth (ft)"]).toFixed(1) : "";
-                        let soilType = layer["Soil Type"] || "-";
-                        let desc = generateBurmisterDescription(layer);
-
-                        let thickness = (layer["Bottom Depth (ft)"] || 0) - (layer["Top Depth (ft)"] || 0);
-                        if (thickness < 0) thickness = 0;
-                        let mergeRows = Math.max(3, Math.round(thickness * 4));
-
-                        sheetStack.mergeCells(currentRow, colIndex, currentRow + mergeRows - 1, colIndex);
-
-                        let bgHex = getSoilColorHex(layer["Soil Type"]);
-                        let fgHex = (bgHex === 'FF334155' || bgHex === 'FF274E13') ? 'FFFFFFFF' : 'FF1E293B';
-
-                        for (let r = currentRow; r < currentRow + mergeRows; r++) {
-                            const cell = sheetStack.getCell(r, colIndex);
-                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgHex } };
-                            cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-                        }
-
-                        const topCell = sheetStack.getCell(currentRow, colIndex);
-                        topCell.value = `${lTop}' - ${lBottom}'\n${soilType}\n${desc}`;
-                        topCell.font = { name: 'Segoe UI', size: 9, color: { argb: fgHex }, bold: true };
-                        topCell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-
-                        currentRow += mergeRows;
-                    });
-                } else {
-                    sheetStack.mergeCells(currentRow, colIndex, currentRow + 2, colIndex);
-                    for (let r = currentRow; r < currentRow + 3; r++) {
-                        const cell = sheetStack.getCell(r, colIndex);
-                        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
-                        cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+                if (colStart <= maxCol) {
+                    sheetHorizStack.mergeCells(currentRow, colStart, currentRow, colEnd);
+                    for (let c = colStart; c <= colEnd; c++) {
+                        const cell = sheetHorizStack.getCell(currentRow, c);
+                        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
                     }
-                    const topCell = sheetStack.getCell(currentRow, colIndex);
-                    topCell.value = "No layers defined";
-                    topCell.font = { name: 'Segoe UI', size: 10, italic: true, color: { argb: 'FF94A3B8' } };
-                    topCell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-                    currentRow += 3;
+                    const sCell = sheetHorizStack.getCell(currentRow, colStart);
+                    sCell.value = sId;
+                    sCell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: 'FF1E3A8A' } };
+                    sCell.alignment = { vertical: 'middle', horizontal: 'center' };
                 }
             });
 
-            // Site Class Footer
-            sheetStack.mergeCells(currentRow, colIndex, currentRow + 1, colIndex);
-            for (let r = currentRow; r < currentRow + 2; r++) {
-                const cell = sheetStack.getCell(r, colIndex);
-                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF334155' } };
-                cell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-            }
-            const topCell = sheetStack.getCell(currentRow, colIndex);
-            topCell.value = `Site Class: ${siteClass}`;
-            topCell.font = { name: 'Segoe UI', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
-            topCell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-            currentRow += 2;
+            // Render Layers
+            let layersForBoring = datasetProfiles.filter(layer => {
+                let sId = layer["Sample ID"];
+                let matchedRun = datasetRuns.find(r => sId.startsWith(r["Boring ID"]) || r["Sample ID"] === sId);
+                let runBId = matchedRun ? matchedRun["Boring ID"] : (datasetRuns[0] ? datasetRuns[0]["Boring ID"] : "");
+                return runBId === bId;
+            });
+            layersForBoring.sort((a, b) => (a["Top Depth (ft)"] || 0) - (b["Top Depth (ft)"] || 0));
 
-            maxStackRow = Math.max(maxStackRow, currentRow);
+            layersForBoring.forEach(layer => {
+                let lTop = layer["Top Depth (ft)"];
+                let lBottom = layer["Bottom Depth (ft)"];
+                let soilType = layer["Soil Type"] || "-";
+
+                let colStart = 2 + Math.round(lTop / 0.5);
+                let colEnd = 2 + Math.round(lBottom / 0.5) - 1;
+                if (colEnd < colStart) colEnd = colStart;
+                if (colEnd > maxCol) colEnd = maxCol;
+
+                if (colStart <= maxCol) {
+                    sheetHorizStack.mergeCells(currentRow + 1, colStart, currentRow + 1, colEnd);
+                    let bgHex = getSoilColorHex(soilType);
+                    let fgHex = (bgHex === 'FF334155' || bgHex === 'FF274E13') ? 'FFFFFFFF' : 'FF1E293B';
+
+                    for (let c = colStart; c <= colEnd; c++) {
+                        const cell = sheetHorizStack.getCell(currentRow + 1, c);
+                        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgHex } };
+                    }
+                    const lCell = sheetHorizStack.getCell(currentRow + 1, colStart);
+                    lCell.value = soilType;
+                    lCell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: fgHex } };
+                    lCell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                }
+            });
+
+            currentRow += 3;
         });
     }
 
@@ -7629,83 +7966,7 @@ async function exportStylizedExcel() {
     }
 
     
-    // 8. Layers Sheet
-    const sheetPres = workbook.addWorksheet('Layers');
-    sheetPres.views = [{ showGridLines: false }];
-    sheetPres.columns = [{ width: 5 }, { width: 15 }, { width: 25 }, { width: 50 }, { width: 15 }, { width: 25 }];
-    
-    // Header
-    sheetPres.mergeCells('B1:F1');
-    sheetPres.getCell('B1').value = `StrataPro 1.0 New England Region | TAB: LAYERS`;
-    sheetPres.getCell('B1').font = { name: 'Segoe UI', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
-    sheetPres.getCell('B1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
-    sheetPres.getCell('B1').alignment = { vertical: 'middle', horizontal: 'left' };
-    sheetPres.getRow(1).height = 35;
-    
-    let presRow = 3;
-    
-    // Iterating borings
-    boringIds.forEach(bId => {
-        sheetPres.mergeCells(`B${presRow}:F${presRow}`);
-        let bCell = sheetPres.getCell(`B${presRow}`);
-        bCell.value = `Boring: ${bId}`;
-        bCell.font = { name: 'Segoe UI', size: 14, bold: true, color: { argb: 'FF1E293B' } };
-        bCell.border = { bottom: {style: 'thick', color: {argb: 'FF2563EB'}} };
-        presRow += 2;
-        
-        let runs = borings[bId] || [];
-        runs.forEach(run => {
-            let sampleFullId = run["Sample ID"];
-            if (!sampleFullId.startsWith(run["Boring ID"])) {
-                sampleFullId = run["Boring ID"] + sampleFullId;
-            }
-            let startDepth = Number((run["Start Depth (in)"] || 0) / 12).toFixed(1);
-            let endDepth = Number((run["End Depth (in)"] || 0) / 12).toFixed(1);
-            
-            sheetPres.mergeCells(`B${presRow}:F${presRow}`);
-            let sCell = sheetPres.getCell(`B${presRow}`);
-            sCell.value = `${sampleFullId} (${startDepth}' - ${endDepth}') | N-Value: ${run["SPT N-Value"]} | Recovery: ${run["Recovery (in)"]}"`;
-            sCell.font = { name: 'Segoe UI', size: 11, bold: true, color: { argb: 'FF1E293B' } };
-            sCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
-            presRow++;
-            
-            let layers = getLayersForRun(run);
-            if (layers.length > 0) {
-                layers.forEach(layer => {
-                    let lTop = Number(layer["Top Depth (ft)"] || 0).toFixed(1);
-                    let lBottom = Number(layer["Bottom Depth (ft)"] || 0).toFixed(1);
-                    let desc = generateBurmisterDescription(layer);
-                    
-                    sheetPres.getCell(`B${presRow}`).value = ""; // margin
-                    let dCell1 = sheetPres.getCell(`C${presRow}`);
-                    dCell1.value = `${lTop}' - ${lBottom}'`;
-                    dCell1.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FF1D4ED8' } };
-                    
-                    let dCell2 = sheetPres.getCell(`D${presRow}`);
-                    dCell2.value = desc;
-                    dCell2.font = { name: 'Segoe UI', size: 10, color: { argb: 'FF334155' } };
-                    sheetPres.mergeCells(`D${presRow}:E${presRow}`);
-                    dCell2.alignment = { wrapText: true, vertical: 'top' };
-                    
-                    let cCell = sheetPres.getCell(`F${presRow}`);
-                    cCell.value = layer["Comments"] || "";
-                    cCell.font = { name: 'Segoe UI', size: 9, italic: true, color: { argb: 'FF64748B' } };
-                    cCell.alignment = { wrapText: true, vertical: 'top' };
 
-                    let descHeight = Math.ceil(desc.length / 65) * 15;
-                    let commHeight = Math.ceil((layer["Comments"] || "").length / 30) * 15;
-                    sheetPres.getRow(presRow).height = Math.max(20, descHeight, commHeight);
-                    presRow++;
-                });
-            } else {
-                sheetPres.getCell(`D${presRow}`).value = "No layers defined";
-                sheetPres.getCell(`D${presRow}`).font = { name: 'Segoe UI', size: 10, italic: true, color: { argb: 'FF94A3B8' } };
-                presRow++;
-            }
-            presRow++; // space after sample
-        });
-        presRow++; // space after boring
-    });
 
     const filename = `Stylized_${projectName.replace(/\s+/g, '_')}_${dateSuffix}.xlsx`;
     workbook.xlsx.writeBuffer().then(function(buffer) {
