@@ -1745,6 +1745,20 @@
                             <input type="text" id="rel_comments" placeholder="Layer remarks..." style="padding: 0.5rem; font-size: 0.85rem;">
                         </div>
                     </div>
+
+                    <!-- Logged Layers Subform List -->
+                    <div style="margin-top: 0.75rem; border-top: 1px solid var(--border); padding-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <h5 style="margin: 0; color: var(--slate-700); font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 0.25rem;">
+                            📋 Logged Layers for current Sample
+                        </h5>
+                        <div id="subform-layers-list" style="display: flex; flex-direction: column; gap: 0.4rem; max-height: 150px; overflow-y: auto; background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem;">
+                            <div style="color: #94a3b8; font-style: italic; font-size: 0.8rem; text-align: center; padding: 0.5rem 0;">No layers logged yet</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.25rem 0.5rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 4px; font-size: 0.8rem; font-weight: 700; color: var(--blue-800);">
+                            <span>Total Logged Layer Thickness:</span>
+                            <span id="subform-layers-total">0.0 ft (0")</span>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- ERROR MESSAGE CONTAINER -->
@@ -2939,6 +2953,78 @@
         }, 3000);
     }
 
+    function updateLayersSubform() {
+        const listContainer = document.getElementById('subform-layers-list');
+        const totalSpan = document.getElementById('subform-layers-total');
+        if (!listContainer || !totalSpan) return;
+
+        const runBoring = (document.getElementById('run_boring_id')?.value || '').trim();
+        const sampleRaw = (document.getElementById('run_id')?.value || '').trim();
+        if (!runBoring || !sampleRaw) {
+            listContainer.innerHTML = `<div style="color: #94a3b8; font-style: italic; font-size: 0.8rem; text-align: center; padding: 0.5rem 0;">No sample selected</div>`;
+            totalSpan.textContent = `0.0 ft (0")`;
+            return;
+        }
+
+        const activeBoring = runBoring;
+        const activeSample = sampleRaw.replace(/^S-?/, "").trim();
+
+        let layers = datasetProfiles.filter(p => {
+            let details = getLayerDetails(p);
+            return details.boring === activeBoring && details.sample === activeSample;
+        });
+
+        layers.sort((a, b) => {
+            let detailsA = getLayerDetails(a);
+            let detailsB = getLayerDetails(b);
+            let layerA = parseInt(detailsA.layer) || 0;
+            let layerB = parseInt(detailsB.layer) || 0;
+            return layerA - layerB;
+        });
+
+        if (layers.length === 0) {
+            listContainer.innerHTML = `<div style="color: #94a3b8; font-style: italic; font-size: 0.8rem; text-align: center; padding: 0.5rem 0;">No layers logged yet</div>`;
+            totalSpan.textContent = `0.0 ft (0")`;
+            return;
+        }
+
+        let totalFt = 0;
+        let html = '';
+        layers.forEach((layer) => {
+            const top = parseFloat(layer["Top Depth (ft)"]) || 0;
+            const bottom = parseFloat(layer["Bottom Depth (ft)"]) || 0;
+            const thick = Math.max(0, bottom - top);
+            totalFt += thick;
+
+            let details = getLayerDetails(layer);
+            const layerShortId = "L-" + details.layer;
+
+            html += `
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; padding: 0.35rem 0.5rem; background: #ffffff; border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-weight: bold; color: var(--blue-700);">${layerShortId}</span>
+                        <span style="font-size: 0.7rem; color: #64748b; font-style: italic; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${layer["Soil Type"] || '-'}</span>
+                    </div>
+                    <div style="text-align: right; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-weight: 600; color: var(--slate-800);">${top.toFixed(1)}' - ${bottom.toFixed(1)}' (${thick.toFixed(1)} ft)</span>
+                        <button type="button" class="btn-small" style="padding: 0.1rem 0.3rem; font-size: 0.65rem; background: #fee2e2; color: #b91c1c; border-color: #fecaca;" onclick="deleteSubformProfile('${layer["Layer ID"]}')">🗑️</button>
+                    </div>
+                </div>
+            `;
+        });
+
+        listContainer.innerHTML = html;
+        const totalInches = totalFt * 12;
+        totalSpan.textContent = `${totalFt.toFixed(2)} ft (${totalInches.toFixed(1)}")`;
+    }
+
+    function deleteSubformProfile(layerId) {
+        const index = datasetProfiles.findIndex(p => p["Layer ID"] === layerId);
+        if (index !== -1) {
+            deleteProfile(index);
+        }
+    }
+
     // Active View Tab switcher
     function switchTab(event, tabId) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -3561,6 +3647,7 @@
             resetRunFormFieldsForNewRun(bId, sId);
             resetLayerFieldsForNewLayer(bId, sId);
         }
+        updateLayersSubform();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -4139,6 +4226,7 @@
         
         let sampleLayerTbody = document.getElementById('sampleLayerTableBody');
         if(sampleLayerTbody) sampleLayerTbody.innerHTML = html;
+        updateLayersSubform();
     }
 
     function deleteProfile(index) {
@@ -5171,6 +5259,7 @@
                 if (bEl && lEl) lEl.value = bEl.value;
             });
         }
+        updateLayersSubform();
     }
 
     function getRelativeDensity(nValue, soilType) {
