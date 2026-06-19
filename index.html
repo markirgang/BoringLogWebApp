@@ -2182,13 +2182,20 @@
             <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--slate-800);">Export Stylized Presentation Workbook</h2>
             <span style="font-weight: 700; color: #dc2626; font-size: 0.95rem; display: block; margin-bottom: 0.5rem;">FOR EXPORT ONLY-DO NOT RE-IMPORT THESE INTO STRATAPRO!</span>
             <p style="margin-top: 0;">Generate formatted, presentation-ready reports containing all project data by tab</p>
-            <div style="margin-top: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; max-width: 900px; width: 100%;">
-                <button class="btn" id="exportStylizedExcelBtn" style="padding: 1.75rem 2.5rem; font-size: 1.35rem; font-weight: 800; background-color: var(--emerald-600); color: white; border: none; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.15), 0 4px 6px -2px rgba(16, 185, 129, 0.05); cursor: pointer; transition: all 0.2s ease; width: 100%; text-align: center;" onmouseover="this.style.backgroundColor='var(--emerald-700)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.backgroundColor='var(--emerald-600)'; this.style.transform='translateY(0)'" onclick="exportStylizedExcel()">
-                    <span style="display: block; font-size: 2.2rem; margin-bottom: 0.5rem;">✨ 📊</span> Export Stylized Workbook
-                </button>
-                <button class="btn" id="exportGeotechNarrativeBtn" style="padding: 1.75rem 2.5rem; font-size: 1.35rem; font-weight: 800; background-color: var(--indigo-600); color: white; border: none; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.15), 0 4px 6px -2px rgba(79, 70, 229, 0.05); cursor: pointer; transition: all 0.2s ease; width: 100%; text-align: center;" onmouseover="this.style.backgroundColor='var(--indigo-700)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.backgroundColor='var(--indigo-600)'; this.style.transform='translateY(0)'" onclick="exportGeotechNarrativePDF()">
-                    <span style="display: block; font-size: 2.2rem; margin-bottom: 0.5rem;">📄 ✍️</span> Export Geotechnical Narrative PDF
-                </button>
+            <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; align-items: flex-start; width: 100%;">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 450px;">
+                    <span style="font-weight: 700; color: #dc2626; font-size: 0.95rem;">Export Excel Presentation Workbook</span>
+                    <button class="btn btn-success" id="exportStylizedExcelBtn" style="padding: 0.75rem 1.5rem; font-size: 1rem;" onclick="exportStylizedExcel()">
+                        <span style="margin-right: 0.5rem;">✨ 📊</span> Export Stylized Workbook
+                    </button>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 550px;">
+                    <span style="font-weight: 700; color: #dc2626; font-size: 0.95rem;">Export Premium Geotechnical Narrative Report (PDF)</span>
+                    <button class="btn" id="exportGeotechNarrativeBtn" style="padding: 1.75rem 2.5rem; font-size: 1.35rem; font-weight: 800; background-color: var(--blue-600); color: white; border: none; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.15), 0 4px 6px -2px rgba(37, 99, 235, 0.05); cursor: pointer; transition: all 0.2s ease; width: 100%; text-align: center;" onmouseover="this.style.backgroundColor='var(--blue-700)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.backgroundColor='var(--blue-600)'; this.style.transform='translateY(0)'" onclick="exportGeotechNarrativePDF()">
+                        <span style="display: block; font-size: 2.2rem; margin-bottom: 0.5rem;">📄 ✍️</span> Export Geotechnical Narrative PDF
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -9068,7 +9075,7 @@ async function exportGeotechNarrativePDF() {
             margin:       0.4,
             filename:     filename,
             image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
+            html2canvas:  { scale: 2, useCORS: true, scrollY: 0, scrollX: 0 },
             jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
             pagebreak:    { mode: ['avoid-all', 'css'] }
         };
