@@ -7372,12 +7372,24 @@ async function exportStylizedExcel() {
         rulerHeader.alignment = { vertical: 'middle', horizontal: 'center' };
         rulerHeader.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
 
+        let tickInterval = 5;
+        if (maxVertDepthFt <= 10) {
+            tickInterval = 1;
+        } else if (maxVertDepthFt <= 20) {
+            tickInterval = 2;
+        } else if (maxVertDepthFt <= 50) {
+            tickInterval = 5;
+        } else {
+            tickInterval = 10;
+        }
+
         for (let r = 6; r <= maxRow; r++) {
             sheetStack.getRow(r).height = 20;
             const depth = (r - 6) * 0.5;
             const rCell = sheetStack.getCell(r, 1);
-            rCell.value = `${depth.toFixed(1)}'`;
-            rCell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+            const isTick = (Math.round(depth * 10) % Math.round(tickInterval * 10) === 0) || (depth === maxVertDepthFt);
+            rCell.value = isTick ? `${depth.toFixed(1)}'` : '-';
+            rCell.font = { name: 'Segoe UI', size: 9, bold: isTick, color: isTick ? { argb: 'FFFFFFFF' } : { argb: 'FF94A3B8' } };
             rCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF475569' } };
             rCell.alignment = { vertical: 'middle', horizontal: 'center' };
             rCell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
@@ -7573,11 +7585,23 @@ async function exportStylizedExcel() {
         bIdHeader.alignment = { vertical: 'middle', horizontal: 'center' };
         bIdHeader.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
 
+        let tickIntervalHoriz = 5;
+        if (maxHorizDepthFt <= 10) {
+            tickIntervalHoriz = 1;
+        } else if (maxHorizDepthFt <= 20) {
+            tickIntervalHoriz = 2;
+        } else if (maxHorizDepthFt <= 50) {
+            tickIntervalHoriz = 5;
+        } else {
+            tickIntervalHoriz = 10;
+        }
+
         for (let col = 2; col <= maxCol; col++) {
             const depth = (col - 2) * 0.5;
             const rCell = sheetHorizStack.getCell(5, col);
-            rCell.value = `${depth.toFixed(1)}'`;
-            rCell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+            const isTick = (Math.round(depth * 10) % Math.round(tickIntervalHoriz * 10) === 0) || (depth === maxHorizDepthFt);
+            rCell.value = isTick ? `${depth.toFixed(1)}'` : '|';
+            rCell.font = { name: 'Segoe UI', size: 9, bold: isTick, color: isTick ? { argb: 'FFFFFFFF' } : { argb: 'FF94A3B8' } };
             rCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF475569' } };
             rCell.alignment = { vertical: 'middle', horizontal: 'center' };
             rCell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
