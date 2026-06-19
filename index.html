@@ -830,6 +830,7 @@
                                 <option value="B-2">B-2</option>
                             </select>
                             <button type="button" class="btn-small" onclick="promptAddChoice('run_boring_id')">➕ Choice</button>
+                            <button type="button" class="btn-small" style="background:#fee2e2; color:#b91c1c; border-color:#fecaca;" onclick="deleteActiveBoring()">🗑️ Delete</button>
                         </div>
                     </div>
                     
@@ -1191,6 +1192,7 @@
                                     <option value="S-4">S-4</option>
                                 </select>
                                 <button type="button" class="btn-small" onclick="promptAddChoice('run_id')">➕ Choice</button>
+                                <button type="button" class="btn-small" style="background:#fee2e2; color:#b91c1c; border-color:#fecaca;" onclick="deleteActiveSample()">🗑️ Delete</button>
                             </div>
                         </div>
                         <div class="form-group">
@@ -1594,6 +1596,7 @@
                                     <option value="L-4">
                                     <option value="L-5">
 </datalist>
+                                <button type="button" class="btn-small" style="background:#fee2e2; color:#b91c1c; border-color:#fecaca;" onclick="deleteActiveLayer()">🗑️ Delete</button>
                             </div>
                         </div>
                         <div class="form-group">
@@ -5176,6 +5179,177 @@
         }
     }
 
+    function deleteActiveBoring() {
+        const boringSelect = document.getElementById('run_boring_id');
+        if (!boringSelect || boringSelect.options.length === 0) {
+            showToast("No boring selected to delete.", "error");
+            return;
+        }
+        const boringId = boringSelect.value;
+        if (!boringId) {
+            showToast("No boring selected to delete.", "error");
+            return;
+        }
+        
+        if (confirm(`Are you sure you want to delete boring "${boringId}" and all of its samples, runs, and layer profiles?`)) {
+            // 1. Remove from datasetRuns
+            datasetRuns = datasetRuns.filter(r => r["Boring ID"] !== boringId);
+            
+            // 2. Remove from datasetProfiles
+            datasetProfiles = datasetProfiles.filter(p => getBoringIdFromSampleId(p["Sample ID"]) !== boringId);
+            
+            // 3. Clear from metadata maps
+            delete boringDefaultsMap[boringId];
+            delete boringGPSMap[boringId];
+            delete boringOverridesMap[boringId];
+            delete boringGWMap[boringId];
+            
+            // 4. Remove option from all dropdowns
+            const dropIds = ['run_boring_id', 'rel_boring_id', 'layer_override_boring'];
+            dropIds.forEach(id => {
+                const sel = document.getElementById(id);
+                if (sel) {
+                    for (let i = sel.options.length - 1; i >= 0; i--) {
+                        if (sel.options[i].value === boringId) {
+                            sel.remove(i);
+                        }
+                    }
+                }
+            });
+            
+            // 5. Select next/prev boring, or clear if none
+            if (boringSelect.options.length > 0) {
+                const nextBoring = boringSelect.options[0].value;
+                boringSelect.value = nextBoring;
+                const relBoring = document.getElementById('rel_boring_id');
+                if (relBoring) {
+                    relBoring.innerHTML = `<option value="${nextBoring}" selected>${nextBoring}</option>`;
+                    relBoring.value = nextBoring;
+                }
+                syncUIToBoringFields(nextBoring);
+                loadCurrentRunData();
+            } else {
+                // No borings left! Let's clear boring-related fields
+                const fieldsToClear = [
+                    'cov_gps_lat', 'cov_gps_lon', 'cov_gps_address',
+                    'cov_gw_1_moisture', 'cov_gw_1_depth', 'cov_gw_1_date', 'cov_gw_1_time', 'cov_gw_1_comment',
+                    'cov_gw_2_moisture', 'cov_gw_2_depth', 'cov_gw_2_date', 'cov_gw_2_time', 'cov_gw_2_comment',
+                    'run_contractor', 'run_equipment', 'run_hammer', 'run_sampler', 'run_foreman', 'run_helper',
+                    'run_bit_type', 'run_rod_type', 'run_casing', 'run_casing_lining', 'run_case_diameter', 'run_hammer_wgt', 'run_hammer_drop',
+                    'run_rock_hammer_type', 'run_rock_hammer_wgt_drop', 'run_rock_size', 'run_default_pid', 'run_default_pp', 'run_default_tv'
+                ];
+                fieldsToClear.forEach(fid => {
+                    const el = document.getElementById(fid);
+                    if (el) el.value = '';
+                });
+            }
+            
+            // 6. Refresh and Sync
+            populateSampleDropdown();
+            refreshAllAfterDataChange();
+            showToast(`Boring "${boringId}" deleted successfully.`, "success");
+        }
+    }
+
+    function deleteActiveSample() {
+        const boringSelect = document.getElementById('run_boring_id');
+        const sampleSelect = document.getElementById('run_id');
+        if (!boringSelect || !sampleSelect) return;
+        
+        const boringId = boringSelect.value;
+        const sampleShortId = sampleSelect.value;
+        if (!boringId || !sampleShortId) {
+            showToast("No sample selected to delete.", "error");
+            return;
+        }
+        
+        const runSampleId = boringId + "-" + sampleShortId;
+        const combinedSampleId = boringId + sampleShortId;
+        
+        if (confirm(`Are you sure you want to delete sample "${sampleShortId}" and all of its layer profiles?`)) {
+            // 1. Remove from datasetRuns
+            datasetRuns = datasetRuns.filter(r => r["Sample ID"] !== runSampleId && r["Sample ID"] !== combinedSampleId);
+            
+            // 2. Remove from datasetProfiles
+            datasetProfiles = datasetProfiles.filter(p => p["Sample ID"] !== runSampleId && p["Sample ID"] !== combinedSampleId);
+            
+            // 3. Remove option from dropdowns
+            const dropIds = ['run_id', 'layer_override_sample'];
+            dropIds.forEach(id => {
+                const sel = document.getElementById(id);
+                if (sel) {
+                    for (let i = sel.options.length - 1; i >= 0; i--) {
+                        if (sel.options[i].value === sampleShortId) {
+                            sel.remove(i);
+                        }
+                    }
+                }
+            });
+            
+            // 4. Switch UI focus
+            if (sampleSelect.options.length > 0) {
+                const nextSample = sampleSelect.options[0].value;
+                sampleSelect.value = nextSample;
+                
+                // Explicitly update rel_sample_id to match the newly selected run_id value
+                const relSample = document.getElementById('rel_sample_id');
+                if (relSample) {
+                    relSample.innerHTML = `<option value="${nextSample}" selected>${nextSample}</option>`;
+                    relSample.value = nextSample;
+                }
+                loadCurrentRunData();
+            } else {
+                resetRunFormFieldsForNewRun(boringId, '');
+                resetLayerFieldsForNewLayer(boringId, '');
+            }
+            
+            // 5. Refresh
+            refreshAllAfterDataChange();
+            showToast(`Sample "${sampleShortId}" deleted successfully.`, "success");
+        }
+    }
+
+    function deleteActiveLayer() {
+        const runBoringEl = document.getElementById('run_boring_id');
+        const runIdEl = document.getElementById('run_id');
+        const layerSelect = document.getElementById('rel_layer_id');
+        
+        if (!runBoringEl || !runIdEl || !layerSelect) return;
+        
+        const boringId = runBoringEl.value;
+        const sampleShortId = runIdEl.value;
+        const layerId = layerSelect.value;
+        
+        if (!boringId || !sampleShortId || !layerId) {
+            showToast("Please select a boring, sample, and layer to delete.", "error");
+            return;
+        }
+        
+        const activeBoring = boringId.toLowerCase();
+        const activeSample = sampleShortId.replace(/^S-?/i, "").trim().toLowerCase();
+        const activeLayer = layerId.replace(/^-?[Ll]-?/, "").trim().toLowerCase();
+        
+        const index = datasetProfiles.findIndex(p => {
+            let details = getLayerDetails(p);
+            return details.boring === activeBoring && details.sample === activeSample && details.layer === activeLayer;
+        });
+        
+        if (index === -1) {
+            showToast("No saved layer found for the current selection.", "error");
+            return;
+        }
+        
+        if (confirm(`Are you sure you want to delete layer "${layerId}"?`)) {
+            datasetProfiles.splice(index, 1);
+            
+            // Clear Column 3 form inputs for a new layer
+            resetLayerFieldsForNewLayer(boringId, sampleShortId);
+            
+            refreshAllAfterDataChange();
+            showToast(`Layer "${layerId}" deleted successfully.`, "success");
+        }
+    }
+
     function prefillFormForEdit(boringId, shortSampleId, layerId) {
         let runSampleId = boringId + "-" + shortSampleId;
         let combinedSampleId = boringId + shortSampleId;
@@ -6301,6 +6475,63 @@
 
             // Rebuild boring default and groundwater maps from imported data
             rebuildBoringMapsFromDatasets();
+
+            // Rebuild Boring ID dropdown options from imported datasets
+            const importedBoringIds = new Set();
+            datasetRuns.forEach(r => { if (r["Boring ID"]) importedBoringIds.add(r["Boring ID"]); });
+            datasetProfiles.forEach(p => {
+                const bId = getBoringIdFromSampleId(p["Sample ID"]);
+                if (bId) importedBoringIds.add(bId);
+            });
+            Object.keys(boringGPSMap).forEach(bId => importedBoringIds.add(bId));
+            
+            const runBoringSelect = document.getElementById('run_boring_id');
+            const overrideBoringSelect = document.getElementById('layer_override_boring');
+            if (importedBoringIds.size > 0) {
+                [runBoringSelect, overrideBoringSelect].forEach(sel => {
+                    if (sel) {
+                        sel.innerHTML = '';
+                        Array.from(importedBoringIds).sort((a,b) => a.localeCompare(b, undefined, {numeric: true})).forEach(bId => {
+                            const opt = document.createElement('option');
+                            opt.value = bId;
+                            opt.text = bId;
+                            sel.add(opt);
+                        });
+                    }
+                });
+            }
+            
+            // Rebuild Sample Short ID dropdown options from imported datasets
+            const importedSampleShortIds = new Set();
+            datasetRuns.forEach(r => {
+                const bId = r["Boring ID"];
+                const fullSampleId = r["Sample ID"] || "";
+                const shortSampleId = fullSampleId.replace(bId + "-", "").replace(bId, "");
+                if (shortSampleId) importedSampleShortIds.add(shortSampleId);
+            });
+            datasetProfiles.forEach(p => {
+                const bId = getBoringIdFromSampleId(p["Sample ID"]);
+                const fullSampleId = p["Sample ID"] || "";
+                const shortSampleId = fullSampleId.replace(bId + "-", "").replace(bId, "");
+                if (shortSampleId) importedSampleShortIds.add(shortSampleId);
+            });
+            
+            const runIdSelect = document.getElementById('run_id');
+            const overrideSampleSelect = document.getElementById('layer_override_sample');
+            if (importedSampleShortIds.size > 0) {
+                [runIdSelect, overrideSampleSelect].forEach(sel => {
+                    if (sel) {
+                        sel.innerHTML = '';
+                        Array.from(importedSampleShortIds).sort((a,b) => a.localeCompare(b, undefined, {numeric: true})).forEach(sId => {
+                            const opt = document.createElement('option');
+                            opt.value = sId;
+                            opt.text = sId;
+                            sel.add(opt);
+                        });
+                    }
+                });
+            }
+
             const currentBoring = document.getElementById('run_boring_id') ? document.getElementById('run_boring_id').value : '';
             if (currentBoring) {
                 syncUIToBoringFields(currentBoring);
