@@ -3196,11 +3196,15 @@
 
     function getBoringIdFromSampleId(sampleId) {
         if (!sampleId) return "";
-        const sIndex = sampleId.indexOf('S');
-        if (sIndex !== -1) {
-            return sampleId.substring(0, sIndex);
+        const sampleMatch = sampleId.toString().match(/-?[Ss]-?\d+$/);
+        if (sampleMatch) {
+            let boringId = sampleId.toString().replace(/-?[Ss]-?\d+$/, "");
+            if (boringId.endsWith('-')) {
+                boringId = boringId.slice(0, -1);
+            }
+            return boringId.trim();
         }
-        return "";
+        return sampleId.toString().trim();
     }
 
     function rebuildBoringMapsFromDatasets() {
@@ -3845,34 +3849,34 @@
         let layerIdStr = (p["Layer ID"] || "").toString().trim();
         
         let boringId = "";
-        const sIndex = sampleId.indexOf('S');
-        if (sIndex !== -1) {
-            boringId = sampleId.substring(0, sIndex);
+        let cleanSample = "";
+        let cleanLayer = "";
+        
+        // 1. Extract sample and boring from sampleId
+        const sampleMatch = sampleId.match(/-?[Ss]-?\d+$/);
+        if (sampleMatch) {
+            const matchedSamplePart = sampleMatch[0];
+            boringId = sampleId.replace(/-?[Ss]-?\d+$/, "");
+            cleanSample = matchedSamplePart.replace(/^-?[Ss]-?/, "");
         } else {
-            const sIndex2 = layerIdStr.indexOf('S');
-            if (sIndex2 !== -1) {
-                boringId = layerIdStr.substring(0, sIndex2);
-            }
+            // Fallback if no S-number found
+            boringId = sampleId;
+            cleanSample = "";
         }
         
+        // 2. Extract layer from layerIdStr
+        const layerMatch = layerIdStr.match(/-?[Ll]-?\d+$/);
+        if (layerMatch) {
+            const matchedLayerPart = layerMatch[0];
+            cleanLayer = matchedLayerPart.replace(/^-?[Ll]-?/, "");
+        } else {
+            cleanLayer = "";
+        }
+        
+        // Clean trailing hyphens from boring ID if any
         if (boringId.endsWith('-')) {
             boringId = boringId.slice(0, -1);
         }
-        
-        let shortSampleId = sampleId;
-        if (boringId) {
-            shortSampleId = shortSampleId.replace(boringId + "-", "").replace(boringId, "");
-        }
-        let cleanSample = shortSampleId.replace(/^S-?/i, "");
-        
-        let combinedSampleId = boringId + shortSampleId;
-        let shortLayerId = layerIdStr
-            .replace(combinedSampleId, "")
-            .replace(sampleId, "")
-            .replace(boringId + "-" + shortSampleId, "")
-            .replace(boringId + shortSampleId, "");
-            
-        let cleanLayer = shortLayerId.replace(/^-?[Ll]-?/, "");
         
         return {
             boring: boringId.trim().toLowerCase(),
