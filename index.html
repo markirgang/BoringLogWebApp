@@ -545,6 +545,32 @@
             font-style: italic;
             text-align: left;
         }
+
+        /* Toast Notification System */
+        .toast-notification {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--slate-800);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(1rem);
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 <link rel="icon" href="data:,">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -2878,6 +2904,41 @@
         }
     }
 
+    // Toast Notification helper
+    function showToast(message, type = 'success') {
+        let toast = document.getElementById('app-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'app-toast';
+            toast.className = 'toast-notification';
+            document.body.appendChild(toast);
+        }
+        
+        let bgColor = 'var(--slate-800)';
+        let icon = 'ℹ️';
+        if (type === 'success') {
+            bgColor = 'var(--emerald-600)';
+            icon = '✅';
+        } else if (type === 'error') {
+            bgColor = '#ef4444';
+            icon = '⚠️';
+        }
+        
+        toast.style.backgroundColor = bgColor;
+        toast.innerHTML = `<span style="font-size: 1.1rem; display: flex; align-items: center;">${icon}</span> <span>${message}</span>`;
+        
+        // Show toast
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 10);
+        
+        // Auto-dismiss after 3 seconds
+        if (toast.timeoutId) clearTimeout(toast.timeoutId);
+        toast.timeoutId = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
     // Active View Tab switcher
     function switchTab(event, tabId) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -3806,7 +3867,7 @@
 
         const validationError = validateBoringInfoFormInputs();
         if (validationError) {
-            alert(validationError);
+            showToast(validationError, 'error');
             const errorDiv = document.getElementById('boringFormError');
             const errorText = document.getElementById('boringFormErrorText');
             if (errorDiv && errorText) {
@@ -4058,7 +4119,7 @@
                 submitBtn.innerHTML = originalText;
             }, 1000);
         }
-        alert('layer saved');
+        showToast('Sample layer saved successfully!', 'success');
     });
 
     // Tab 2 Live Profile Table Inline Comment Field Binder
