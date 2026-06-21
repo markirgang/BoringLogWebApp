@@ -674,14 +674,8 @@
             { Property: "Site State", Value: getVal('cov_site_state') },
 
             { Property: "Site Zip", Value: getVal('cov_site_zip') },
-            { Property: "Office Contact Name", Value: getVal('cov_office_contact_name') },
             { Property: "Office Contact Phone", Value: getVal('cov_office_contact_phone') },
             { Property: "Office Contact Email", Value: getVal('cov_office_contact_email') },
-            { Property: "Office Address 1", Value: getVal('cov_office_address_1') },
-            { Property: "Office Address 2", Value: getVal('cov_office_address_2') },
-            { Property: "Office City", Value: getVal('cov_office_city') },
-            { Property: "Office State", Value: getVal('cov_office_state') },
-            { Property: "Office Zip", Value: getVal('cov_office_zip') },
             { Property: "Contractor", Value: getVal('cov_contractor') },
             { Property: "Rig Type", Value: getVal('cov_equipment') },
             { Property: "Hammer System", Value: getVal('cov_hammer') },
@@ -744,14 +738,8 @@
             'cov_site_city': 'Austin',
             'cov_site_state': 'TX',
             'cov_site_zip': '78701',
-            'cov_office_contact_name': 'John Smith',
             'cov_office_contact_phone': '(555) 987-6543',
-            'cov_office_contact_email': 'john.smith@geoeng.com',
-            'cov_office_address_1': '400 Geo Center',
-            'cov_office_address_2': 'Floor 2',
-            'cov_office_city': 'Houston',
-            'cov_office_state': 'TX',
-            'cov_office_zip': '77002'
+            'cov_office_contact_email': 'john.smith@geoeng.com'
         };
 
         for (let id in defaults) {

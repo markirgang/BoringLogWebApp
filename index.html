@@ -538,6 +538,33 @@
             background-color: var(--blue-600);
             color: #ffffff;
         }
+        .subform-scroll-container {
+            max-height: 120px;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            box-sizing: border-box;
+            scrollbar-width: thin;
+        }
+        .subform-scroll-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .subform-scroll-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .subform-scroll-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .subform-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
         .editable-select-dropdown-no-results {
             padding: 8px 12px;
             color: #64748b;
@@ -911,14 +938,6 @@
                     <h4 style="margin: 0; color: var(--slate-800); font-size: 1.1rem;">Office Information</h4>
                 </div>
                 <div class="form-group">
-                    <label>Office Contact Name</label>
-                    <div class="input-addon-group">
-                        <select id="cov_office_contact_name">
-                            <option value="">Select Name...</option></select>
-                        <button type="button" class="btn-small" onclick="promptAddChoice('cov_office_contact_name')">➕ Choice</button>
-                    </div>
-                </div>
-                <div class="form-group">
                     <label>Office Contact Phone</label>
                     <div class="input-addon-group">
                         <select id="cov_office_contact_phone">
@@ -932,46 +951,6 @@
                         <select id="cov_office_contact_email">
                             <option value="">Select Email...</option></select>
                         <button type="button" class="btn-small" onclick="promptAddChoice('cov_office_contact_email')">➕ Choice</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Office Address 1</label>
-                    <div class="input-addon-group">
-                        <select id="cov_office_address_1">
-                            <option value="">Select Address...</option></select>
-                        <button type="button" class="btn-small" onclick="promptAddChoice('cov_office_address_1')">➕ Choice</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Office Address 2</label>
-                    <div class="input-addon-group">
-                        <select id="cov_office_address_2">
-                            <option value="">Select Address 2...</option></select>
-                        <button type="button" class="btn-small" onclick="promptAddChoice('cov_office_address_2')">➕ Choice</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Office City</label>
-                    <div class="input-addon-group">
-                        <select id="cov_office_city">
-                            <option value="">Select City...</option></select>
-                        <button type="button" class="btn-small" onclick="promptAddChoice('cov_office_city')">➕ Choice</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Office State</label>
-                    <div class="input-addon-group">
-                        <select id="cov_office_state">
-                            <option value="">Select State...</option></select>
-                        <button type="button" class="btn-small" onclick="promptAddChoice('cov_office_state')">➕ Choice</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Office Zip</label>
-                    <div class="input-addon-group">
-                        <select id="cov_office_zip">
-                            <option value="">Select Zip...</option></select>
-                        <button type="button" class="btn-small" onclick="promptAddChoice('cov_office_zip')">➕ Choice</button>
                     </div>
                 </div>
 
@@ -1992,34 +1971,37 @@
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%;">
                             <!-- Headers -->
-                            <div style="display: grid; grid-template-columns: 30px 1.5fr 1.5fr; gap: 0.5rem; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 0.2rem; margin-bottom: 0.1rem;">
+                            <div style="display: grid; grid-template-columns: 50px 1.5fr 1.5fr; gap: 0.5rem; align-items: center; border-bottom: 1px solid var(--border); padding: 0 0.5rem 0.25rem 0.5rem; margin-bottom: 0.1rem; box-sizing: border-box; padding-right: calc(0.5rem + 6px);">
                                     <span style="font-size: 0.65rem; font-weight: 700; color: var(--slate-500);">Depth</span>
                                     <span style="font-size: 0.7rem; font-weight: 700; color: var(--slate-500); text-align: center;">Blows</span>
                                     <span style="font-size: 0.7rem; font-weight: 700; color: var(--slate-500); text-align: center;">Inches</span>
                             </div>
-                            <!-- Increment 1 -->
-                            <div style="display: grid; grid-template-columns: 30px 1.5fr 1.5fr; gap: 0.5rem; align-items: center;">
-                                <span id="lbl_bc_1" style="font-size: 0.65rem; color: var(--slate-700); font-weight: 600;">0-6"</span>
-                                <input type="number" id="run_bc_1" list="list_bc" placeholder="Blows" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; text-align: center; border: 1px solid var(--border); border-radius: 4px; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;">
-                                <input type="number" step="any" id="run_bc_in_1" list="list_bc_in" value="6" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; border: 1px solid var(--border); border-radius: 4px; text-align: center; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;" onchange="updateBlowcountPlaceholders()">
-                            </div>
-                            <!-- Increment 2 -->
-                            <div style="display: grid; grid-template-columns: 30px 1.5fr 1.5fr; gap: 0.5rem; align-items: center;">
-                                <span id="lbl_bc_2" style="font-size: 0.65rem; color: var(--slate-700); font-weight: 600;">6-12"</span>
-                                <input type="number" id="run_bc_2" list="list_bc" placeholder="Blows" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; text-align: center; border: 1px solid var(--border); border-radius: 4px; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;">
-                                <input type="number" step="any" id="run_bc_in_2" list="list_bc_in" value="6" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; border: 1px solid var(--border); border-radius: 4px; text-align: center; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;" onchange="updateBlowcountPlaceholders()">
-                            </div>
-                            <!-- Increment 3 -->
-                            <div style="display: grid; grid-template-columns: 30px 1.5fr 1.5fr; gap: 0.5rem; align-items: center;">
-                                <span id="lbl_bc_3" style="font-size: 0.65rem; color: var(--slate-700); font-weight: 600;">12-18"</span>
-                                <input type="number" id="run_bc_3" list="list_bc" placeholder="Blows" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; text-align: center; border: 1px solid var(--border); border-radius: 4px; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;">
-                                <input type="number" step="any" id="run_bc_in_3" list="list_bc_in" value="6" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; border: 1px solid var(--border); border-radius: 4px; text-align: center; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;" onchange="updateBlowcountPlaceholders()">
-                            </div>
-                            <!-- Increment 4 -->
-                            <div style="display: grid; grid-template-columns: 30px 1.5fr 1.5fr; gap: 0.5rem; align-items: center;">
-                                <span id="lbl_bc_4" style="font-size: 0.65rem; color: var(--slate-700); font-weight: 600;">18-24"</span>
-                                <input type="number" id="run_bc_4" list="list_bc" placeholder="Blows" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; text-align: center; border: 1px solid var(--border); border-radius: 4px; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;">
-                                <input type="number" step="any" id="run_bc_in_4" list="list_bc_in" value="6" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; border: 1px solid var(--border); border-radius: 4px; text-align: center; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;" onchange="updateBlowcountPlaceholders()">
+                            <!-- Subform Scroll Container -->
+                            <div class="subform-scroll-container">
+                                <!-- Increment 1 -->
+                                <div style="display: grid; grid-template-columns: 50px 1.5fr 1.5fr; gap: 0.5rem; align-items: center;">
+                                    <span id="lbl_bc_1" style="font-size: 0.65rem; color: var(--slate-700); font-weight: 600;">0-6"</span>
+                                    <input type="number" id="run_bc_1" list="list_bc" placeholder="Blows" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; text-align: center; border: 1px solid var(--border); border-radius: 4px; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;">
+                                    <input type="number" step="any" id="run_bc_in_1" list="list_bc_in" value="6" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; border: 1px solid var(--border); border-radius: 4px; text-align: center; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;" onchange="updateBlowcountPlaceholders()">
+                                </div>
+                                <!-- Increment 2 -->
+                                <div style="display: grid; grid-template-columns: 50px 1.5fr 1.5fr; gap: 0.5rem; align-items: center;">
+                                    <span id="lbl_bc_2" style="font-size: 0.65rem; color: var(--slate-700); font-weight: 600;">6-12"</span>
+                                    <input type="number" id="run_bc_2" list="list_bc" placeholder="Blows" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; text-align: center; border: 1px solid var(--border); border-radius: 4px; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;">
+                                    <input type="number" step="any" id="run_bc_in_2" list="list_bc_in" value="6" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; border: 1px solid var(--border); border-radius: 4px; text-align: center; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;" onchange="updateBlowcountPlaceholders()">
+                                </div>
+                                <!-- Increment 3 -->
+                                <div style="display: grid; grid-template-columns: 50px 1.5fr 1.5fr; gap: 0.5rem; align-items: center;">
+                                    <span id="lbl_bc_3" style="font-size: 0.65rem; color: var(--slate-700); font-weight: 600;">12-18"</span>
+                                    <input type="number" id="run_bc_3" list="list_bc" placeholder="Blows" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; text-align: center; border: 1px solid var(--border); border-radius: 4px; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;">
+                                    <input type="number" step="any" id="run_bc_in_3" list="list_bc_in" value="6" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; border: 1px solid var(--border); border-radius: 4px; text-align: center; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;" onchange="updateBlowcountPlaceholders()">
+                                </div>
+                                <!-- Increment 4 -->
+                                <div style="display: grid; grid-template-columns: 50px 1.5fr 1.5fr; gap: 0.5rem; align-items: center;">
+                                    <span id="lbl_bc_4" style="font-size: 0.65rem; color: var(--slate-700); font-weight: 600;">18-24"</span>
+                                    <input type="number" id="run_bc_4" list="list_bc" placeholder="Blows" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; text-align: center; border: 1px solid var(--border); border-radius: 4px; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;">
+                                    <input type="number" step="any" id="run_bc_in_4" list="list_bc_in" value="6" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; border: 1px solid var(--border); border-radius: 4px; text-align: center; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;" onchange="updateBlowcountPlaceholders()">
+                                </div>
                             </div>
                             <!-- Increment sample run (+) button -->
                             <div style="display: flex; justify-content: center; margin-top: 0.5rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
@@ -7521,14 +7503,8 @@
             'cov_site_city': 'Austin',
             'cov_site_state': 'TX',
             'cov_site_zip': '78701',
-            'cov_office_contact_name': 'John Smith',
             'cov_office_contact_phone': '(555) 987-6543',
-            'cov_office_contact_email': 'john.smith@geoeng.com',
-            'cov_office_address_1': '400 Geo Center',
-            'cov_office_address_2': 'Floor 2',
-            'cov_office_city': 'Houston',
-            'cov_office_state': 'TX',
-            'cov_office_zip': '77002'
+            'cov_office_contact_email': 'john.smith@geoeng.com'
         };
 
         for (let id in defaults) {
@@ -8253,14 +8229,8 @@ async function exportStylizedExcel() {
     ];
 
     const jobFieldsRight = [
-        ["Office Contact Name", document.getElementById('cov_office_contact_name')?.value || ''],
         ["Office Phone", document.getElementById('cov_office_contact_phone')?.value || ''],
         ["Office Email", document.getElementById('cov_office_contact_email')?.value || ''],
-        ["Office Address 1", document.getElementById('cov_office_address_1')?.value || ''],
-        ["Office Address 2", document.getElementById('cov_office_address_2')?.value || ''],
-        ["Office City", document.getElementById('cov_office_city')?.value || ''],
-        ["Office State", document.getElementById('cov_office_state')?.value || ''],
-        ["Office Zip", document.getElementById('cov_office_zip')?.value || ''],
         ["GPS Site Address", document.getElementById('cov_gps_address')?.value || ''],
         ["Main Form Comments", document.getElementById('global_comments')?.value || '']
     ];
