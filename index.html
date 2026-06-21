@@ -1347,6 +1347,7 @@
                             </div>
                         </div>
                     </details>
+                    <button type="button" id="save_boring_btn" class="btn" style="background: var(--blue-600); color: #ffffff; border-color: var(--blue-700); width: 100%; padding: 0.5rem 0; font-size: 0.95rem; font-weight: 700; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.25rem; margin-top: 0.25rem;" onclick="saveActiveBoring()">💾 Save Boring</button>
                 </div>
                 
                 
@@ -4222,6 +4223,19 @@
         });
     }
 
+    function saveActiveBoring() {
+        const boringSelect = document.getElementById('run_boring_id');
+        if (!boringSelect) return;
+        const boringId = boringSelect.value;
+        if (!boringId) {
+            showToast("No active boring to save.", "error");
+            return;
+        }
+        saveBoringFieldsFromUI(boringId);
+        refreshAllAfterDataChange();
+        showToast(`Boring "${boringId}" information saved successfully!`, 'success');
+    }
+
     let layerCounters = {};
 
     // Form fields helper for new runs
@@ -4935,7 +4949,7 @@
                 submitBtn.innerHTML = originalText;
             }, 1200);
         }
-        showToast('Sample layer saved successfully!', 'success');
+        showToast('Layer saved successfully!', 'success');
     });
 
     // Tab 2 Live Profile Table Inline Comment Field Binder
