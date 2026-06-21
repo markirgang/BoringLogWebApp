@@ -478,7 +478,7 @@
             }
             /* Table mobile font readability adjustments */
             #summaryTableBody td,
-            #tab-summary th {
+            #summaryTableContainer th {
                 font-size: 0.85rem !important;
                 padding: 0.5rem 0.4rem !important;
             }
@@ -717,14 +717,13 @@
         <div class="tab-bar" style="border-bottom: none; flex: 1;">
             <button class="tab-btn active" onclick="switchTab(event, 'tab-cover')">1. Job</button>
             <button class="tab-btn" onclick="switchTab(event, 'tab-boring-info')">2. Boring Information</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-summary')">📊 3. Boring Summary</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-layer-description')">📄 4. Layer Description</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-stacking')">5. Vert Stack</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-horizontal-stack')">↔️ 6. Horoz Stack</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-reference')">📖 7. Ref</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-digsafe')">🚜 8. DigSafe</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-export')">📤 9. Import/Export</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-boring-map')">🗺️ 10. Location Map</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-layer-description')">📄 3. Layer Description</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-stacking')">4. Vert Stack</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-horizontal-stack')">↔️ 5. Horoz Stack</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-reference')">📖 6. Ref</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-digsafe')">🚜 7. DigSafe</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-export')">📤 8. Import/Export</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-boring-map')">🗺️ 9. Location Map</button>
         </div>
 
 
@@ -1907,52 +1906,45 @@
                 
             </div>
         </form>
-    </div>
-
-    <div id="tab-summary" class="tab-content">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
-            <div>
-                <h3 style="margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--slate-800);">Boring Summary</h3>
+        <!-- Boring Summary Table placed at the bottom of Boring Information -->
+        <div style="margin-top: 2.5rem; border-top: 2px solid var(--border); padding-top: 1.5rem; width: 100%;">
+            <div style="margin-bottom: 1rem;">
+                <h3 style="margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--slate-800);">📊 Boring Summary</h3>
                 <p style="margin:0; font-size:0.85rem; color:#64748b;">Read-only combined summary of all layers and their corresponding sample runs</p>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <h1 style="font-size: 2.2rem; margin: 0; color: var(--slate-800); white-space: nowrap; font-weight: 700;">StrataPro</h1>
-                <img src="CarenHeadShot.jpg" alt="Caren Headshot" style="width: 56px; height: 56px; object-fit: cover; border-radius: 50%; border: 2px solid var(--slate-800);" />
+            <div id="summaryTableContainer" class="table-container">
+                <table>
+                    <thead>
+                        <tr style="background-color: var(--slate-100);">
+                            <th style="min-width: 80px;">Boring ID</th>
+                            <th style="min-width: 95px;">Drill Date</th>
+                            <th style="min-width: 90px;">Site Class</th>
+                            <th style="min-width: 150px;">GPS Coordinates</th>
+                            <th style="min-width: 150px;">Groundwater Obs 1</th>
+                            <th style="min-width: 150px;">Groundwater Obs 2</th>
+                            <th style="min-width: 80px;">Sample ID</th>
+                            <th style="min-width: 100px;">Run Depth (ft)</th>
+                            <th style="min-width: 180px;">Blows and Inches</th>
+                            <th style="min-width: 75px;">N-Value</th>
+                            <th style="min-width: 90px;">Recovery (in)</th>
+                            <th style="min-width: 160px;">Field Testing (PID/PP/TV)</th>
+                            <th style="min-width: 70px;">Layer ID</th>
+                            <th style="min-width: 100px;">Layer Depth (ft)</th>
+                            <th style="min-width: 100px;">Depth (ft)</th>
+                            <th style="min-width: 110px;">Soil Type</th>
+                            <th style="min-width: 80px;">Color</th>
+                            <th style="min-width: 85px;">Moisture</th>
+                            <th style="min-width: 250px;">Burmister Description</th>
+                            <th style="min-width: 120px;">Max Unit Weight (pcf)</th>
+                            <th style="min-width: 120px;">Min Unit Weight (pcf)</th>
+                            <th style="min-width: 250px;">Comments</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryTableBody">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
             </div>
-        </div>
-
-        <div id="summaryTableContainer" class="table-container">
-            <table>
-                <thead>
-                    <tr style="background-color: var(--slate-100);">
-                        <th style="min-width: 80px;">Boring ID</th>
-                        <th style="min-width: 95px;">Drill Date</th>
-                        <th style="min-width: 90px;">Site Class</th>
-                        <th style="min-width: 150px;">GPS Coordinates</th>
-                        <th style="min-width: 150px;">Groundwater Obs 1</th>
-                        <th style="min-width: 150px;">Groundwater Obs 2</th>
-                        <th style="min-width: 80px;">Sample ID</th>
-                        <th style="min-width: 100px;">Run Depth (ft)</th>
-                        <th style="min-width: 180px;">Blows and Inches</th>
-                        <th style="min-width: 75px;">N-Value</th>
-                        <th style="min-width: 90px;">Recovery (in)</th>
-                        <th style="min-width: 160px;">Field Testing (PID/PP/TV)</th>
-                        <th style="min-width: 70px;">Layer ID</th>
-                        <th style="min-width: 100px;">Layer Depth (ft)</th>
-                        <th style="min-width: 100px;">Depth (ft)</th>
-                        <th style="min-width: 110px;">Soil Type</th>
-                        <th style="min-width: 80px;">Color</th>
-                        <th style="min-width: 85px;">Moisture</th>
-                        <th style="min-width: 250px;">Burmister Description</th>
-                        <th style="min-width: 120px;">Max Unit Weight (pcf)</th>
-                        <th style="min-width: 120px;">Min Unit Weight (pcf)</th>
-                        <th style="min-width: 250px;">Comments</th>
-                    </tr>
-                </thead>
-                <tbody id="summaryTableBody">
-                    <!-- Populated dynamically -->
-                </tbody>
-            </table>
         </div>
     </div>
 
