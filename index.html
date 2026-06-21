@@ -1334,22 +1334,30 @@
                         <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.5rem; border-radius: 6px; display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; box-sizing: border-box;">
                             <span style="font-size: 0.85rem; font-weight: bold; color: var(--slate-700); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 0.25rem;">Depth Range</span>
                             <div class="form-group" style="margin-bottom: 0.25rem;">
-                                <label style="font-size: 0.75rem; margin-bottom: 0.2rem;">Start Depth (in)</label>
-                                <input type="number" id="run_start" step="0.1" value="0.0" style="padding: 0.4rem; font-size: 0.9rem; height: 34px; color: var(--slate-800); font-weight: 600;">
+                                <label style="font-size: 0.75rem; margin-bottom: 0.2rem;">Start Depth (ft)</label>
+                                <input type="number" id="run_start" step="any" value="0.0" style="padding: 0.4rem; font-size: 0.9rem; height: 34px; color: var(--slate-800); font-weight: 600;">
                             </div>
                             <div class="form-group" style="margin-bottom: 0;">
-                                <label style="font-size: 0.75rem; margin-bottom: 0.2rem;">End Depth (in)</label>
-                                <input type="number" id="run_end" step="0.1" value="24.0" style="padding: 0.4rem; font-size: 0.9rem; height: 34px; color: var(--slate-800); font-weight: 600;">
+                                <label style="font-size: 0.75rem; margin-bottom: 0.2rem;">End Depth (ft)</label>
+                                <input type="number" id="run_end" step="any" value="2.0" style="padding: 0.4rem; font-size: 0.9rem; height: 34px; color: var(--slate-800); font-weight: 600;">
                             </div>
                         </div>
 
                         <!-- Right: Blowcounts & N-Value -->
                         <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.75rem; border-radius: 6px; display: flex; flex-direction: column; gap: 0.5rem; justify-content: center; box-sizing: border-box;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 0.25rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 0.25rem; gap: 0.5rem; flex-wrap: wrap;">
                                 <span style="font-size: 0.85rem; font-weight: bold; color: var(--slate-700);">Blows and Inches & N-Value</span>
-                                <div style="display: flex; align-items: center; gap: 0.35rem; background: #eff6ff; border-radius: 6px; padding: 0.2rem 0.45rem; border: 1px solid #bfdbfe;">
-                                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--blue-600);">N:</span>
-                                    <input type="number" id="run_nval" readonly style="background: transparent; border: none; font-weight: 800; width: 30px; font-size: 1.1rem; text-align: center; color: var(--blue-700); outline: none; padding: 0; margin: 0; height: auto;" value="0">
+                                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                                    <!-- N-Value -->
+                                    <div style="display: flex; align-items: center; gap: 0.35rem; background: #eff6ff; border-radius: 6px; padding: 0.2rem 0.45rem; border: 1px solid #bfdbfe;">
+                                        <span style="font-size: 0.75rem; font-weight: 700; color: var(--blue-600);">N:</span>
+                                        <input type="number" id="run_nval" readonly style="background: transparent; border: none; font-weight: 800; width: 30px; font-size: 1.1rem; text-align: center; color: var(--blue-700); outline: none; padding: 0; margin: 0; height: auto;" value="0">
+                                    </div>
+                                    <!-- Correlated Density -->
+                                    <div id="correlated_density_container" style="display: flex; align-items: center; gap: 0.35rem; background: #ecfdf5; border-radius: 6px; padding: 0.2rem 0.45rem; border: 1px solid #a7f3d0;">
+                                        <span style="font-size: 0.75rem; font-weight: 700; color: var(--emerald-600);">Density:</span>
+                                        <span id="correlated_density_val" style="font-weight: 800; font-size: 0.85rem; color: var(--emerald-700);">N/A</span>
+                                    </div>
                                 </div>
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 0.4rem; width: 100%;">
@@ -1382,6 +1390,10 @@
                                     <span id="lbl_bc_4" style="font-size: 0.65rem; color: var(--slate-700); font-weight: 600;">18-24"</span>
                                     <input type="number" id="run_bc_4" list="list_bc" placeholder="Blows" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; text-align: center; border: 1px solid var(--border); border-radius: 4px; height: 34px; color: var(--slate-800); font-weight: 600;">
                                     <input type="number" step="any" id="run_bc_in_4" list="list_bc_in" value="6" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; border: 1px solid var(--border); border-radius: 4px; text-align: center; height: 34px; color: var(--slate-800); font-weight: 600;" onchange="updateBlowcountPlaceholders()">
+                                </div>
+                                <!-- Increment sample run (+) button -->
+                                <div style="display: flex; justify-content: center; margin-top: 0.5rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                                    <button type="button" class="btn-small" style="background: var(--emerald-600); color: #ffffff; border-color: var(--emerald-700); width: 100%; padding: 0.4rem 0; font-size: 0.9rem; font-weight: 700; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.25rem;" onclick="saveAndIncrementSampleRun(event)" title="Save current sample and go to next sample">➕ Add Next Sample</button>
                                 </div>
                             </div>
                         </div>
@@ -1458,7 +1470,7 @@
                     </div>
                     
                     <div class="form-group">
-                        <label>Core Matrix Recovery Depth (inches)</label>
+                        <label>Recovery Length(Inches)</label>
                         <input type="text" id="run_rec" readonly style="background-color: #f1f5f9; font-weight: bold; color: var(--blue-700); font-size: 0.95rem; border: 1px solid var(--border); border-radius: 4px; padding: 0.5rem;" placeholder="0.0" value="0.0">
                     </div>
                     
@@ -1920,7 +1932,7 @@
                         <th style="min-width: 150px;">Groundwater Obs 1</th>
                         <th style="min-width: 150px;">Groundwater Obs 2</th>
                         <th style="min-width: 80px;">Sample ID</th>
-                        <th style="min-width: 100px;">Run Depth (in)</th>
+                        <th style="min-width: 100px;">Run Depth (ft)</th>
                         <th style="min-width: 180px;">Blows and Inches</th>
                         <th style="min-width: 75px;">N-Value</th>
                         <th style="min-width: 90px;">Recovery (in)</th>
@@ -3234,6 +3246,9 @@
         if (run) {
             run["Recovery (in)"] = Math.round(totalInches * 10) / 10;
         }
+        if (typeof updateCorrelatedDensity === 'function') {
+            updateCorrelatedDensity();
+        }
     }
 
     function deleteSubformProfile(layerId) {
@@ -3381,24 +3396,24 @@
     ];
 
     let datasetRuns = [
-        { "Boring ID": "B-1", "Sample ID": "B-1S-1", "Start Depth (in)": 0.0, "End Depth (in)": 24.0, "SPT N-Value": 6, "Recovery (in)": 18, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "", "Blowcount 1": 2, "Blowcount 1 Inches": 6, "Blowcount 2": 3, "Blowcount 2 Inches": 6, "Blowcount 3": 3, "Blowcount 3 Inches": 6, "Blowcount 4": 4, "Blowcount 4 Inches": 6 },
-        { "Boring ID": "B-1", "Sample ID": "B-1S-2", "Start Depth (in)": 24.0, "End Depth (in)": 48.0, "SPT N-Value": 8, "Recovery (in)": 16, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "", "Blowcount 1": 3, "Blowcount 1 Inches": 6, "Blowcount 2": 4, "Blowcount 2 Inches": 6, "Blowcount 3": 4, "Blowcount 3 Inches": 6, "Blowcount 4": 5, "Blowcount 4 Inches": 6 },
-        { "Boring ID": "B-1", "Sample ID": "B-1S-3", "Start Depth (in)": 48.0, "End Depth (in)": 72.0, "SPT N-Value": 14, "Recovery (in)": 22, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "Groundwater encountered at 5ft", "Blowcount 1": 5, "Blowcount 1 Inches": 6, "Blowcount 2": 6, "Blowcount 2 Inches": 6, "Blowcount 3": 8, "Blowcount 3 Inches": 6, "Blowcount 4": 10, "Blowcount 4 Inches": 6 },
-        { "Boring ID": "B-1", "Sample ID": "B-1S-4", "Start Depth (in)": 72.0, "End Depth (in)": 96.0, "SPT N-Value": 22, "Recovery (in)": 24, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "Hard drilling", "Blowcount 1": 8, "Blowcount 1 Inches": 6, "Blowcount 2": 10, "Blowcount 2 Inches": 6, "Blowcount 3": 12, "Blowcount 3 Inches": 6, "Blowcount 4": 15, "Blowcount 4 Inches": 6 },
+        { "Boring ID": "B-1", "Sample ID": "B-1S-1", "Start Depth (ft)": 0.0, "End Depth (ft)": 2.0, "SPT N-Value": 6, "Recovery (in)": 18, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "", "Blowcount 1": 2, "Blowcount 1 Inches": 6, "Blowcount 2": 3, "Blowcount 2 Inches": 6, "Blowcount 3": 3, "Blowcount 3 Inches": 6, "Blowcount 4": 4, "Blowcount 4 Inches": 6 },
+        { "Boring ID": "B-1", "Sample ID": "B-1S-2", "Start Depth (ft)": 2.0, "End Depth (ft)": 4.0, "SPT N-Value": 8, "Recovery (in)": 16, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "", "Blowcount 1": 3, "Blowcount 1 Inches": 6, "Blowcount 2": 4, "Blowcount 2 Inches": 6, "Blowcount 3": 4, "Blowcount 3 Inches": 6, "Blowcount 4": 5, "Blowcount 4 Inches": 6 },
+        { "Boring ID": "B-1", "Sample ID": "B-1S-3", "Start Depth (ft)": 4.0, "End Depth (ft)": 6.0, "SPT N-Value": 14, "Recovery (in)": 22, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "Groundwater encountered at 5ft", "Blowcount 1": 5, "Blowcount 1 Inches": 6, "Blowcount 2": 6, "Blowcount 2 Inches": 6, "Blowcount 3": 8, "Blowcount 3 Inches": 6, "Blowcount 4": 10, "Blowcount 4 Inches": 6 },
+        { "Boring ID": "B-1", "Sample ID": "B-1S-4", "Start Depth (ft)": 6.0, "End Depth (ft)": 8.0, "SPT N-Value": 22, "Recovery (in)": 24, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "Hard drilling", "Blowcount 1": 8, "Blowcount 1 Inches": 6, "Blowcount 2": 10, "Blowcount 2 Inches": 6, "Blowcount 3": 12, "Blowcount 3 Inches": 6, "Blowcount 4": 15, "Blowcount 4 Inches": 6 },
         
-        { "Boring ID": "B-2", "Sample ID": "B-2S-1", "Start Depth (in)": 0.0, "End Depth (in)": 24.0, "SPT N-Value": 12, "Recovery (in)": 15, "Field Testing Notes": "PID: 0.2 ppm", "Comments": "Drilled through asphalt", "Blowcount 1": 4, "Blowcount 1 Inches": 6, "Blowcount 2": 5, "Blowcount 2 Inches": 6, "Blowcount 3": 7, "Blowcount 3 Inches": 6, "Blowcount 4": 9, "Blowcount 4 Inches": 6 },
-        { "Boring ID": "B-2", "Sample ID": "B-2S-2", "Start Depth (in)": 24.0, "End Depth (in)": 48.0, "SPT N-Value": 5, "Recovery (in)": 20, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "Loose sandy layer", "Blowcount 1": 2, "Blowcount 1 Inches": 6, "Blowcount 2": 2, "Blowcount 2 Inches": 6, "Blowcount 3": 3, "Blowcount 3 Inches": 6, "Blowcount 4": 4, "Blowcount 4 Inches": 6 },
+        { "Boring ID": "B-2", "Sample ID": "B-2S-1", "Start Depth (ft)": 0.0, "End Depth (ft)": 2.0, "SPT N-Value": 12, "Recovery (in)": 15, "Field Testing Notes": "PID: 0.2 ppm", "Comments": "Drilled through asphalt", "Blowcount 1": 4, "Blowcount 1 Inches": 6, "Blowcount 2": 5, "Blowcount 2 Inches": 6, "Blowcount 3": 7, "Blowcount 3 Inches": 6, "Blowcount 4": 9, "Blowcount 4 Inches": 6 },
+        { "Boring ID": "B-2", "Sample ID": "B-2S-2", "Start Depth (ft)": 2.0, "End Depth (ft)": 4.0, "SPT N-Value": 5, "Recovery (in)": 20, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "Loose sandy layer", "Blowcount 1": 2, "Blowcount 1 Inches": 6, "Blowcount 2": 2, "Blowcount 2 Inches": 6, "Blowcount 3": 3, "Blowcount 3 Inches": 6, "Blowcount 4": 4, "Blowcount 4 Inches": 6 },
 
-        { "Boring ID": "B-3", "Sample ID": "B-3S-1", "Start Depth (in)": 0.0, "End Depth (in)": 24.0, "SPT N-Value": 18, "Recovery (in)": 10, "Field Testing Notes": "PID: 1.5 ppm", "Comments": "Auger refusal on debris at 1.8ft", "Blowcount 1": 6, "Blowcount 1 Inches": 6, "Blowcount 2": 8, "Blowcount 2 Inches": 6, "Blowcount 3": 10, "Blowcount 3 Inches": 6, "Blowcount 4": 12, "Blowcount 4 Inches": 6 },
-        { "Boring ID": "B-3", "Sample ID": "B-3S-2", "Start Depth (in)": 24.0, "End Depth (in)": 48.0, "SPT N-Value": 25, "Recovery (in)": 24, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "Very stiff clay, hard drilling", "Blowcount 1": 10, "Blowcount 1 Inches": 6, "Blowcount 2": 12, "Blowcount 2 Inches": 6, "Blowcount 3": 13, "Blowcount 3 Inches": 6, "Blowcount 4": 16, "Blowcount 4 Inches": 6 },
+        { "Boring ID": "B-3", "Sample ID": "B-3S-1", "Start Depth (ft)": 0.0, "End Depth (ft)": 2.0, "SPT N-Value": 18, "Recovery (in)": 10, "Field Testing Notes": "PID: 1.5 ppm", "Comments": "Auger refusal on debris at 1.8ft", "Blowcount 1": 6, "Blowcount 1 Inches": 6, "Blowcount 2": 8, "Blowcount 2 Inches": 6, "Blowcount 3": 10, "Blowcount 3 Inches": 6, "Blowcount 4": 12, "Blowcount 4 Inches": 6 },
+        { "Boring ID": "B-3", "Sample ID": "B-3S-2", "Start Depth (ft)": 2.0, "End Depth (ft)": 4.0, "SPT N-Value": 25, "Recovery (in)": 24, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "Very stiff clay, hard drilling", "Blowcount 1": 10, "Blowcount 1 Inches": 6, "Blowcount 2": 12, "Blowcount 2 Inches": 6, "Blowcount 3": 13, "Blowcount 3 Inches": 6, "Blowcount 4": 16, "Blowcount 4 Inches": 6 },
         
-        { "Boring ID": "B-4", "Sample ID": "B-4S-1", "Start Depth (in)": 0.0, "End Depth (in)": 24.0, "SPT N-Value": 4, "Recovery (in)": 24, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "", "Blowcount 1": 1, "Blowcount 1 Inches": 6, "Blowcount 2": 2, "Blowcount 2 Inches": 6, "Blowcount 3": 2, "Blowcount 3 Inches": 6, "Blowcount 4": 3, "Blowcount 4 Inches": 6 },
-        { "Boring ID": "B-4", "Sample ID": "B-4S-2", "Start Depth (in)": 24.0, "End Depth (in)": 48.0, "SPT N-Value": 7, "Recovery (in)": 24, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "", "Blowcount 1": 2, "Blowcount 1 Inches": 6, "Blowcount 2": 3, "Blowcount 2 Inches": 6, "Blowcount 3": 4, "Blowcount 3 Inches": 6, "Blowcount 4": 5, "Blowcount 4 Inches": 6 },
-        { "Boring ID": "B-4", "Sample ID": "B-4S-3", "Start Depth (in)": 48.0, "End Depth (in)": 72.0, "SPT N-Value": 12, "Recovery (in)": 20, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "", "Blowcount 1": 4, "Blowcount 1 Inches": 6, "Blowcount 2": 5, "Blowcount 2 Inches": 6, "Blowcount 3": 7, "Blowcount 3 Inches": 6, "Blowcount 4": 8, "Blowcount 4 Inches": 6 },
+        { "Boring ID": "B-4", "Sample ID": "B-4S-1", "Start Depth (ft)": 0.0, "End Depth (ft)": 2.0, "SPT N-Value": 4, "Recovery (in)": 24, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "", "Blowcount 1": 1, "Blowcount 1 Inches": 6, "Blowcount 2": 2, "Blowcount 2 Inches": 6, "Blowcount 3": 2, "Blowcount 3 Inches": 6, "Blowcount 4": 3, "Blowcount 4 Inches": 6 },
+        { "Boring ID": "B-4", "Sample ID": "B-4S-2", "Start Depth (ft)": 2.0, "End Depth (ft)": 4.0, "SPT N-Value": 7, "Recovery (in)": 24, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "", "Blowcount 1": 2, "Blowcount 1 Inches": 6, "Blowcount 2": 3, "Blowcount 2 Inches": 6, "Blowcount 3": 4, "Blowcount 3 Inches": 6, "Blowcount 4": 5, "Blowcount 4 Inches": 6 },
+        { "Boring ID": "B-4", "Sample ID": "B-4S-3", "Start Depth (ft)": 4.0, "End Depth (ft)": 6.0, "SPT N-Value": 12, "Recovery (in)": 20, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "", "Blowcount 1": 4, "Blowcount 1 Inches": 6, "Blowcount 2": 5, "Blowcount 2 Inches": 6, "Blowcount 3": 7, "Blowcount 3 Inches": 6, "Blowcount 4": 8, "Blowcount 4 Inches": 6 },
 
-        { "Boring ID": "B-5", "Sample ID": "B-5S-1", "Start Depth (in)": 0.0, "End Depth (in)": 24.0, "SPT N-Value": 8, "Recovery (in)": 18, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "Interbedded lenses", "Blowcount 1": 3, "Blowcount 1 Inches": 6, "Blowcount 2": 4, "Blowcount 2 Inches": 6, "Blowcount 3": 4, "Blowcount 3 Inches": 6, "Blowcount 4": 5, "Blowcount 4 Inches": 6 },
+        { "Boring ID": "B-5", "Sample ID": "B-5S-1", "Start Depth (ft)": 0.0, "End Depth (ft)": 2.0, "SPT N-Value": 8, "Recovery (in)": 18, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "Interbedded lenses", "Blowcount 1": 3, "Blowcount 1 Inches": 6, "Blowcount 2": 4, "Blowcount 2 Inches": 6, "Blowcount 3": 4, "Blowcount 3 Inches": 6, "Blowcount 4": 5, "Blowcount 4 Inches": 6 },
         
-        { "Boring ID": "B-6", "Sample ID": "B-6S-1", "Start Depth (in)": 0.0, "End Depth (in)": 18.0, "SPT N-Value": 50, "Recovery (in)": 6, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "Refusal at 1.5 ft", "Blowcount 1": 15, "Blowcount 1 Inches": 6, "Blowcount 2": 20, "Blowcount 2 Inches": 6, "Blowcount 3": 30, "Blowcount 3 Inches": 6, "Blowcount 4": 50, "Blowcount 4 Inches": 6 }
+        { "Boring ID": "B-6", "Sample ID": "B-6S-1", "Start Depth (ft)": 0.0, "End Depth (ft)": 1.5, "SPT N-Value": 50, "Recovery (in)": 6, "Field Testing Notes": "PID: 0.0 ppm", "Comments": "Refusal at 1.5 ft", "Blowcount 1": 15, "Blowcount 1 Inches": 6, "Blowcount 2": 20, "Blowcount 2 Inches": 6, "Blowcount 3": 30, "Blowcount 3 Inches": 6, "Blowcount 4": 50, "Blowcount 4 Inches": 6 }
     ];
 
     const referenceSoilTypes = [
@@ -3839,12 +3854,12 @@
         let boringRuns = datasetRuns.filter(r => r["Boring ID"] === bId);
         let nextStartDepth = 0;
         if (boringRuns.length > 0) {
-            boringRuns.sort((a, b) => b["End Depth (in)"] - a["End Depth (in)"]);
-            nextStartDepth = boringRuns[0]["End Depth (in)"];
+            boringRuns.sort((a, b) => b["End Depth (ft)"] - a["End Depth (ft)"]);
+            nextStartDepth = boringRuns[0]["End Depth (ft)"];
         }
         
-        document.getElementById('run_start').value = nextStartDepth.toFixed(1);
-        document.getElementById('run_end').value = (nextStartDepth + 24.0).toFixed(1);
+        document.getElementById('run_start').value = nextStartDepth.toFixed(2);
+        document.getElementById('run_end').value = (nextStartDepth + 2.0).toFixed(2);
         
         document.getElementById('run_bc_1').value = '';
         document.getElementById('run_bc_2').value = '';
@@ -4103,8 +4118,12 @@
             if (!isNaN(b4)) totalInches += in4;
             
             if (totalInches > 0) {
-                document.getElementById('run_end').value = (start + totalInches).toFixed(1);
+                document.getElementById('run_end').value = (start + (totalInches / 12)).toFixed(2);
             }
+        }
+
+        if (typeof updateCorrelatedDensity === 'function') {
+            updateCorrelatedDensity();
         }
     }
     
@@ -4324,8 +4343,8 @@
             "Boring ID": boringRaw,
             "Date": document.getElementById('run_date').value,
             "Sample ID": newSampleId,
-            "Start Depth (in)": parseFloat(document.getElementById('run_start').value) || 0,
-            "End Depth (in)": parseFloat(document.getElementById('run_end').value) || 0,
+            "Start Depth (ft)": parseFloat(document.getElementById('run_start').value) || 0,
+            "End Depth (ft)": parseFloat(document.getElementById('run_end').value) || 0,
             
             // New & Legacy Blowcounts
             "Blowcount 1": parseInt(document.getElementById('run_bc_1').value) || 0,
@@ -4578,8 +4597,8 @@
                 <td>${r["Boring ID"]}</td>
                 <td>${r["Date"] || ''}</td>
                 <td>${r["Sample ID"]}</td>
-                <td>${Number(r["Start Depth (in)"]).toFixed(1)}</td>
-                <td>${Number(r["End Depth (in)"]).toFixed(1)}</td>
+                <td>${Number(r["Start Depth (ft)"]).toFixed(2)}</td>
+                <td>${Number(r["End Depth (ft)"]).toFixed(2)}</td>
                 <td>${
                     (() => {
                         let b1 = (r["Blowcount 1"] !== undefined && r["Blowcount 1"] !== null && r["Blowcount 1"] !== '') ? Number(r["Blowcount 1"]) : ((r["Blowcount 1 (0-6)"] !== undefined && r["Blowcount 1 (0-6)"] !== null && r["Blowcount 1 (0-6)"] !== '') ? Number(r["Blowcount 1 (0-6)"]) : 0);
@@ -4731,7 +4750,7 @@
             let sampleCompare = sampleA.localeCompare(sampleB, undefined, {numeric: true});
             if (sampleCompare !== 0) return sampleCompare;
 
-            return (a["Start Depth (in)"] || 0) - (b["Start Depth (in)"] || 0);
+            return (a["Start Depth (ft)"] || 0) - (b["Start Depth (ft)"] || 0);
         });
         
         sortedRuns.forEach((run) => {
@@ -4769,8 +4788,8 @@
                 return (a["Top Depth (ft)"] || 0) - (b["Top Depth (ft)"] || 0);
             });
             
-            let startD = run["Start Depth (in)"] !== undefined ? Number(run["Start Depth (in)"]).toFixed(1) : "";
-            let endD = run["End Depth (in)"] !== undefined ? Number(run["End Depth (in)"]).toFixed(1) : "";
+            let startD = run["Start Depth (ft)"] !== undefined ? Number(run["Start Depth (ft)"]).toFixed(1) : "";
+            let endD = run["End Depth (ft)"] !== undefined ? Number(run["End Depth (ft)"]).toFixed(1) : "";
             
             let b1 = (run["Blowcount 1"] !== undefined && run["Blowcount 1"] !== null && run["Blowcount 1"] !== '') ? Number(run["Blowcount 1"]) : ((run["Blowcount 1 (0-6)"] !== undefined && run["Blowcount 1 (0-6)"] !== null && run["Blowcount 1 (0-6)"] !== '') ? Number(run["Blowcount 1 (0-6)"]) : 0);
             if (isNaN(b1)) b1 = 0;
@@ -4873,7 +4892,7 @@
             let sampleCompare = sampleA.localeCompare(sampleB, undefined, {numeric: true});
             if (sampleCompare !== 0) return sampleCompare;
 
-            return (a["Start Depth (in)"] || 0) - (b["Start Depth (in)"] || 0);
+            return (a["Start Depth (ft)"] || 0) - (b["Start Depth (ft)"] || 0);
         });
         
         sortedRuns.forEach((run) => {
@@ -4897,8 +4916,8 @@
                 return (a["Top Depth (ft)"] || 0) - (b["Top Depth (ft)"] || 0);
             });
             
-            let startD = run["Start Depth (in)"] !== undefined ? Number(run["Start Depth (in)"]).toFixed(1) : "";
-            let endD = run["End Depth (in)"] !== undefined ? Number(run["End Depth (in)"]).toFixed(1) : "";
+            let startD = run["Start Depth (ft)"] !== undefined ? Number(run["Start Depth (ft)"]).toFixed(1) : "";
+            let endD = run["End Depth (ft)"] !== undefined ? Number(run["End Depth (ft)"]).toFixed(1) : "";
             
             let b1 = (run["Blowcount 1"] !== undefined && run["Blowcount 1"] !== null && run["Blowcount 1"] !== '') ? Number(run["Blowcount 1"]) : ((run["Blowcount 1 (0-6)"] !== undefined && run["Blowcount 1 (0-6)"] !== null && run["Blowcount 1 (0-6)"] !== '') ? Number(run["Blowcount 1 (0-6)"]) : 0);
             if (isNaN(b1)) b1 = 0;
@@ -5041,7 +5060,7 @@
             let sampleCompare = sampleA.localeCompare(sampleB, undefined, {numeric: true});
             if (sampleCompare !== 0) return sampleCompare;
 
-            return (a["Start Depth (in)"] || 0) - (b["Start Depth (in)"] || 0);
+            return (a["Start Depth (ft)"] || 0) - (b["Start Depth (ft)"] || 0);
         });
 
         function getSoilWeights(soilType) {
@@ -5083,9 +5102,9 @@
             let nVal = "-";
             let recovery = "-";
 
-            let startD = run["Start Depth (in)"] !== undefined ? Number(run["Start Depth (in)"]).toFixed(1) : "";
-            let endD = run["End Depth (in)"] !== undefined ? Number(run["End Depth (in)"]).toFixed(1) : "";
-            runDepth = `${startD}" - ${endD}"`;
+            let startD = run["Start Depth (ft)"] !== undefined ? Number(run["Start Depth (ft)"]).toFixed(1) : "";
+            let endD = run["End Depth (ft)"] !== undefined ? Number(run["End Depth (ft)"]).toFixed(1) : "";
+            runDepth = `${startD}' - ${endD}'`;
 
             let b1 = (run["Blowcount 1"] !== undefined && run["Blowcount 1"] !== null && run["Blowcount 1"] !== '') ? Number(run["Blowcount 1"]) : ((run["Blowcount 1 (0-6)"] !== undefined && run["Blowcount 1 (0-6)"] !== null && run["Blowcount 1 (0-6)"] !== '') ? Number(run["Blowcount 1 (0-6)"]) : 0);
             if (isNaN(b1)) b1 = 0;
@@ -5198,7 +5217,7 @@
                         "Groundwater Obs 1": gw1Obs,
                         "Groundwater Obs 2": gw2Obs,
                         "Sample ID": shortSampleId,
-                        "Run Depth (in)": runDepth,
+                        "Run Depth (ft)": runDepth,
                         "Blows and Inches": blowcounts,
                         "N-Value": nVal,
                         "Recovery (in)": recovery,
@@ -5256,7 +5275,7 @@
                     "Groundwater Obs 1": gw1Obs,
                     "Groundwater Obs 2": gw2Obs,
                     "Sample ID": shortSampleId,
-                    "Run Depth (in)": runDepth,
+                    "Run Depth (ft)": runDepth,
                     "Blows and Inches": blowcounts,
                     "N-Value": nVal,
                     "Recovery (in)": recovery,
@@ -5306,7 +5325,7 @@
                     <td style="white-space: nowrap; font-size: 0.8rem;"><small>${row["Groundwater Obs 1"]}</small></td>
                     <td style="white-space: nowrap; font-size: 0.8rem;"><small>${row["Groundwater Obs 2"]}</small></td>
                     <td style="white-space: nowrap;">${row["Sample ID"]}</td>
-                    <td style="white-space: nowrap;">${row["Run Depth (in)"]}</td>
+                    <td style="white-space: nowrap;">${row["Run Depth (ft)"]}</td>
                     <td style="white-space: nowrap; font-family: monospace; font-size: 0.8rem; font-weight: 500;">${row["Blows and Inches"]}</td>
                     <td style="font-weight: bold; white-space: nowrap;">${row["N-Value"]}</td>
                     <td style="white-space: nowrap;">${row["Recovery (in)"]}</td>
@@ -5570,8 +5589,8 @@
             setSelectVal('run_boring_id', run["Boring ID"]);
             setSelectVal('run_id', shortSampleId);
             if(run["Date"]) document.getElementById('run_date').value = run["Date"];
-            document.getElementById('run_start').value = run["Start Depth (in)"] !== undefined ? run["Start Depth (in)"] : 0;
-            document.getElementById('run_end').value = run["End Depth (in)"] !== undefined ? run["End Depth (in)"] : 0;
+            document.getElementById('run_start').value = run["Start Depth (ft)"] !== undefined ? run["Start Depth (ft)"] : 0;
+            document.getElementById('run_end').value = run["End Depth (ft)"] !== undefined ? run["End Depth (ft)"] : 0;
             
             document.getElementById('run_bc_1').value = run["Blowcount 1"] !== undefined ? run["Blowcount 1"] : (run["Blowcount 1 (0-6)"] !== undefined ? run["Blowcount 1 (0-6)"] : '');
             document.getElementById('run_bc_2').value = run["Blowcount 2"] !== undefined ? run["Blowcount 2"] : (run["Blowcount 2 (6-12)"] !== undefined ? run["Blowcount 2 (6-12)"] : '');
@@ -5809,6 +5828,190 @@
         return parts.join(", ");
     }
 
+    function updateCorrelatedDensity() {
+        const nvalInput = document.getElementById('run_nval');
+        if (!nvalInput) return;
+        const nValue = parseInt(nvalInput.value) || 0;
+        const boringSelect = document.getElementById('run_boring_id');
+        const sampleSelect = document.getElementById('run_id');
+        const boringId = boringSelect ? boringSelect.value : '';
+        const sampleRaw = sampleSelect ? sampleSelect.value : '';
+        
+        const sampleFullId = boringId + "-" + sampleRaw;
+        const combinedSampleId = boringId + sampleRaw;
+
+        // Find layers/profiles associated with this run to determine behavior/soil type
+        let layers = datasetProfiles.filter(p => 
+            p["Sample ID"] === combinedSampleId || 
+            p["Sample ID"] === sampleFullId || 
+            p["Sample ID"] === (boringId + "-" + sampleRaw.replace(/^S-?/i, ""))
+        );
+
+        let soilType = "";
+        if (layers.length > 0) {
+            soilType = layers[0]["Soil Type"] || "";
+        }
+
+        const density = getRelativeDensity(nValue, soilType);
+        const densityValEl = document.getElementById('correlated_density_val');
+        if (densityValEl) {
+            densityValEl.innerText = density || "N/A";
+        }
+    }
+
+    function saveCurrentRunData() {
+        let boringRaw = document.getElementById('run_boring_id').value;
+        let sampleRaw = document.getElementById('run_id').value;
+        let newSampleId = boringRaw + "-" + sampleRaw;
+        let combinedSampleId = boringRaw + sampleRaw;
+        
+        let existingRunIndex = datasetRuns.findIndex(r => r["Sample ID"] === newSampleId || r["Sample ID"] === combinedSampleId);
+        
+        let calculatedRecInches = 0;
+        if (document.getElementById('run_rec')) {
+            calculatedRecInches = parseFloat(document.getElementById('run_rec').value) || 0;
+        }
+
+        let newRunObj = {
+            "Boring ID": boringRaw,
+            "Date": document.getElementById('run_date').value,
+            "Sample ID": newSampleId,
+            "Start Depth (ft)": parseFloat(document.getElementById('run_start').value) || 0,
+            "End Depth (ft)": parseFloat(document.getElementById('run_end').value) || 0,
+            
+            "Blowcount 1": parseInt(document.getElementById('run_bc_1').value) || 0,
+            "Blowcount 1 Inches": parseFloat(document.getElementById('run_bc_in_1').value) || 6,
+            "Blowcount 2": parseInt(document.getElementById('run_bc_2').value) || 0,
+            "Blowcount 2 Inches": parseFloat(document.getElementById('run_bc_in_2').value) || 6,
+            "Blowcount 3": parseInt(document.getElementById('run_bc_3').value) || 0,
+            "Blowcount 3 Inches": parseFloat(document.getElementById('run_bc_in_3').value) || 6,
+            "Blowcount 4": parseInt(document.getElementById('run_bc_4').value) || 0,
+            "Blowcount 4 Inches": parseFloat(document.getElementById('run_bc_in_4').value) || 6,
+            
+            "Blowcount 1 (0-6)": parseInt(document.getElementById('run_bc_1').value) || 0,
+            "Blowcount 2 (6-12)": parseInt(document.getElementById('run_bc_2').value) || 0,
+            "Blowcount 3 (12-18)": parseInt(document.getElementById('run_bc_3').value) || 0,
+            "Blowcount 4 (18-24)": parseInt(document.getElementById('run_bc_4').value) || 0,
+            
+            "SPT N-Value": parseInt(document.getElementById('run_nval').value) || 0,
+            "Recovery (in)": calculatedRecInches,
+            "PID (ppm)": 0.0,
+            "Pocket Penetrometer (tsf)": 0.0,
+            "Pocket Torvane (tsf)": 0.0,
+            
+            "Drilling Contractor": document.getElementById('run_contractor') ? document.getElementById('run_contractor').value : "",
+            "Drilling Equipment Rig": document.getElementById('run_equipment') ? document.getElementById('run_equipment').value : "",
+            "Hammer Configuration Type": document.getElementById('run_hammer') ? document.getElementById('run_hammer').value : "",
+            "Sampler Setup": document.getElementById('run_sampler') ? document.getElementById('run_sampler').value : "",
+            "Foreman": document.getElementById('run_foreman') ? document.getElementById('run_foreman').value : "",
+            "Helper": document.getElementById('run_helper') ? document.getElementById('run_helper').value : "",
+            "Bit Type": document.getElementById('run_bit_type') ? document.getElementById('run_bit_type').value : "",
+            "Rod Type": document.getElementById('run_rod_type') ? document.getElementById('run_rod_type').value : "",
+            "Casing": document.getElementById('run_casing') ? document.getElementById('run_casing').value : "",
+            "Casing Lining": document.getElementById('run_casing_lining') ? document.getElementById('run_casing_lining').value : "",
+            "Case Diameter": document.getElementById('run_case_diameter') ? document.getElementById('run_case_diameter').value : "",
+            "Hammer Wgt": document.getElementById('run_hammer_wgt') ? document.getElementById('run_hammer_wgt').value : "",
+            "Hammer Drop": document.getElementById('run_hammer_drop') ? document.getElementById('run_hammer_drop').value : "",
+            "Rock Hammer Type": document.getElementById('run_rock_hammer_type') ? document.getElementById('run_rock_hammer_type').value : "",
+            "Rock Hammer Wgt/Drop": document.getElementById('run_rock_hammer_wgt_drop') ? document.getElementById('run_rock_hammer_wgt_drop').value : "",
+            "Rock Size": document.getElementById('run_rock_size') ? document.getElementById('run_rock_size').value : "",
+            
+            "GW 1st Moisture": document.getElementById('run_gw_moisture_1') ? document.getElementById('run_gw_moisture_1').value : "",
+            "GW 1st Depth": document.getElementById('run_gw_depth_1') ? document.getElementById('run_gw_depth_1').value : "",
+            "GW 1st Date": document.getElementById('run_gw_date_1') ? document.getElementById('run_gw_date_1').value : "",
+            "GW 1st Time": document.getElementById('run_gw_time_1') ? document.getElementById('run_gw_time_1').value : "",
+            "GW 1st Comment": document.getElementById('run_gw_comment_1') ? document.getElementById('run_gw_comment_1').value : "",
+            "GW 2nd Moisture": document.getElementById('run_gw_moisture_2') ? document.getElementById('run_gw_moisture_2').value : "",
+            "GW 2nd Depth": document.getElementById('run_gw_depth_2') ? document.getElementById('run_gw_depth_2').value : "",
+            "GW 2nd Date": document.getElementById('run_gw_date_2') ? document.getElementById('run_gw_date_2').value : "",
+            "GW 2nd Time": document.getElementById('run_gw_time_2') ? document.getElementById('run_gw_time_2').value : "",
+            "GW 2nd Comment": document.getElementById('run_gw_comment_2') ? document.getElementById('run_gw_comment_2').value : "",
+            
+            "Comments": document.getElementById('run_comments').value
+        };
+
+        if (existingRunIndex !== -1) {
+            datasetRuns[existingRunIndex] = newRunObj;
+        } else {
+            datasetRuns.push(newRunObj);
+        }
+        
+        saveBoringFieldsFromUI(boringRaw);
+    }
+
+    function saveAndIncrementSampleRun(event) {
+        if (event) event.preventDefault();
+
+        // Validate first
+        const validationError = validateBoringInfoFormInputs();
+        if (validationError) {
+            showToast(validationError, 'error');
+            const errorDiv = document.getElementById('boringFormError');
+            const errorText = document.getElementById('boringFormErrorText');
+            if (errorDiv && errorText) {
+                errorText.innerText = validationError;
+                errorDiv.style.display = 'flex';
+            }
+            return;
+        }
+
+        // 1. Save current run
+        saveCurrentRunData();
+
+        // 2. Determine next Sample ID
+        const runIdSelect = document.getElementById('run_id');
+        if (!runIdSelect) return;
+
+        const currentSampleId = runIdSelect.value;
+        let nextSampleId = "S-2";
+        let numMatch = currentSampleId.match(/\d+/);
+        if (numMatch) {
+            let nextNum = parseInt(numMatch[0]) + 1;
+            nextSampleId = currentSampleId.replace(/\d+/, nextNum);
+        }
+
+        // Add option to dropdown if it doesn't exist
+        let exists = Array.from(runIdSelect.options).some(o => o.value === nextSampleId);
+        if (!exists) {
+            let opt = document.createElement('option');
+            opt.value = nextSampleId;
+            opt.text = nextSampleId;
+            runIdSelect.add(opt);
+        }
+
+        // 3. Increment depths (in feet)
+        const currentEndDepth = parseFloat(document.getElementById('run_end').value) || 0;
+        const nextStartDepth = currentEndDepth;
+        const nextEndDepth = nextStartDepth + 2.0; // default 2 ft run
+
+        // 4. Select the next sample
+        runIdSelect.value = nextSampleId;
+
+        // Trigger change event to load/prefill next sample run
+        const changeEvent = new Event('change', { bubbles: true });
+        runIdSelect.dispatchEvent(changeEvent);
+
+        // 5. Update start and end depths for the newly selected/created run
+        document.getElementById('run_start').value = nextStartDepth.toFixed(2);
+        document.getElementById('run_end').value = nextEndDepth.toFixed(2);
+
+        // Reset blowcounts and comments for the new run
+        ['run_bc_1', 'run_bc_2', 'run_bc_3', 'run_bc_4', 'run_nval', 'run_comments'].forEach(id => {
+            if (document.getElementById(id)) document.getElementById(id).value = '';
+        });
+
+        // Reset blowcount inches
+        ['run_bc_in_1', 'run_bc_in_2', 'run_bc_in_3', 'run_bc_in_4'].forEach(id => {
+            if (document.getElementById(id)) document.getElementById(id).value = 6;
+        });
+
+        updateBlowcountPlaceholders();
+        updateSampleLengthUI();
+        refreshAllAfterDataChange();
+        
+        showToast(`Saved and incremented to sample ${nextSampleId}!`, 'success');
+    }
+
     function renderBurmisterTable() {
         const html = datasetProfiles.map((p, index) => {
             let desc = generateBurmisterDescription(p);
@@ -5946,8 +6149,8 @@
             let bId = r["Boring ID"];
             if (!borings[bId]) borings[bId] = [];
             borings[bId].push({...r});
-            if (r["End Depth (in)"] / 12 > maxDepthFt) {
-                maxDepthFt = r["End Depth (in)"] / 12;
+            if (r["End Depth (ft)"] > maxDepthFt) {
+                maxDepthFt = r["End Depth (ft)"];
             }
         });
 
@@ -6013,7 +6216,7 @@
             let layers = layersByBoring[bId] || [];
             
             // Sort
-            runs.sort((a, b) => a["Start Depth (in)"] - b["Start Depth (in)"]);
+            runs.sort((a, b) => a["Start Depth (ft)"] - b["Start Depth (ft)"]);
             layers.sort((a, b) => a["Top Depth (ft)"] - b["Top Depth (ft)"]);
             
             let elementsHtml = '';
@@ -6021,8 +6224,8 @@
             // Render samples (left side of the boring column)
             runs.forEach(run => {
                 let sId = run["Sample ID"];
-                let sTopFt = run["Start Depth (in)"] / 12;
-                let sBottomFt = run["End Depth (in)"] / 12;
+                let sTopFt = run["Start Depth (ft)"];
+                let sBottomFt = run["End Depth (ft)"];
                 let t = sTopFt * pxPerFt;
                 let h = (sBottomFt - sTopFt) * pxPerFt;
                 
@@ -6100,8 +6303,8 @@
             let bId = r["Boring ID"];
             if (!borings[bId]) borings[bId] = [];
             borings[bId].push({...r});
-            if (r["End Depth (in)"] / 12 > maxDepthFt) {
-                maxDepthFt = r["End Depth (in)"] / 12;
+            if (r["End Depth (ft)"] > maxDepthFt) {
+                maxDepthFt = r["End Depth (ft)"];
             }
         });
 
@@ -6168,7 +6371,7 @@
             let layers = layersByBoring[bId] || [];
             
             // Sort
-            runs.sort((a, b) => a["Start Depth (in)"] - b["Start Depth (in)"]);
+            runs.sort((a, b) => a["Start Depth (ft)"] - b["Start Depth (ft)"]);
             layers.sort((a, b) => a["Top Depth (ft)"] - b["Top Depth (ft)"]);
             
             let elementsHtml = '';
@@ -6176,12 +6379,12 @@
             // Render samples (top tier)
             runs.forEach(run => {
                 let sId = run["Sample ID"];
-                let sTopFt = run["Start Depth (in)"] / 12;
-                let sBottomFt = run["End Depth (in)"] / 12;
+                let sTopFt = run["Start Depth (ft)"];
+                let sBottomFt = run["End Depth (ft)"];
                 let w = (sBottomFt - sTopFt) * pxPerFt;
                 let l = sTopFt * pxPerFt;
                 elementsHtml += `
-                    <div style="position: absolute; left: ${l}px; width: ${w}px; top: 0; height: 20px; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 2px; font-size: 0.65rem; padding: 0 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: flex; align-items: center; justify-content: center;" title="${sId} (${run["Start Depth (in)"]} - ${run["End Depth (in)"]} in)">
+                    <div style="position: absolute; left: ${l}px; width: ${w}px; top: 0; height: 20px; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 2px; font-size: 0.65rem; padding: 0 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: flex; align-items: center; justify-content: center;" title="${sId} (${run["Start Depth (ft)"]} - ${run["End Depth (ft)"]} ft)">
                         ${sId}
                     </div>
                 `;
@@ -6234,7 +6437,7 @@
         
         // Guarantee all columns are present even if the dataset is entirely default/empty
         if (sheetName === "Boring Info") {
-            const boringHeaders = ["Boring ID", "Date", "Sample ID", "Start Depth (in)", "End Depth (in)", "Blowcount 1 (0-6)", "Blowcount 2 (6-12)", "Blowcount 3 (12-18)", "Blowcount 4 (18-24)", "SPT N-Value", "Recovery (in)", "PID (ppm)", "Pocket Penetrometer (tsf)", "Pocket Torvane (tsf)", "Field Testing Notes", "Drilling Contractor", "Drilling Equipment Rig", "Hammer Configuration Type", "Sampler Setup", "Foreman", "Helper", "Bit Type", "Rod Type", "Casing", "Casing Lining", "Case Diameter", "Hammer Wgt", "Hammer Drop", "Rock Hammer Type", "Rock Hammer Wgt/Drop", "Rock Size", "GW 1st Moisture", "GW 1st Depth", "GW 1st Date", "GW 1st Time", "GW 1st Comment", "GW 2nd Moisture", "GW 2nd Depth", "GW 2nd Date", "GW 2nd Time", "GW 2nd Comment", "GPS Lat", "GPS Lon", "GPS Location", "Comments"];
+            const boringHeaders = ["Boring ID", "Date", "Sample ID", "Start Depth (ft)", "End Depth (ft)", "Blowcount 1 (0-6)", "Blowcount 2 (6-12)", "Blowcount 3 (12-18)", "Blowcount 4 (18-24)", "SPT N-Value", "Recovery (in)", "PID (ppm)", "Pocket Penetrometer (tsf)", "Pocket Torvane (tsf)", "Field Testing Notes", "Drilling Contractor", "Drilling Equipment Rig", "Hammer Configuration Type", "Sampler Setup", "Foreman", "Helper", "Bit Type", "Rod Type", "Casing", "Casing Lining", "Case Diameter", "Hammer Wgt", "Hammer Drop", "Rock Hammer Type", "Rock Hammer Wgt/Drop", "Rock Size", "GW 1st Moisture", "GW 1st Depth", "GW 1st Date", "GW 1st Time", "GW 1st Comment", "GW 2nd Moisture", "GW 2nd Depth", "GW 2nd Date", "GW 2nd Time", "GW 2nd Comment", "GPS Lat", "GPS Lon", "GPS Location", "Comments"];
             boringHeaders.forEach(h => headerSet.add(h));
         } else if (sheetName === "Profiles") {
             const profileHeaders = ["Sample ID", "Layer ID", "Top Depth (ft)", "Bottom Depth (ft)", "Color", "Primary Size", "Soil Type", "Minor 1", "Minor 2", "Minor 3", "Moisture Condition", "Comments"];
@@ -6427,7 +6630,7 @@
         const sheetRuns = workbook.addWorksheet('Raw_Runs');
         if (datasetRuns.length > 0) {
             const runKeys = [
-                "Boring ID", "Date", "Sample ID", "Start Depth (in)", "End Depth (in)",
+                "Boring ID", "Date", "Sample ID", "Start Depth (ft)", "End Depth (ft)",
                 "Blowcount 1", "Blowcount 1 Inches",
                 "Blowcount 2", "Blowcount 2 Inches",
                 "Blowcount 3", "Blowcount 3 Inches",
@@ -6630,7 +6833,7 @@
             const sheetRuns = workbook.getWorksheet('Raw_Runs');
             if (sheetRuns) {
                 const numericFieldsRuns = [
-                    "Start Depth (in)", "End Depth (in)", "Blowcount 1", "Blowcount 1 Inches",
+                    "Start Depth (ft)", "End Depth (ft)", "Blowcount 1", "Blowcount 1 Inches",
                     "Blowcount 2", "Blowcount 2 Inches", "Blowcount 3", "Blowcount 3 Inches",
                     "Blowcount 4", "Blowcount 4 Inches", "Blowcount 1 (0-6)", "Blowcount 2 (6-12)",
                     "Blowcount 3 (12-18)", "Blowcount 4 (18-24)", "SPT N-Value", "Recovery (in)",
@@ -7860,7 +8063,7 @@ async function exportStylizedExcel() {
 
     const summaryHeaders = [
         "Boring ID", "Drill Date", "Site Class", "GPS Coordinates", "Groundwater Obs 1", "Groundwater Obs 2",
-        "Sample ID", "Run Depth (in)", "Blows and Inches", "N-Value", "Recovery (in)", "Field Testing (PID/PP/TV)",
+        "Sample ID", "Run Depth (ft)", "Blows and Inches", "N-Value", "Recovery (in)", "Field Testing (PID/PP/TV)",
         "Layer ID", "Layer Depth (ft)", "Depth (ft)", "Soil Type", "Color", "Moisture",
         "Burmister Description", "Max Unit Weight (pcf)", "Min Unit Weight (pcf)", "Comments"
     ];
@@ -7937,7 +8140,7 @@ async function exportStylizedExcel() {
             else if (h === 'Groundwater Obs 1') colWidth = 24;
             else if (h === 'Groundwater Obs 2') colWidth = 24;
             else if (h === 'Sample ID') colWidth = 12;
-            else if (h === 'Run Depth (in)') colWidth = 16;
+            else if (h === 'Run Depth (ft)') colWidth = 16;
             else if (h === 'Blows and Inches') colWidth = 22;
             else if (h === 'N-Value') colWidth = 10;
             else if (h === 'Recovery (in)') colWidth = 12;
@@ -8061,8 +8264,8 @@ async function exportStylizedExcel() {
             if (!sampleFullId.startsWith(run["Boring ID"])) {
                 sampleFullId = run["Boring ID"] + sampleFullId;
             }
-            let startDepth = Number((run["Start Depth (in)"] || 0) / 12).toFixed(1);
-            let endDepth = Number((run["End Depth (in)"] || 0) / 12).toFixed(1);
+            let startDepth = Number(run["Start Depth (ft)"] || 0).toFixed(1);
+            let endDepth = Number(run["End Depth (ft)"] || 0).toFixed(1);
             
             sheetPres.mergeCells(`B${presRow}:F${presRow}`);
             let sCell = sheetPres.getCell(`B${presRow}`);
@@ -8116,8 +8319,8 @@ async function exportStylizedExcel() {
     // Find max depth across all borings
     let maxVertDepthFt = 0;
     datasetRuns.forEach(r => {
-        if (r["End Depth (in)"] / 12 > maxVertDepthFt) {
-            maxVertDepthFt = r["End Depth (in)"] / 12;
+        if (r["End Depth (ft)"] > maxVertDepthFt) {
+            maxVertDepthFt = r["End Depth (ft)"];
         }
     });
     datasetProfiles.forEach(layer => {
@@ -8229,8 +8432,8 @@ async function exportStylizedExcel() {
             let runs = borings[bId] || [];
             runs.forEach(run => {
                 let sId = run["Sample ID"];
-                let sTopFt = run["Start Depth (in)"] / 12;
-                let sBottomFt = run["End Depth (in)"] / 12;
+                let sTopFt = run["Start Depth (ft)"];
+                let sBottomFt = run["End Depth (ft)"];
 
                 let rowStart = 6 + Math.round(sTopFt / 0.5);
                 let rowEnd = 6 + Math.round(sBottomFt / 0.5) - 1;
@@ -8326,8 +8529,8 @@ async function exportStylizedExcel() {
     // Find max depth across all borings
     let maxHorizDepthFt = 0;
     datasetRuns.forEach(r => {
-        if (r["End Depth (in)"] / 12 > maxHorizDepthFt) {
-            maxHorizDepthFt = r["End Depth (in)"] / 12;
+        if (r["End Depth (ft)"] > maxHorizDepthFt) {
+            maxHorizDepthFt = r["End Depth (ft)"];
         }
     });
     datasetProfiles.forEach(layer => {
@@ -8441,8 +8644,8 @@ async function exportStylizedExcel() {
             let runs = borings[bId] || [];
             runs.forEach(run => {
                 let sId = run["Sample ID"];
-                let sTopFt = run["Start Depth (in)"] / 12;
-                let sBottomFt = run["End Depth (in)"] / 12;
+                let sTopFt = run["Start Depth (ft)"];
+                let sBottomFt = run["End Depth (ft)"];
 
                 let colStart = 2 + Math.round(sTopFt / 0.5);
                 let colEnd = 2 + Math.round(sBottomFt / 0.5) - 1;
@@ -8925,8 +9128,8 @@ async function exportGeotechNarrativeWord() {
             if (layers.length === 0) {
                 let runs = datasetRuns.filter(r => r["Boring ID"] === boringId);
                 if (runs.length === 0) return 0;
-                let maxDepthInches = Math.max(...runs.map(r => r["End Depth (in)"] || 0));
-                return maxDepthInches / 12;
+                let maxDepthFt = Math.max(...runs.map(r => r["End Depth (ft)"] || 0));
+                return maxDepthFt;
             }
             return Math.max(...layers.map(l => l["Bottom Depth (ft)"] || 0));
         }
@@ -8948,7 +9151,7 @@ async function exportGeotechNarrativeWord() {
         let refusals = [];
         datasetRuns.forEach(r => {
             if (r["Comments"] && (r["Comments"].toLowerCase().includes("refusal") || r["Comments"].toLowerCase().includes("refused"))) {
-                refusals.push(`Boring ${r["Boring ID"]} at ${(r["End Depth (in)"] / 12).toFixed(1)} ft (${r["Comments"]})`);
+                refusals.push(`Boring ${r["Boring ID"]} at ${(r["End Depth (ft)"]).toFixed(1)} ft (${r["Comments"]})`);
             }
         });
 
@@ -9079,7 +9282,7 @@ async function exportGeotechNarrativeWord() {
             
             let runsDesc = "No sample runs defined.";
             if (runs.length > 0) {
-                runsDesc = runs.map(r => `<strong>${r["Sample ID"]} (${(r["Start Depth (in)"]/12).toFixed(1)}-${(r["End Depth (in)"]/12).toFixed(1)} ft):</strong> SPT N = ${r["SPT N-Value"] || 'N/A'}, Rec = ${r["Recovery (in)"] || 0} in${r["Comments"] ? ' [' + r["Comments"] + ']' : ''}`).join('<br>');
+                runsDesc = runs.map(r => `<strong>${r["Sample ID"]} (${(r["Start Depth (ft)"]).toFixed(1)}-${(r["End Depth (ft)"]).toFixed(1)} ft):</strong> SPT N = ${r["SPT N-Value"] || 'N/A'}, Rec = ${r["Recovery (in)"] || 0} in${r["Comments"] ? ' [' + r["Comments"] + ']' : ''}`).join('<br>');
             }
             
             boringSummariesHtml += `
@@ -9663,7 +9866,7 @@ window.addEventListener('load', () => {
         
         boringIds.forEach(bId => {
             let runs = borings[bId];
-            runs.sort((a, b) => (a["Start Depth (in)"] || 0) - (b["Start Depth (in)"] || 0));
+            runs.sort((a, b) => (a["Start Depth (ft)"] || 0) - (b["Start Depth (ft)"] || 0));
             
             let runsHtml = '';
             runs.forEach(run => {
@@ -9672,8 +9875,8 @@ window.addEventListener('load', () => {
                     sampleFullId = run["Boring ID"] + sampleFullId;
                 }
                 
-                let startDepth = (run["Start Depth (in)"] || 0) / 12;
-                let endDepth = (run["End Depth (in)"] || 0) / 12;
+                let startDepth = run["Start Depth (ft)"] || 0;
+                let endDepth = run["End Depth (ft)"] || 0;
                 let nVal = run["SPT N-Value"];
                 let rec = run["Recovery (in)"];
                 
