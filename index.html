@@ -4387,7 +4387,7 @@
         
         // 1. Check if the sum of all layers for this sample (including this layer) exceeds the sample run's total length
         if (!isNaN(runStartVal) && !isNaN(runEndVal) && !isNaN(relTopVal) && !isNaN(relBottomVal)) {
-            const sampleLength = runEndVal - runStartVal; // in inches
+            const sampleLength = (runEndVal - runStartVal) * 12; // convert from feet to inches
             const currentLayerThickness = relBottomVal - relTopVal; // in feet
             const newBoring = boringRaw.trim().toLowerCase();
             const newSample = sampleRaw.replace(/^S-?/i, "").trim().toLowerCase();
@@ -4417,7 +4417,7 @@
         
         // 3. Check if the current layer's bottom depth exceeds the sample's drive end depth
         if (!isNaN(runEndVal) && !isNaN(relBottomVal)) {
-            const sampleRunEndDepthFt = runEndVal / 12;
+            const sampleRunEndDepthFt = runEndVal; // already in feet
             if (relBottomVal > (sampleRunEndDepthFt + 0.001)) {
                 return `Layer Bottom Depth (${relBottomVal} ft) cannot exceed the sample run's end depth (${sampleRunEndDepthFt.toFixed(2)} ft).`;
             }
@@ -4425,7 +4425,7 @@
         
         // 4. Check if the current layer's top depth is less than the sample's drive start depth
         if (!isNaN(runStartVal) && !isNaN(relTopVal)) {
-            const sampleRunStartDepthFt = runStartVal / 12;
+            const sampleRunStartDepthFt = runStartVal; // already in feet
             if (relTopVal < (sampleRunStartDepthFt - 0.001)) {
                 return `Layer Top Depth (${relTopVal} ft) cannot be less than the sample run's start depth (${sampleRunStartDepthFt.toFixed(2)} ft).`;
             }
@@ -6268,7 +6268,7 @@
             const startVal = parseFloat(runStartEl.value);
             const endVal = parseFloat(runEndEl.value);
             if (!isNaN(startVal) && !isNaN(endVal)) {
-                const diff = endVal - startVal;
+                const diff = (endVal - startVal) * 12; // convert feet to inches
                 sampleLengthEl.value = diff >= 0 ? `${diff.toFixed(1)}"` : '0"';
                 return;
             }
