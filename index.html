@@ -699,6 +699,129 @@
             font-weight: 400;
             line-height: 1.3;
         }
+
+        .btn-artistic-purple {
+            background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+        }
+        .btn-artistic-purple:hover {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+        }
+
+        /* Modal Styles */
+        .custom-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .custom-modal-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .custom-modal-window {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 90%;
+            max-width: 650px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            flex-direction: column;
+        }
+        .custom-modal-backdrop.open .custom-modal-window {
+            transform: scale(1);
+        }
+        .custom-modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #7e22ce 0%, #6d28d9 100%);
+            color: white;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+        }
+        .custom-modal-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 800;
+        }
+        .custom-modal-close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .custom-modal-close-btn:hover {
+            opacity: 1;
+        }
+        .custom-modal-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .modal-tabs-header {
+            display: flex;
+            border-bottom: 2px solid #e2e8f0;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .modal-tab-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #64748b;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s;
+        }
+        .modal-tab-btn:hover {
+            color: var(--blue-600);
+        }
+        .modal-tab-btn.active {
+            color: var(--blue-600);
+        }
+        .modal-tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--blue-600);
+        }
+        .modal-tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 <link rel="icon" href="data:,">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -2344,7 +2467,7 @@
             <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--slate-800);">Export Stylized Presentation Workbook</h2>
             <span style="font-weight: 700; color: #dc2626; font-size: 0.95rem; display: block; margin-bottom: 0.5rem;">FOR EXPORT ONLY-DO NOT RE-IMPORT THESE INTO STRATAPRO!</span>
             <p style="margin-top: 0;">Generate formatted, presentation-ready reports containing all project data by tab</p>
-            <div class="artistic-exports-grid" style="max-width: 800px;">
+            <div class="artistic-exports-grid" style="max-width: 1100px;">
                 <div style="display: flex; flex-direction: column; gap: 0.5rem; height: 100%;">
                     <span style="font-weight: 700; color: #dc2626; font-size: 0.85rem;">Export Excel Presentation Workbook</span>
                     <button class="btn-artistic btn-artistic-emerald" id="exportStylizedExcelBtn" onclick="exportStylizedExcel()">
@@ -2376,6 +2499,21 @@
                         <div class="btn-artistic-content">
                             <span class="btn-artistic-title">Export Geotech Narrative</span>
                             <span class="btn-artistic-subtitle">Professional Word report (.doc) with site data & signatures</span>
+                        </div>
+                    </button>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; height: 100%;">
+                    <span style="font-weight: 700; color: #7e22ce; font-size: 0.85rem;">Correlated Density & Soil Compaction Analysis</span>
+                    <button class="btn-artistic btn-artistic-purple" id="densityAnalysisBtn" onclick="openDensityAnalysisModal()">
+                        <div class="btn-artistic-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; color: white;">
+                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                        </div>
+                        <div class="btn-artistic-content">
+                            <span class="btn-artistic-title">Correlated Density</span>
+                            <span class="btn-artistic-subtitle">Estimate compaction, bulk density & carbon stocks</span>
                         </div>
                     </button>
                 </div>
@@ -9922,6 +10060,252 @@ window.addEventListener('load', () => {
     }
 
 </script>
+
+    <!-- Soil Correlated Density & Compaction Analysis Modal -->
+    <div id="densityModalBackdrop" class="custom-modal-backdrop" onclick="if(event.target===this) closeDensityAnalysisModal()">
+        <div class="custom-modal-window">
+            <div class="custom-modal-header">
+                <h4 class="custom-modal-title">📊 Soil Correlated Density & Compaction Analysis</h4>
+                <button type="button" class="custom-modal-close-btn" onclick="closeDensityAnalysisModal()">&times;</button>
+            </div>
+            <div class="custom-modal-body">
+                <div class="modal-tabs-header">
+                    <button class="modal-tab-btn active" onclick="switchDensityTab(0)">⚡ Packing Density</button>
+                    <button class="modal-tab-btn" onclick="switchDensityTab(1)">🌱 Bulk Density Estimator</button>
+                    <button class="modal-tab-btn" onclick="switchDensityTab(2)">🌾 Carbon & Nutrient Stock</button>
+                </div>
+                
+                <!-- Tab 1: Packing Density -->
+                <div id="density-tab-0" class="modal-tab-content active">
+                    <p style="margin-top:0; font-size:0.85rem; color:#64748b;">
+                        Calculate Packing Density (PD) as a proxy for soil compaction: 
+                        <code style="background:#f1f5f9; padding:2px 4px; border-radius:4px; font-weight:700;">PD = BD + 0.009 &times; C</code>
+                    </p>
+                    <div style="display:flex; flex-direction:column; gap:1rem; margin-top:1rem;">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                            <div class="form-group">
+                                <label style="font-weight:600; font-size:0.85rem;">Measured Bulk Density (BD, g/cm³)</label>
+                                <input type="number" id="pd_input_bd" step="0.01" value="1.50" min="0.1" max="2.5" style="width:100%; padding:0.4rem; border:1px solid var(--border); border-radius:4px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight:600; font-size:0.85rem;">Clay Content (C, %)</label>
+                                <input type="number" id="pd_input_clay" step="1" value="20" min="0" max="100" style="width:100%; padding:0.4rem; border:1px solid var(--border); border-radius:4px;">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="calculatePackingDensity()" style="padding:0.6rem; font-weight:700; border-radius:6px; background:var(--blue-600); color:white; border:none; cursor:pointer;">Calculate Packing Density</button>
+                        
+                        <div id="pd_result_box" style="margin-top:0.5rem; padding:1rem; border-radius:8px; border:1px solid var(--border); background:#f8fafc; display:none; flex-direction:column; gap:0.5rem;">
+                            <div style="display:flex; justify-content:space-between; font-size:1.1rem; font-weight:800;">
+                                <span style="color:#475569;">Packing Density (PD):</span>
+                                <span id="pd_result_val" style="color:#1d4ed8;">-</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.9rem; font-weight:700;">
+                                <span style="color:#475569;">Compaction Status:</span>
+                                <span id="pd_result_status" style="color:#b91c1c;">-</span>
+                            </div>
+                            <p id="pd_result_desc" style="margin:0.25rem 0 0 0; font-size:0.8rem; color:#64748b; line-height:1.4;"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tab 2: Bulk Density Estimator -->
+                <div id="density-tab-1" class="modal-tab-content">
+                    <p style="margin-top:0; font-size:0.85rem; color:#64748b;">
+                        Estimate Bulk Density (BD) from Soil Organic Matter (SOM) percentage using the Rawls PTF:
+                        <code style="background:#f1f5f9; padding:2px 4px; border-radius:4px; font-weight:700;">BD = 100 / (OM / 0.224 + (100-OM) / 1.65)</code>
+                    </p>
+                    <div style="display:flex; flex-direction:column; gap:1rem; margin-top:1rem;">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                            <div class="form-group">
+                                <label style="font-weight:600; font-size:0.85rem;">Soil Organic Matter (SOM, %)</label>
+                                <input type="number" id="bd_input_om" step="0.1" value="2.5" min="0" max="100" style="width:100%; padding:0.4rem; border:1px solid var(--border); border-radius:4px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight:600; font-size:0.85rem;">Soil Texture Group</label>
+                                <select id="bd_input_texture" style="width:100%; padding:0.4rem; border:1px solid var(--border); border-radius:4px; height:34px;">
+                                    <option value="sandy">Sandy / Coarse</option>
+                                    <option value="loamy" selected>Loamy / Medium</option>
+                                    <option value="clayey">Clayey / Fine</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="calculateCorrelatedBD()" style="padding:0.6rem; font-weight:700; border-radius:6px; background:var(--blue-600); color:white; border:none; cursor:pointer;">Estimate Bulk Density</button>
+                        
+                        <div id="bd_result_box" style="margin-top:0.5rem; padding:1rem; border-radius:8px; border:1px solid var(--border); background:#f8fafc; display:none; flex-direction:column; gap:0.5rem;">
+                            <div style="display:flex; justify-content:space-between; font-size:1.1rem; font-weight:800;">
+                                <span style="color:#475569;">Estimated Bulk Density:</span>
+                                <span id="bd_result_val" style="color:#10b981;">-</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.9rem; font-weight:700;">
+                                <span style="color:#475569;">USDA Root Growth Limit:</span>
+                                <span id="bd_result_limit" style="color:#b45309;">-</span>
+                            </div>
+                            <p id="bd_result_desc" style="margin:0.25rem 0 0 0; font-size:0.8rem; color:#64748b; line-height:1.4;"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tab 3: Carbon & Nutrient Stock -->
+                <div id="density-tab-2" class="modal-tab-content">
+                    <p style="margin-top:0; font-size:0.85rem; color:#64748b;">
+                        Calculate Organic Carbon or Nutrient stocks per unit area for a soil layer:
+                        <code style="background:#f1f5f9; padding:2px 4px; border-radius:4px; font-weight:700;">Stock (t/ha) = BD &times; Thickness (cm) &times; Conc (%)</code>
+                    </p>
+                    <div style="display:flex; flex-direction:column; gap:1rem; margin-top:1rem;">
+                        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem;">
+                            <div class="form-group">
+                                <label style="font-weight:600; font-size:0.8rem;">Bulk Density (g/cm³)</label>
+                                <input type="number" id="stock_input_bd" step="0.01" value="1.30" min="0.1" max="2.5" style="width:100%; padding:0.4rem; border:1px solid var(--border); border-radius:4px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight:600; font-size:0.8rem;">Thickness (ft)</label>
+                                <input type="number" id="stock_input_thick" step="0.1" value="2.0" min="0.1" style="width:100%; padding:0.4rem; border:1px solid var(--border); border-radius:4px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight:600; font-size:0.8rem;">SOC/Nutrient Conc</label>
+                                <div style="display:flex; gap:0.25rem;">
+                                    <input type="number" id="stock_input_conc" step="0.01" value="1.50" min="0" style="width:70%; padding:0.4rem; border:1px solid var(--border); border-radius:4px;">
+                                    <select id="stock_input_unit" style="width:30%; border:1px solid var(--border); border-radius:4px; padding:0.2rem; font-size:0.75rem; height:34px;" onchange="document.getElementById('stock_input_conc').value = (this.value==='pct') ? '1.50' : '15000'">
+                                        <option value="pct">%</option>
+                                        <option value="ppm">ppm</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="calculateNutrientStock()" style="padding:0.6rem; font-weight:700; border-radius:6px; background:var(--blue-600); color:white; border:none; cursor:pointer;">Calculate Stocks</button>
+                        
+                        <div id="stock_result_box" style="margin-top:0.5rem; padding:1rem; border-radius:8px; border:1px solid var(--border); background:#f8fafc; display:none; flex-direction:column; gap:0.5rem;">
+                            <div style="display:flex; justify-content:space-between; font-size:1.05rem; font-weight:800;">
+                                <span style="color:#475569;">Carbon Stock (t/ha):</span>
+                                <span id="stock_result_tha" style="color:#7e22ce;">-</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.95rem; font-weight:800;">
+                                <span style="color:#475569;">Carbon Stock (lbs/acre):</span>
+                                <span id="stock_result_lbs" style="color:#6d28d9;">-</span>
+                            </div>
+                            <p style="margin:0.25rem 0 0 0; font-size:0.75rem; color:#64748b; font-style:italic;">
+                                Note: Calculated over a depth of <span id="stock_result_depth_cm">60.96</span> cm (<span id="stock_result_depth_ft">2.0</span> ft).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="padding:1rem 1.5rem; border-top:1px solid var(--border); display:flex; justify-content:flex-end; background-color:#f8fafc; border-bottom-left-radius:16px; border-bottom-right-radius:16px;">
+                <button type="button" class="btn btn-secondary" onclick="closeDensityAnalysisModal()" style="padding:0.5rem 1.25rem; font-weight:700; border-radius:6px; border:1px solid var(--border); background:white; color:var(--slate-700); cursor:pointer;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openDensityAnalysisModal() {
+            const backdrop = document.getElementById('densityModalBackdrop');
+            if (backdrop) {
+                backdrop.classList.add('open');
+                switchDensityTab(0);
+            }
+        }
+
+        function closeDensityAnalysisModal() {
+            const backdrop = document.getElementById('densityModalBackdrop');
+            if (backdrop) backdrop.classList.remove('open');
+        }
+
+        function switchDensityTab(tabIndex) {
+            document.querySelectorAll('.modal-tab-btn').forEach((btn, idx) => {
+                if (idx === tabIndex) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            document.querySelectorAll('.modal-tab-content').forEach((content, idx) => {
+                if (idx === tabIndex) content.classList.add('active');
+                else content.classList.remove('active');
+            });
+        }
+
+        function calculatePackingDensity() {
+            const bd = parseFloat(document.getElementById('pd_input_bd').value) || 0;
+            const clay = parseFloat(document.getElementById('pd_input_clay').value) || 0;
+            
+            const pd = bd + 0.009 * clay;
+            
+            document.getElementById('pd_result_val').innerText = pd.toFixed(3);
+            
+            let status = '';
+            let desc = '';
+            let color = '';
+            
+            if (pd < 1.40) {
+                status = 'Low / Uncompacted';
+                desc = 'Soil has high macro-porosity and excellent structural development. Ideal conditions for root penetration, water infiltration, and gas exchange.';
+                color = '#10b981'; // green
+            } else if (pd <= 1.75) {
+                status = 'Medium Compacted';
+                desc = 'Moderate compaction present. Structural pores are partially compressed. Root development is generally acceptable but might be slowed down in dense pockets.';
+                color = '#d97706'; // amber
+            } else {
+                status = 'Highly Compacted / Degraded';
+                desc = 'Severe structural degradation and compaction. Macro-pores are severely reduced. Root growth is heavily restricted, and soil aeration and permeability are poor.';
+                color = '#dc2626'; // red
+            }
+            
+            document.getElementById('pd_result_status').innerText = status;
+            document.getElementById('pd_result_status').style.color = color;
+            document.getElementById('pd_result_desc').innerText = desc;
+            document.getElementById('pd_result_box').style.display = 'flex';
+        }
+
+        function calculateCorrelatedBD() {
+            const om = parseFloat(document.getElementById('bd_input_om').value) || 0;
+            const texture = document.getElementById('bd_input_texture').value;
+            
+            // Rawls PTF: BD = 100 / (OM / 0.224 + (100 - OM) / 1.65)
+            const estBD = 100 / ((om / 0.224) + ((100 - om) / 1.65));
+            
+            document.getElementById('bd_result_val').innerText = estBD.toFixed(2) + ' g/cm³';
+            
+            let limit = '';
+            let desc = '';
+            
+            if (texture === 'sandy') {
+                limit = '> 1.63 g/cm³';
+                desc = 'For coarse textured soils (sand, loamy sand), root growth is generally unaffected if bulk density is < 1.60 g/cm³, but becomes severely restricted when it exceeds 1.63 g/cm³.';
+            } else if (texture === 'loamy') {
+                limit = '> 1.45 g/cm³';
+                desc = 'For medium-textured soils (loam, silt loam), bulk density values above 1.40 g/cm³ start affecting root development, with severe restrictions occurring above 1.45 g/cm³.';
+            } else {
+                limit = '> 1.39 g/cm³';
+                desc = 'For fine textured soils (clay, silty clay), ideal bulk density is < 1.10 g/cm³. Densities above 1.39 g/cm³ severely limit root growth and hydraulic conductivity.';
+            }
+            
+            document.getElementById('bd_result_limit').innerText = limit;
+            document.getElementById('bd_result_desc').innerText = desc;
+            document.getElementById('bd_result_box').style.display = 'flex';
+        }
+
+        function calculateNutrientStock() {
+            const bd = parseFloat(document.getElementById('stock_input_bd').value) || 0;
+            const thickFt = parseFloat(document.getElementById('stock_input_thick').value) || 0;
+            const conc = parseFloat(document.getElementById('stock_input_conc').value) || 0;
+            const unit = document.getElementById('stock_input_unit').value;
+            
+            const thickCm = thickFt * 30.48;
+            
+            // If concentration is %, SOC% is used directly in formula. 
+            // If it's ppm, convert to % (10000 ppm = 1%)
+            const pct = (unit === 'pct') ? conc : (conc / 10000);
+            
+            // Stock (t/ha) = BD (g/cm3) * Depth (cm) * Conc (%)
+            const stockTha = bd * thickCm * pct;
+            
+            // Convert to lbs/acre (1 t/ha = 892.179 lbs/acre)
+            const stockLbs = stockTha * 892.179;
+            
+            document.getElementById('stock_result_tha').innerText = stockTha.toFixed(2) + ' t/ha';
+            document.getElementById('stock_result_lbs').innerText = Math.round(stockLbs).toLocaleString() + ' lbs/acre';
+            document.getElementById('stock_result_depth_cm').innerText = thickCm.toFixed(2);
+            document.getElementById('stock_result_depth_ft').innerText = thickFt.toFixed(1);
+            document.getElementById('stock_result_box').style.display = 'flex';
+        }
+    </script>
 </body>
 </html>
 
