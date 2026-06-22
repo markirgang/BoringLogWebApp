@@ -2048,6 +2048,7 @@
                                     <option value="FINE GRAVEL">FINE GRAVEL</option>
                                     <option value="FINE SAND">FINE SAND</option>
                                     <option value="FINE TO MEDIUM SAND">FINE TO MEDIUM SAND</option>
+                                    <option value="FINE TO COARSE SAND">FINE TO COARSE SAND</option>
                                     <option value="FLINT">FLINT</option>
                                     <option value="FLOWABLE FILL">FLOWABLE FILL</option>
                                     <option value="FLY ASH">FLY ASH</option>
@@ -2102,6 +2103,7 @@
                                     <option value="MARLSTONE">MARLSTONE</option>
                                     <option value="MEDIUM GRAVEL">MEDIUM GRAVEL</option>
                                     <option value="MEDIUM SAND">MEDIUM SAND</option>
+                                    <option value="MEDIUM TO COARSE SAND">MEDIUM TO COARSE SAND</option>
                                     <option value="METAL FRAGMENTS">METAL FRAGMENTS</option>
                                     <option value="METASEDIMENT">METASEDIMENT</option>
                                     <option value="MICA">MICA</option>
@@ -2237,6 +2239,7 @@
                                     <option value="USCS SW">USCS SW</option>
                                     <option value="USCS SW-SC">USCS SW-SC</option>
                                     <option value="USCS SW-SM">USCS SW-SM</option>
+                                    <option value="VARVED SILT">VARVED SILT</option>
                                     <option value="VEGETATION">VEGETATION</option>
                                     <option value="VOID">VOID</option>
                                     <option value="VOLCANIC ASH">VOLCANIC ASH</option>
@@ -4078,7 +4081,16 @@
 
     const referenceSoilTypes = [
         { "Major Soil Type": "fine SAND", "Behavior": "granular", "Cohesionless Min N": 0, "Cohesionless Max N": 4, "Density Status": "Very loose", "Material Profile": "FINE SAND", "Max Weight (pcf)": 136, "Min Weight (pcf)": 84 },
-        { "Major Soil Type": "fine to coarse SAND", "Behavior": "granular", "Cohesionless Min N": 10, "Cohesionless Max N": 30, "Density Status": "Medium dense", "Material Profile": "COARSE SAND", "Max Weight (pcf)": 136, "Min Weight (pcf)": 84 }
+        { "Major Soil Type": "fine to medium SAND", "Behavior": "granular", "Cohesionless Min N": 4, "Cohesionless Max N": 10, "Density Status": "Loose", "Material Profile": "MEDIUM SAND", "Max Weight (pcf)": 136, "Min Weight (pcf)": 84 },
+        { "Major Soil Type": "fine to coarse SAND", "Behavior": "granular", "Cohesionless Min N": 10, "Cohesionless Max N": 30, "Density Status": "Medium dense", "Material Profile": "COARSE SAND", "Max Weight (pcf)": 136, "Min Weight (pcf)": 84 },
+        { "Major Soil Type": "medium SAND", "Behavior": "granular", "Cohesionless Min N": 30, "Cohesionless Max N": 50, "Density Status": "Dense", "Material Profile": "SILT", "Max Weight (pcf)": 136, "Min Weight (pcf)": 81 },
+        { "Major Soil Type": "medium to coarse SAND", "Behavior": "granular", "Cohesionless Min N": 50, "Cohesionless Max N": 999, "Density Status": "Very dense", "Material Profile": "FINE GRAVEL", "Max Weight (pcf)": 136, "Min Weight (pcf)": 84 },
+        { "Major Soil Type": "coarse SAND", "Behavior": "granular", "Cohesionless Min N": 0, "Cohesionless Max N": 0, "Density Status": "-", "Material Profile": "SILTY SAND", "Max Weight (pcf)": 142, "Min Weight (pcf)": 88 },
+        { "Major Soil Type": "fine GRAVEL", "Behavior": "granular", "Cohesionless Min N": 0, "Cohesionless Max N": 0, "Density Status": "-", "Material Profile": "VARVED FINE SAND", "Max Weight (pcf)": 142, "Min Weight (pcf)": 88 },
+        { "Major Soil Type": "GRAVEL", "Behavior": "granular", "Cohesionless Min N": 0, "Cohesionless Max N": 0, "Density Status": "-", "Material Profile": "MEDIUM TO COARSE SAND", "Max Weight (pcf)": 148, "Min Weight (pcf)": 86 },
+        { "Major Soil Type": "silty CLAY", "Behavior": "cohesive", "Cohesionless Min N": 0, "Cohesionless Max N": 0, "Density Status": "-", "Material Profile": "SANDY CLAY", "Max Weight (pcf)": 147, "Min Weight (pcf)": 100 },
+        { "Major Soil Type": "CLAY", "Behavior": "cohesive", "Cohesionless Min N": 0, "Cohesionless Max N": 0, "Density Status": "-", "Material Profile": "SILTY CLAY", "Max Weight (pcf)": 147, "Min Weight (pcf)": 100 },
+        { "Major Soil Type": "varved SILT", "Behavior": "cohesive", "Cohesionless Min N": 0, "Cohesionless Max N": 0, "Density Status": "-", "Material Profile": "CLAYEY SILT", "Max Weight (pcf)": 147, "Min Weight (pcf)": 100 }
     ];
 
     let boringDefaultsMap = {};
