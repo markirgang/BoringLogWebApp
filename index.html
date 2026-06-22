@@ -2609,6 +2609,10 @@
                     </div>
                 </div>
             </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <label for="ds_comments" style="font-size: 0.85rem; font-weight: 600; color: var(--slate-700);">Comments / Special Instructions</label>
+                <textarea id="ds_comments" rows="3" placeholder="Enter utility clearance comments or special instructions here..." style="padding: 0.5rem; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px; font-family: inherit; font-size: 0.95rem;"></textarea>
+            </div>
             <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
                 <button type="button" class="btn btn-primary" onclick="generateDigsafePDF()">📄 Generate PDF Ticket</button>
                 <a href="https://www.digsafe.com/data/userfiles/QuickTicket_Guidelines_November_18_2015-2.pdf#:~:text=This%20pink,for%20Dig%20Safe's%20purposes%20only" target="_blank" class="btn btn-primary" style="text-decoration: none; display: inline-flex; align-items: center;">🌐 Open DigSafe Guidelines</a>
@@ -2654,6 +2658,7 @@
                         <tr><td style="padding: 8px 0; font-weight: 600;">Gas Company:</td><td id="ds_pdf_gas" style="padding: 8px 0; font-size: 16px;"></td></tr>
                         <tr><td style="padding: 8px 0; font-weight: 600;">Electric Company:</td><td id="ds_pdf_electric" style="padding: 8px 0; font-size: 16px;"></td></tr>
                         <tr><td style="padding: 8px 0; font-weight: 600;">FiberOptic Lines:</td><td id="ds_pdf_fiber" style="padding: 8px 0; font-size: 16px;"></td></tr>
+                        <tr><td style="padding: 8px 0; font-weight: 600; vertical-align: top;">Comments/Instructions:</td><td id="ds_pdf_comments" style="padding: 8px 0; font-size: 16px; white-space: pre-wrap;"></td></tr>
                     </table>
                 </div>
                 
@@ -7570,6 +7575,17 @@
         } else if (sheetName === "Boring GPS") {
             const gpsHeaders = ["Boring ID", "GPS Lat", "GPS Lon", "GPS Site Address"];
             gpsHeaders.forEach(h => headerSet.add(h));
+        } else if (sheetName === "Raw_Boring_Defaults") {
+            const defaultsHeaders = [
+                "Boring ID", "Drilling Contractor", "Drilling Equipment Rig", "Hammer Configuration Type",
+                "Sampler Setup", "Foreman", "Helper", "Bit Type", "Rod Type", "Casing",
+                "Casing Lining", "Case Diameter", "Hammer Wgt", "Hammer Drop", "Rock Hammer Type",
+                "Rock Hammer Wgt/Drop", "Rock Size", "Default PID", "Default PP", "Default TV",
+                "Measured Bulk Density", "Clay Content", "Packing Density",
+                "GW 1st Moisture", "GW 1st Depth", "GW 1st Date", "GW 1st Time", "GW 1st Comment",
+                "GW 2nd Moisture", "GW 2nd Depth", "GW 2nd Date", "GW 2nd Time", "GW 2nd Comment"
+            ];
+            defaultsHeaders.forEach(h => headerSet.add(h));
         }
         
         dataArray.forEach(row => Object.keys(row).forEach(k => headerSet.add(k)));
@@ -7808,6 +7824,54 @@
         });
         addStyledSheet(workbook, "Boring GPS", gpsRows);
 
+        // Export Boring Defaults and Groundwater
+        const defaultsRows = [];
+        const allBoringIdsForDefaults = Array.from(new Set([
+            ...datasetRuns.map(r => r["Boring ID"]),
+            ...datasetProfiles.map(p => getBoringIdFromSampleId(p["Sample ID"]))
+        ].filter(x => x)));
+        
+        allBoringIdsForDefaults.forEach(bId => {
+            const defaults = (typeof boringDefaultsMap !== 'undefined' && boringDefaultsMap[bId]) || {};
+            const gw = (typeof boringGWMap !== 'undefined' && boringGWMap[bId]) || {};
+            defaultsRows.push({
+                "Boring ID": bId,
+                "Drilling Contractor": defaults["Drilling Contractor"] || '',
+                "Drilling Equipment Rig": defaults["Drilling Equipment Rig"] || '',
+                "Hammer Configuration Type": defaults["Hammer Configuration Type"] || '',
+                "Sampler Setup": defaults["Sampler Setup"] || '',
+                "Foreman": defaults["Foreman"] || '',
+                "Helper": defaults["Helper"] || '',
+                "Bit Type": defaults["Bit Type"] || '',
+                "Rod Type": defaults["Rod Type"] || '',
+                "Casing": defaults["Casing"] || '',
+                "Casing Lining": defaults["Casing Lining"] || '',
+                "Case Diameter": defaults["Case Diameter"] || '',
+                "Hammer Wgt": defaults["Hammer Wgt"] || '',
+                "Hammer Drop": defaults["Hammer Drop"] || '',
+                "Rock Hammer Type": defaults["Rock Hammer Type"] || '',
+                "Rock Hammer Wgt/Drop": defaults["Rock Hammer Wgt/Drop"] || '',
+                "Rock Size": defaults["Rock Size"] || '',
+                "Default PID": defaults["Default PID"] || '0.0',
+                "Default PP": defaults["Default PP"] || '0.0',
+                "Default TV": defaults["Default TV"] || '0.0',
+                "Measured Bulk Density": defaults["Measured Bulk Density"] || '',
+                "Clay Content": defaults["Clay Content"] || '',
+                "Packing Density": defaults["Packing Density"] || '',
+                "GW 1st Moisture": gw["GW 1st Moisture"] || '',
+                "GW 1st Depth": gw["GW 1st Depth"] || '',
+                "GW 1st Date": gw["GW 1st Date"] || '',
+                "GW 1st Time": gw["GW 1st Time"] || '',
+                "GW 1st Comment": gw["GW 1st Comment"] || '',
+                "GW 2nd Moisture": gw["GW 2nd Moisture"] || '',
+                "GW 2nd Depth": gw["GW 2nd Depth"] || '',
+                "GW 2nd Date": gw["GW 2nd Date"] || '',
+                "GW 2nd Time": gw["GW 2nd Time"] || '',
+                "GW 2nd Comment": gw["GW 2nd Comment"] || ''
+            });
+        });
+        addStyledSheet(workbook, "Raw_Boring_Defaults", defaultsRows);
+
         // Add Borings_Samples_Layers_Summary sheet
         const boringDataDirect = getBoringInformationData();
         const sheetSummary = workbook.addWorksheet('Borings_Samples_Layers_Summary');
@@ -8008,8 +8072,57 @@
                 });
             }
 
-            // Rebuild boring default and groundwater maps from imported data
-            rebuildBoringMapsFromDatasets();
+            // Import Boring Defaults and Groundwater
+            const sheetBoringDefaults = workbook.getWorksheet('Raw_Boring_Defaults');
+            if (sheetBoringDefaults) {
+                boringDefaultsMap = {};
+                boringGWMap = {};
+                const defaultsData = parseSheetToObjects(sheetBoringDefaults);
+                defaultsData.forEach(rowData => {
+                    const bId = rowData["Boring ID"];
+                    if (bId) {
+                        boringDefaultsMap[bId] = {
+                            "Drilling Contractor": rowData["Drilling Contractor"] !== undefined && rowData["Drilling Contractor"] !== null ? rowData["Drilling Contractor"].toString() : '',
+                            "Drilling Equipment Rig": rowData["Drilling Equipment Rig"] !== undefined && rowData["Drilling Equipment Rig"] !== null ? rowData["Drilling Equipment Rig"].toString() : '',
+                            "Hammer Configuration Type": rowData["Hammer Configuration Type"] !== undefined && rowData["Hammer Configuration Type"] !== null ? rowData["Hammer Configuration Type"].toString() : '',
+                            "Sampler Setup": rowData["Sampler Setup"] !== undefined && rowData["Sampler Setup"] !== null ? rowData["Sampler Setup"].toString() : '',
+                            "Foreman": rowData["Foreman"] !== undefined && rowData["Foreman"] !== null ? rowData["Foreman"].toString() : '',
+                            "Helper": rowData["Helper"] !== undefined && rowData["Helper"] !== null ? rowData["Helper"].toString() : '',
+                            "Bit Type": rowData["Bit Type"] !== undefined && rowData["Bit Type"] !== null ? rowData["Bit Type"].toString() : '',
+                            "Rod Type": rowData["Rod Type"] !== undefined && rowData["Rod Type"] !== null ? rowData["Rod Type"].toString() : '',
+                            "Casing": rowData["Casing"] !== undefined && rowData["Casing"] !== null ? rowData["Casing"].toString() : '',
+                            "Casing Lining": rowData["Casing Lining"] !== undefined && rowData["Casing Lining"] !== null ? rowData["Casing Lining"].toString() : '',
+                            "Case Diameter": rowData["Case Diameter"] !== undefined && rowData["Case Diameter"] !== null ? rowData["Case Diameter"].toString() : '',
+                            "Hammer Wgt": rowData["Hammer Wgt"] !== undefined && rowData["Hammer Wgt"] !== null ? rowData["Hammer Wgt"].toString() : '',
+                            "Hammer Drop": rowData["Hammer Drop"] !== undefined && rowData["Hammer Drop"] !== null ? rowData["Hammer Drop"].toString() : '',
+                            "Rock Hammer Type": rowData["Rock Hammer Type"] !== undefined && rowData["Rock Hammer Type"] !== null ? rowData["Rock Hammer Type"].toString() : '',
+                            "Rock Hammer Wgt/Drop": rowData["Rock Hammer Wgt/Drop"] !== undefined && rowData["Rock Hammer Wgt/Drop"] !== null ? rowData["Rock Hammer Wgt/Drop"].toString() : '',
+                            "Rock Size": rowData["Rock Size"] !== undefined && rowData["Rock Size"] !== null ? rowData["Rock Size"].toString() : '',
+                            "Default PID": rowData["Default PID"] !== undefined && rowData["Default PID"] !== null ? rowData["Default PID"].toString() : '0.0',
+                            "Default PP": rowData["Default PP"] !== undefined && rowData["Default PP"] !== null ? rowData["Default PP"].toString() : '0.0',
+                            "Default TV": rowData["Default TV"] !== undefined && rowData["Default TV"] !== null ? rowData["Default TV"].toString() : '0.0',
+                            "Measured Bulk Density": rowData["Measured Bulk Density"] !== undefined && rowData["Measured Bulk Density"] !== null ? rowData["Measured Bulk Density"].toString() : '',
+                            "Clay Content": rowData["Clay Content"] !== undefined && rowData["Clay Content"] !== null ? rowData["Clay Content"].toString() : '',
+                            "Packing Density": rowData["Packing Density"] !== undefined && rowData["Packing Density"] !== null ? rowData["Packing Density"].toString() : ''
+                        };
+                        boringGWMap[bId] = {
+                            "GW 1st Moisture": rowData["GW 1st Moisture"] !== undefined && rowData["GW 1st Moisture"] !== null ? rowData["GW 1st Moisture"].toString() : '',
+                            "GW 1st Depth": rowData["GW 1st Depth"] !== undefined && rowData["GW 1st Depth"] !== null ? rowData["GW 1st Depth"].toString() : '',
+                            "GW 1st Date": rowData["GW 1st Date"] !== undefined && rowData["GW 1st Date"] !== null ? rowData["GW 1st Date"].toString() : '',
+                            "GW 1st Time": rowData["GW 1st Time"] !== undefined && rowData["GW 1st Time"] !== null ? rowData["GW 1st Time"].toString() : '',
+                            "GW 1st Comment": rowData["GW 1st Comment"] !== undefined && rowData["GW 1st Comment"] !== null ? rowData["GW 1st Comment"].toString() : '',
+                            "GW 2nd Moisture": rowData["GW 2nd Moisture"] !== undefined && rowData["GW 2nd Moisture"] !== null ? rowData["GW 2nd Moisture"].toString() : '',
+                            "GW 2nd Depth": rowData["GW 2nd Depth"] !== undefined && rowData["GW 2nd Depth"] !== null ? rowData["GW 2nd Depth"].toString() : '',
+                            "GW 2nd Date": rowData["GW 2nd Date"] !== undefined && rowData["GW 2nd Date"] !== null ? rowData["GW 2nd Date"].toString() : '',
+                            "GW 2nd Time": rowData["GW 2nd Time"] !== undefined && rowData["GW 2nd Time"] !== null ? rowData["GW 2nd Time"].toString() : '',
+                            "GW 2nd Comment": rowData["GW 2nd Comment"] !== undefined && rowData["GW 2nd Comment"] !== null ? rowData["GW 2nd Comment"].toString() : ''
+                        };
+                    }
+                });
+            } else {
+                // Rebuild boring default and groundwater maps from imported data (fallback)
+                rebuildBoringMapsFromDatasets();
+            }
 
             // Rebuild Boring ID dropdown options from imported datasets
             const importedBoringIds = new Set();
@@ -8393,6 +8506,10 @@
         document.getElementById('ds_pdf_electric').innerText = electric;
         document.getElementById('ds_pdf_ticket').innerText = ticket;
         document.getElementById('ds_pdf_fiber').innerText = fiber;
+        const dsComments = document.getElementById('ds_comments') ? document.getElementById('ds_comments').value : "";
+        if (document.getElementById('ds_pdf_comments')) {
+            document.getElementById('ds_pdf_comments').innerText = dsComments;
+        }
 
         const element = document.getElementById('digsafePdfTemplate');
         element.style.display = 'block'; 
@@ -9039,23 +9156,23 @@ async function exportStylizedExcel() {
         "Boring ID", "Drill Date", "Site Class", "Drilling Contractor", "Drilling Equipment Rig", 
         "Hammer Configuration", "Sampler Setup", "Foreman", "Helper", "Bit Type", "Rod Type", 
         "Casing Setup", "Rock Setup", "Groundwater Obs 1", "Groundwater Obs 2", "GPS Coordinates", "GPS Site Address",
-        "Measured Bulk Density (g/cm³)", "Clay Content (%)", "Packing Density"
+        "Measured Bulk Density (g/cm³)", "Clay Content (%)", "Packing Density", "Comments"
     ];
 
-    sheetBoring.mergeCells('A1:T1');
+    sheetBoring.mergeCells('A1:U1');
     sheetBoring.getCell('A1').value = `StrataPro 1.0 New England Region | TAB: BORING LOG DEFAULTS & OVERRIDES`;
     sheetBoring.getCell('A1').font = { name: 'Segoe UI', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
     sheetBoring.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } };
     sheetBoring.getCell('A1').alignment = { vertical: 'middle', horizontal: 'left' };
     sheetBoring.getRow(1).height = 35;
 
-    sheetBoring.mergeCells('A2:T2');
+    sheetBoring.mergeCells('A2:U2');
     sheetBoring.getCell('A2').value = `Job Name: ${projectName} | Job Ref: ${jobName}`;
     sheetBoring.getCell('A2').font = { name: 'Segoe UI', size: 12, bold: true };
     sheetBoring.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
     sheetBoring.getRow(2).height = 24;
 
-    sheetBoring.mergeCells('A3:T3');
+    sheetBoring.mergeCells('A3:U3');
     sheetBoring.getCell('A3').value = `Address: ${address}`;
     sheetBoring.getCell('A3').font = { name: 'Segoe UI', size: 12, italic: true };
     sheetBoring.getCell('A3').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFDBEAFE' } };
@@ -9113,6 +9230,20 @@ async function exportStylizedExcel() {
         const gw1 = (gw["GW 1st Depth"] || gw["GW 1st Date"] || gw["GW 1st Comment"]) ? `${gw["GW 1st Moisture"] ? gw["GW 1st Moisture"] + ' @ ' : ''}${gw["GW 1st Depth"] ? gw["GW 1st Depth"] + ' ft' : ''}${gw["GW 1st Date"] ? ' (' + gw["GW 1st Date"] + ' ' + gw["GW 1st Time"] + ')' : ''}${gw["GW 1st Comment"] ? ' [' + gw["GW 1st Comment"] + ']' : ''}` : '-';
         const gw2 = (gw["GW 2nd Depth"] || gw["GW 2nd Date"] || gw["GW 2nd Comment"]) ? `${gw["GW 2nd Moisture"] ? gw["GW 2nd Moisture"] + ' @ ' : ''}${gw["GW 2nd Depth"] ? gw["GW 2nd Depth"] + ' ft' : ''}${gw["GW 2nd Date"] ? ' (' + gw["GW 2nd Date"] + ' ' + gw["GW 2nd Time"] + ')' : ''}${gw["GW 2nd Comment"] ? ' [' + gw["GW 2nd Comment"] + ']' : ''}` : '-';
 
+        let boringComments = [];
+        runs.forEach(r => {
+            if (r["Comments"] && r["Comments"].trim()) {
+                boringComments.push(r["Comments"].trim());
+            }
+        });
+        if (gw["GW 1st Comment"] && gw["GW 1st Comment"].trim()) {
+            boringComments.push(`GW1: ${gw["GW 1st Comment"].trim()}`);
+        }
+        if (gw["GW 2nd Comment"] && gw["GW 2nd Comment"].trim()) {
+            boringComments.push(`GW2: ${gw["GW 2nd Comment"].trim()}`);
+        }
+        let combinedBoringComments = Array.from(new Set(boringComments)).join(' | ');
+
         return {
             boringId: bId,
             date: boringDate,
@@ -9139,7 +9270,8 @@ async function exportStylizedExcel() {
             gpsLoc,
             measuredBD: defaults["Measured Bulk Density"] || '',
             clayContent: defaults["Clay Content"] || '',
-            packingDensity: defaults["Packing Density"] || ''
+            packingDensity: defaults["Packing Density"] || '',
+            comments: combinedBoringComments
         };
     });
 
@@ -9164,7 +9296,8 @@ async function exportStylizedExcel() {
             row.gpsLoc,
             row.measuredBD,
             row.clayContent,
-            row.packingDensity
+            row.packingDensity,
+            row.comments
         ]);
         dataRow.height = 22;
         const isOdd = (rowIndex % 2 !== 0);
@@ -9197,7 +9330,8 @@ async function exportStylizedExcel() {
         { width: 35 }, // GPS Loc
         { width: 20 }, // Measured Bulk Density (g/cm³)
         { width: 15 }, // Clay Content (%)
-        { width: 15 }  // Packing Density
+        { width: 15 }, // Packing Density
+        { width: 35 }  // Comments
     ];
 
 
@@ -9235,11 +9369,20 @@ async function exportStylizedExcel() {
             let startDepth = Number(run["Start Depth (ft)"] || 0).toFixed(1);
             let endDepth = Number(run["End Depth (ft)"] || 0).toFixed(1);
             
-            sheetPres.mergeCells(`B${presRow}:F${presRow}`);
+            sheetPres.mergeCells(`B${presRow}:E${presRow}`);
             let sCell = sheetPres.getCell(`B${presRow}`);
             sCell.value = `${sampleFullId} (${startDepth}' - ${endDepth}') | N-Value: ${run["SPT N-Value"]} | Recovery: ${run["Recovery (in)"]}"`;
             sCell.font = { name: 'Segoe UI', size: 11, bold: true, color: { argb: 'FF1E293B' } };
             sCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+            sCell.alignment = { vertical: 'middle', horizontal: 'left' };
+            sCell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+
+            let sCommCell = sheetPres.getCell(`F${presRow}`);
+            sCommCell.value = run["Comments"] || "";
+            sCommCell.font = { name: 'Segoe UI', size: 10, italic: true, color: { argb: 'FF475569' } };
+            sCommCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+            sCommCell.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+            sCommCell.alignment = { wrapText: true, vertical: 'middle' };
             presRow++;
             
             let layers = getLayersForRun(run);
@@ -9264,6 +9407,21 @@ async function exportStylizedExcel() {
                     cCell.value = layer["Comments"] || "";
                     cCell.font = { name: 'Segoe UI', size: 9, italic: true, color: { argb: 'FF64748B' } };
                     cCell.alignment = { wrapText: true, vertical: 'top' };
+
+                    // Add thin borders around layer cells to present them in a clean premium boxed table
+                    [
+                        sheetPres.getCell(`C${presRow}`),
+                        sheetPres.getCell(`D${presRow}`),
+                        sheetPres.getCell(`E${presRow}`),
+                        sheetPres.getCell(`F${presRow}`)
+                    ].forEach(cell => {
+                        cell.border = {
+                            top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                            bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                            left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                            right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+                        };
+                    });
 
                     let descHeight = Math.ceil(desc.length / 65) * 15;
                     let commHeight = Math.ceil((layer["Comments"] || "").length / 30) * 15;
@@ -9816,7 +9974,8 @@ async function exportStylizedExcel() {
         ["Gas Company", document.getElementById('ds_gas')?.value || ''],
         ["Electric Company", document.getElementById('ds_electric')?.value || ''],
         ["Digsafe/CBYD Ticket#", document.getElementById('ds_ticket')?.value || ''],
-        ["FiberOptic Lines Phone", document.getElementById('ds_fiber')?.value || '']
+        ["FiberOptic Lines Phone", document.getElementById('ds_fiber')?.value || ''],
+        ["Comments", document.getElementById('ds_comments')?.value || '']
     ];
 
     digsafeFields.forEach(f => {
@@ -9831,6 +9990,12 @@ async function exportStylizedExcel() {
         const cellB = row.getCell(2);
         cellB.font = { name: 'Segoe UI', size: 10 };
         cellB.border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+        cellB.alignment = { wrapText: true, vertical: 'top', horizontal: 'left' };
+
+        if (f[0] === "Comments") {
+            const commentLen = (f[1] || "").toString().length;
+            row.height = Math.max(20, Math.ceil(commentLen / 60) * 18);
+        }
     });
 
     sheetDigsafe.columns = [
