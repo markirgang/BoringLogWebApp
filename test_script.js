@@ -662,7 +662,7 @@
 
         // Mapped core information matrix
         const coverData = [
-            { Property: "Date", Value: getVal('cov_date') },
+            { Property: "Date", Value: getVal('run_date') },
             { Property: "Project Name", Value: getVal('cov_project') },
             { Property: "Job Number", Value: getVal('cov_job') },
             { Property: "Site Contact Name", Value: getVal('cov_site_contact_name') },
@@ -727,7 +727,6 @@
     // Set Default Job Information values
     window.addEventListener('DOMContentLoaded', () => {
         const defaults = {
-            'cov_date': '2026-05-30',
             'cov_project': 'Tech Campus Expansion',
             'cov_job': '2026-HQ-01',
             'cov_site_contact_name': 'Jane Doe',
