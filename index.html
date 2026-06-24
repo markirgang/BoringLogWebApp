@@ -17,6 +17,38 @@
             --border: #cbd5e1;
         }
 
+        .address-suggestions-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 1000;
+            max-height: 250px;
+            overflow-y: auto;
+            margin-top: 2px;
+            display: none;
+        }
+        .address-suggestions-dropdown div {
+            padding: 0.6rem 0.75rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.85rem;
+            color: var(--slate-700);
+            transition: background-color 0.15s;
+            text-align: left;
+        }
+        .address-suggestions-dropdown div:hover {
+            background-color: var(--gray-100);
+            color: var(--slate-800);
+        }
+        .address-suggestions-dropdown div:last-child {
+            border-bottom: none;
+        }
+
         body {
             font-family: system-ui, -apple-system, sans-serif;
             background-color: #f8fafc;
@@ -832,6 +864,17 @@
         <form id="coverForm">
             <div class="grid-3">
 
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label>Site Address</label>
+                    <div class="input-addon-group">
+                        <div style="position: relative; flex: 1;">
+                            <input type="text" id="cov_gps_address" style="width: 100%; padding: 0.5rem; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 4px;" placeholder="Enter site address..." autocomplete="off">
+                            <div id="cov_gps_address_suggestions" class="address-suggestions-dropdown"></div>
+                        </div>
+                        <button type="button" class="btn-small" onclick="fillLocationFromGPS(event)" title="Fill address from GPS location">📍 Use GPS Address</button>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>Project Name</label>
                     <div class="input-addon-group">
@@ -850,14 +893,6 @@
                             <option value="2026-99-12">2026-99-12</option>
                         </select>
                         <button type="button" class="btn-small" onclick="promptAddChoice('cov_job')">➕ Choice</button>
-                    </div>
-                </div>
-
-                <div class="form-group" style="grid-column: 1 / -1;">
-                    <label>Site Address</label>
-                    <div class="input-addon-group">
-                        <input type="text" id="cov_gps_address" style="flex: 1; padding: 0.5rem; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 4px;" placeholder="Enter site address...">
-                        <button type="button" class="btn-small" onclick="fillLocationFromGPS(event)" title="Fill address from GPS location">📍 Use GPS Address</button>
                     </div>
                 </div>
 
@@ -8664,8 +8699,172 @@
         }
     });
 
+    function initAddressAutocomplete() {
+        const input = document.getElementById('cov_gps_address');
+        const dropdown = document.getElementById('cov_gps_address_suggestions');
+        if (!input || !dropdown) return;
+
+        let debounceTimeout = null;
+        let activeIndex = -1;
+        let suggestions = [];
+
+        const setSelectValue = (id, value) => {
+            if (!value) return;
+            const el = document.getElementById(id);
+            if (el && el.tagName === 'SELECT') {
+                let exists = Array.from(el.options).some(opt => opt.value === value);
+                if (!exists) {
+                    let opt = document.createElement('option');
+                    opt.value = value;
+                    opt.text = value;
+                    el.add(opt);
+                }
+                el.value = value;
+            }
+        };
+
+        function selectSuggestion(item) {
+            input.value = item.display_name;
+            
+            // Populate Lat/Lon
+            const elLat = document.getElementById('cov_gps_lat');
+            const elLon = document.getElementById('cov_gps_lon');
+            if (elLat && item.lat) elLat.value = parseFloat(item.lat).toFixed(6);
+            if (elLon && item.lon) elLon.value = parseFloat(item.lon).toFixed(6);
+
+            // Populate other fields if available
+            if (item.address) {
+                const addr = item.address;
+                const address1 = addr.house_number ? `${addr.house_number} ${addr.road}` : (addr.road || "");
+                const city = addr.city || addr.town || addr.village || "";
+                const state = addr.state || "";
+                const zip = addr.postcode || "";
+
+                setSelectValue('cov_site_address_1', address1);
+                setSelectValue('cov_site_city', city);
+                setSelectValue('cov_site_state', state);
+                setSelectValue('cov_site_zip', zip);
+            }
+
+            hideDropdown();
+            
+            // If the user selected an address, save the values if we have an active boring
+            const currentBoringId = document.getElementById('run_boring_id')?.value;
+            if (currentBoringId && typeof saveBoringFieldsFromUI === 'function') {
+                saveBoringFieldsFromUI(currentBoringId);
+            }
+        }
+
+        function hideDropdown() {
+            dropdown.style.display = 'none';
+            activeIndex = -1;
+        }
+
+        function showDropdown() {
+            if (suggestions.length > 0) {
+                dropdown.style.display = 'block';
+            }
+        }
+
+        function renderSuggestions() {
+            dropdown.innerHTML = '';
+            if (suggestions.length === 0) {
+                hideDropdown();
+                return;
+            }
+
+            suggestions.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.textContent = item.display_name;
+                div.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    selectSuggestion(item);
+                });
+                dropdown.appendChild(div);
+            });
+
+            showDropdown();
+        }
+
+        async function fetchSuggestions(query) {
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`);
+                if (response.ok) {
+                    suggestions = await response.json();
+                    renderSuggestions();
+                }
+            } catch (err) {
+                console.error("Error fetching autocomplete suggestions:", err);
+            }
+        }
+
+        input.addEventListener('input', () => {
+            clearTimeout(debounceTimeout);
+            const query = input.value.trim();
+            if (query.length < 3) {
+                suggestions = [];
+                renderSuggestions();
+                return;
+            }
+
+            debounceTimeout = setTimeout(() => {
+                fetchSuggestions(query);
+            }, 300);
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (dropdown.style.display === 'none' || suggestions.length === 0) return;
+
+            const items = dropdown.querySelectorAll('div');
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % items.length;
+                updateActiveItem(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeIndex = (activeIndex - 1 + items.length) % items.length;
+                updateActiveItem(items);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (activeIndex >= 0 && activeIndex < suggestions.length) {
+                    selectSuggestion(suggestions[activeIndex]);
+                }
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                hideDropdown();
+            }
+        });
+
+        function updateActiveItem(items) {
+            items.forEach((item, index) => {
+                if (index === activeIndex) {
+                    item.style.backgroundColor = 'var(--gray-100)';
+                    item.style.color = 'var(--slate-800)';
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.style.backgroundColor = '';
+                    item.style.color = '';
+                }
+            });
+        }
+
+        document.addEventListener('mousedown', (e) => {
+            if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                hideDropdown();
+            }
+        });
+
+        input.addEventListener('focus', () => {
+            if (suggestions.length > 0) {
+                showDropdown();
+            }
+        });
+    }
+
     // Set Default Job Information values
     window.addEventListener('DOMContentLoaded', () => {
+        initAddressAutocomplete();
         // Set today's date for export widget
         const today = new Date().toISOString().split('T')[0];
         const exportDateInput = document.getElementById('export_date');
