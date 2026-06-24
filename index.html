@@ -3851,40 +3851,40 @@
     // Stateful Data storage arrays with built-in reference placeholders
     let datasetProfiles = [
         // B-1: Deep and highly stratified
-        { "Sample ID": "B-1S-1", "Layer ID": "B-1S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.5, "Soil Type": "TOPSOIL", "Color": "Dark Brown", "Moisture Condition": "damp", "Comments": "Dark organic matter with roots", "Minor 1": "trace roots" },
-        { "Sample ID": "B-1S-1", "Layer ID": "B-1S-1L-2", "Top Depth (ft)": 0.5, "Bottom Depth (ft)": 1.5, "Soil Type": "FINE SAND", "Color": "Light Brown", "Moisture Condition": "dry", "Comments": "Trace silt", "Minor 1": "trace silt" },
-        { "Sample ID": "B-1S-1", "Layer ID": "B-1S-1L-3", "Top Depth (ft)": 1.5, "Bottom Depth (ft)": 2.0, "Soil Type": "FINE TO MEDIUM SAND", "Color": "Brown", "Moisture Condition": "moist", "Comments": "Well graded", "Minor 1": "and gravel", "Minor 2": "some silt", "Minor 3": "little clay" },
-        { "Sample ID": "B-1S-2", "Layer ID": "B-1S-2L-1", "Top Depth (ft)": 2.0, "Bottom Depth (ft)": 3.0, "Soil Type": "FINE TO MEDIUM SAND", "Color": "Brown", "Moisture Condition": "moist", "Comments": "Continued", "Minor 1": "some coarse gravel", "Minor 2": "little silt" },
-        { "Sample ID": "B-1S-2", "Layer ID": "B-1S-2L-2", "Top Depth (ft)": 3.0, "Bottom Depth (ft)": 4.0, "Soil Type": "SILTY FINE SAND", "Color": "Tan", "Moisture Condition": "wet", "Comments": "Increased fines", "Minor 1": "and clay", "Minor 2": "trace iron oxide staining" },
-        { "Sample ID": "B-1S-3", "Layer ID": "B-1S-3L-1", "Top Depth (ft)": 4.0, "Bottom Depth (ft)": 6.0, "Soil Type": "CLAYEY SILT", "Color": "Gray", "Moisture Condition": "wet", "Comments": "Low plasticity, stiff", "Minor 1": "some fine sand", "Minor 2": "trace organic matter" },
-        { "Sample ID": "B-1S-4", "Layer ID": "B-1S-4L-1", "Top Depth (ft)": 6.0, "Bottom Depth (ft)": 8.0, "Soil Type": "CLAY", "Color": "Dark Gray", "Moisture Condition": "wet", "Comments": "Very stiff, high plasticity", "Minor 1": "little silt", "Minor 2": "trace sand" },
+        { "Sample ID": "B-1S-1", "Layer ID": "B-1S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.5, "Soil Type": "top soil", "Color": "brown(dark)", "Moisture Condition": "damp", "Comments": "Dark organic matter with roots", "Minor 1": "trace roots" },
+        { "Sample ID": "B-1S-1", "Layer ID": "B-1S-1L-2", "Top Depth (ft)": 0.5, "Bottom Depth (ft)": 1.5, "Soil Type": "native granular", "Color": "brown(light)", "Moisture Condition": "dry", "Comments": "Trace silt", "Minor 1": "trace silt" },
+        { "Sample ID": "B-1S-1", "Layer ID": "B-1S-1L-3", "Top Depth (ft)": 1.5, "Bottom Depth (ft)": 2.0, "Soil Type": "native granular", "Color": "brown(none)", "Moisture Condition": "moist", "Comments": "Well graded", "Minor 1": "and gravel", "Minor 2": "some silt", "Minor 3": "little clay" },
+        { "Sample ID": "B-1S-2", "Layer ID": "B-1S-2L-1", "Top Depth (ft)": 2.0, "Bottom Depth (ft)": 3.0, "Soil Type": "native granular", "Color": "brown(none)", "Moisture Condition": "moist", "Comments": "Continued", "Minor 1": "some coarse gravel", "Minor 2": "little silt" },
+        { "Sample ID": "B-1S-2", "Layer ID": "B-1S-2L-2", "Top Depth (ft)": 3.0, "Bottom Depth (ft)": 4.0, "Soil Type": "native silty", "Color": "brown(very light)", "Moisture Condition": "wet", "Comments": "Increased fines", "Minor 1": "and clay", "Minor 2": "trace iron oxide staining" },
+        { "Sample ID": "B-1S-3", "Layer ID": "B-1S-3L-1", "Top Depth (ft)": 4.0, "Bottom Depth (ft)": 6.0, "Soil Type": "clay(clayey silt)", "Color": "gray", "Moisture Condition": "wet", "Comments": "Low plasticity, stiff", "Minor 1": "some fine sand", "Minor 2": "trace organic matter" },
+        { "Sample ID": "B-1S-4", "Layer ID": "B-1S-4L-1", "Top Depth (ft)": 6.0, "Bottom Depth (ft)": 8.0, "Soil Type": "clay only", "Color": "gray", "Moisture Condition": "wet", "Comments": "Very stiff, high plasticity", "Minor 1": "little silt", "Minor 2": "trace sand" },
         
         // B-2: Typical Pavement Section
-        { "Sample ID": "B-2S-1", "Layer ID": "B-2S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.3, "Soil Type": "ASPHALT", "Color": "Black", "Moisture Condition": "dry", "Comments": "Parking lot surface" },
-        { "Sample ID": "B-2S-1", "Layer ID": "B-2S-1L-2", "Top Depth (ft)": 0.3, "Bottom Depth (ft)": 1.0, "Soil Type": "BASE COURSE", "Color": "Gray", "Moisture Condition": "dry", "Comments": "Crushed gravel base", "Minor 1": "and sand", "Minor 2": "some silt" },
-        { "Sample ID": "B-2S-1", "Layer ID": "B-2S-1L-3", "Top Depth (ft)": 1.0, "Bottom Depth (ft)": 2.0, "Soil Type": "FILL", "Color": "Brown", "Moisture Condition": "moist", "Comments": "Reworked native soil", "Minor 1": "some brick fragments", "Minor 2": "little roots" },
-        { "Sample ID": "B-2S-2", "Layer ID": "B-2S-2L-1", "Top Depth (ft)": 2.0, "Bottom Depth (ft)": 4.0, "Soil Type": "SILTY FINE SAND", "Color": "Light Gray", "Moisture Condition": "wet", "Comments": "Loose", "Minor 1": "and clay", "Minor 2": "trace organic silt" },
+        { "Sample ID": "B-2S-1", "Layer ID": "B-2S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.3, "Soil Type": "asphalt", "Color": "black", "Moisture Condition": "dry", "Comments": "Parking lot surface" },
+        { "Sample ID": "B-2S-1", "Layer ID": "B-2S-1L-2", "Top Depth (ft)": 0.3, "Bottom Depth (ft)": 1.0, "Soil Type": "base course", "Color": "gray", "Moisture Condition": "dry", "Comments": "Crushed gravel base", "Minor 1": "and sand", "Minor 2": "some silt" },
+        { "Sample ID": "B-2S-1", "Layer ID": "B-2S-1L-3", "Top Depth (ft)": 1.0, "Bottom Depth (ft)": 2.0, "Soil Type": "fill", "Color": "brown(none)", "Moisture Condition": "moist", "Comments": "Reworked native soil", "Minor 1": "some brick fragments", "Minor 2": "little roots" },
+        { "Sample ID": "B-2S-2", "Layer ID": "B-2S-2L-1", "Top Depth (ft)": 2.0, "Bottom Depth (ft)": 4.0, "Soil Type": "native silty", "Color": "gray", "Moisture Condition": "wet", "Comments": "Loose", "Minor 1": "and clay", "Minor 2": "trace organic silt" },
  
         // B-3: Debris and clay
-        { "Sample ID": "B-3S-1", "Layer ID": "B-3S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 2.0, "Soil Type": "FILL", "Color": "Mottled Brown", "Moisture Condition": "moist", "Comments": "Construction debris, brick fragments", "Minor 1": "some concrete fragments", "Minor 2": "little glass fragments", "Minor 3": "trace metal fragments" },
-        { "Sample ID": "B-3S-2", "Layer ID": "B-3S-2L-1", "Top Depth (ft)": 2.0, "Bottom Depth (ft)": 4.0, "Soil Type": "CLAY", "Color": "Dark Gray", "Moisture Condition": "wet", "Comments": "High plasticity, very stiff", "Minor 1": "some organic clay", "Minor 2": "little silt" },
+        { "Sample ID": "B-3S-1", "Layer ID": "B-3S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 2.0, "Soil Type": "fill", "Color": "brown(none)", "Moisture Condition": "moist", "Comments": "Construction debris, brick fragments", "Minor 1": "some concrete fragments", "Minor 2": "little glass fragments", "Minor 3": "trace metal fragments" },
+        { "Sample ID": "B-3S-2", "Layer ID": "B-3S-2L-1", "Top Depth (ft)": 2.0, "Bottom Depth (ft)": 4.0, "Soil Type": "clay only", "Color": "gray", "Moisture Condition": "wet", "Comments": "High plasticity, very stiff", "Minor 1": "some organic clay", "Minor 2": "little silt" },
         
         // B-4: All sand layers, deep
-        { "Sample ID": "B-4S-1", "Layer ID": "B-4S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 1.0, "Soil Type": "TOPSOIL", "Color": "Brown", "Moisture Condition": "damp", "Comments": "", "Minor 1": "trace rootlets" },
-        { "Sample ID": "B-4S-1", "Layer ID": "B-4S-1L-2", "Top Depth (ft)": 1.0, "Bottom Depth (ft)": 2.0, "Soil Type": "FINE SAND", "Color": "Tan", "Moisture Condition": "dry", "Comments": "", "Minor 1": "trace silt" },
-        { "Sample ID": "B-4S-2", "Layer ID": "B-4S-2L-1", "Top Depth (ft)": 2.0, "Bottom Depth (ft)": 4.0, "Soil Type": "FINE TO MEDIUM SAND", "Color": "Tan", "Moisture Condition": "dry", "Comments": "Clean", "Minor 1": "some gravel", "Minor 2": "trace mica" },
-        { "Sample ID": "B-4S-3", "Layer ID": "B-4S-3L-1", "Top Depth (ft)": 4.0, "Bottom Depth (ft)": 5.0, "Soil Type": "MEDIUM SAND", "Color": "Light Brown", "Moisture Condition": "moist", "Comments": "", "Minor 1": "some coarse sand" },
-        { "Sample ID": "B-4S-3", "Layer ID": "B-4S-3L-2", "Top Depth (ft)": 5.0, "Bottom Depth (ft)": 6.0, "Soil Type": "COARSE SAND", "Color": "Brown", "Moisture Condition": "wet", "Comments": "Trace fine gravel", "Minor 1": "and gravel", "Minor 2": "trace fine gravel" },
+        { "Sample ID": "B-4S-1", "Layer ID": "B-4S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 1.0, "Soil Type": "top soil", "Color": "brown(none)", "Moisture Condition": "damp", "Comments": "", "Minor 1": "trace rootlets" },
+        { "Sample ID": "B-4S-1", "Layer ID": "B-4S-1L-2", "Top Depth (ft)": 1.0, "Bottom Depth (ft)": 2.0, "Soil Type": "native granular", "Color": "brown(very light)", "Moisture Condition": "dry", "Comments": "", "Minor 1": "trace silt" },
+        { "Sample ID": "B-4S-2", "Layer ID": "B-4S-2L-1", "Top Depth (ft)": 2.0, "Bottom Depth (ft)": 4.0, "Soil Type": "native granular", "Color": "brown(very light)", "Moisture Condition": "dry", "Comments": "Clean", "Minor 1": "some gravel", "Minor 2": "trace mica" },
+        { "Sample ID": "B-4S-3", "Layer ID": "B-4S-3L-1", "Top Depth (ft)": 4.0, "Bottom Depth (ft)": 5.0, "Soil Type": "native granular", "Color": "brown(light)", "Moisture Condition": "moist", "Comments": "", "Minor 1": "some coarse sand" },
+        { "Sample ID": "B-4S-3", "Layer ID": "B-4S-3L-2", "Top Depth (ft)": 5.0, "Bottom Depth (ft)": 6.0, "Soil Type": "native granular", "Color": "brown(none)", "Moisture Condition": "wet", "Comments": "Trace fine gravel", "Minor 1": "and gravel", "Minor 2": "trace fine gravel" },
         
         // B-5: Alternating Thin Layers
-        { "Sample ID": "B-5S-1", "Layer ID": "B-5S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.5, "Soil Type": "SILTY SAND", "Color": "Gray", "Moisture Condition": "moist", "Comments": "", "Minor 1": "some clay" },
-        { "Sample ID": "B-5S-1", "Layer ID": "B-5S-1L-2", "Top Depth (ft)": 0.5, "Bottom Depth (ft)": 1.0, "Soil Type": "CLAYEY SILT", "Color": "Dark Gray", "Moisture Condition": "moist", "Comments": "", "Minor 1": "little sand" },
-        { "Sample ID": "B-5S-1", "Layer ID": "B-5S-1L-3", "Top Depth (ft)": 1.0, "Bottom Depth (ft)": 1.5, "Soil Type": "SILTY SAND", "Color": "Gray", "Moisture Condition": "moist", "Comments": "", "Minor 1": "some clay" },
-        { "Sample ID": "B-5S-1", "Layer ID": "B-5S-1L-4", "Top Depth (ft)": 1.5, "Bottom Depth (ft)": 2.0, "Soil Type": "CLAYEY SILT", "Color": "Dark Gray", "Moisture Condition": "moist", "Comments": "", "Minor 1": "little sand" },
+        { "Sample ID": "B-5S-1", "Layer ID": "B-5S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.5, "Soil Type": "native silty", "Color": "gray", "Moisture Condition": "moist", "Comments": "", "Minor 1": "some clay" },
+        { "Sample ID": "B-5S-1", "Layer ID": "B-5S-1L-2", "Top Depth (ft)": 0.5, "Bottom Depth (ft)": 1.0, "Soil Type": "clay(clayey silt)", "Color": "gray", "Moisture Condition": "moist", "Comments": "", "Minor 1": "little sand" },
+        { "Sample ID": "B-5S-1", "Layer ID": "B-5S-1L-3", "Top Depth (ft)": 1.0, "Bottom Depth (ft)": 1.5, "Soil Type": "native silty", "Color": "gray", "Moisture Condition": "moist", "Comments": "", "Minor 1": "some clay" },
+        { "Sample ID": "B-5S-1", "Layer ID": "B-5S-1L-4", "Top Depth (ft)": 1.5, "Bottom Depth (ft)": 2.0, "Soil Type": "clay(clayey silt)", "Color": "gray", "Moisture Condition": "moist", "Comments": "", "Minor 1": "little sand" },
         
         // B-6: Shallow Refusal
-        { "Sample ID": "B-6S-1", "Layer ID": "B-6S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.5, "Soil Type": "ASPHALT", "Color": "Black", "Moisture Condition": "dry", "Comments": "" },
-        { "Sample ID": "B-6S-1", "Layer ID": "B-6S-1L-2", "Top Depth (ft)": 0.5, "Bottom Depth (ft)": 1.5, "Soil Type": "BASE COURSE", "Color": "Gray", "Moisture Condition": "dry", "Comments": "Large cobbles", "Minor 1": "some cobbles", "Minor 2": "little silt" }
+        { "Sample ID": "B-6S-1", "Layer ID": "B-6S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.5, "Soil Type": "asphalt", "Color": "black", "Moisture Condition": "dry", "Comments": "" },
+        { "Sample ID": "B-6S-1", "Layer ID": "B-6S-1L-2", "Top Depth (ft)": 0.5, "Bottom Depth (ft)": 1.5, "Soil Type": "base course", "Color": "gray", "Moisture Condition": "dry", "Comments": "Large cobbles", "Minor 1": "some cobbles", "Minor 2": "little silt" }
     ];
 
     let datasetRuns = [
