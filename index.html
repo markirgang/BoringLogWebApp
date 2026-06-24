@@ -1359,6 +1359,7 @@
                             <th style="min-width: 250px;">Burmister Description</th>
                             <th style="min-width: 120px;">Max Unit Weight (pcf)</th>
                             <th style="min-width: 120px;">Min Unit Weight (pcf)</th>
+                            <th style="min-width: 140px;">Est Unit Weight (pcf)</th>
                             <th style="min-width: 250px;">Comments</th>
                         </tr>
                     </thead>
@@ -1938,6 +1939,8 @@
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <label style="font-size: 0.75rem; font-weight: bold; color: var(--slate-600); margin: 0;">Density:</label>
                                 <input type="text" id="layer_correlated_density" readonly style="width: 70px; background-color: #f1f5f9; font-weight: bold; color: var(--blue-700); font-size: 0.8rem; padding: 0.2rem 0.35rem; border: 1px solid var(--border); border-radius: 4px; text-align: center; height: 26px;" placeholder="N/A">
+                                <label style="font-size: 0.75rem; font-weight: bold; color: var(--slate-600); margin: 0;">Est Weight:</label>
+                                <input type="text" id="layer_calculated_weight" readonly style="width: 80px; background-color: #f1f5f9; font-weight: bold; color: var(--blue-700); font-size: 0.8rem; padding: 0.2rem 0.35rem; border: 1px solid var(--border); border-radius: 4px; text-align: center; height: 26px;" placeholder="N/A">
                             </div>
                         </div>
                         
@@ -4038,6 +4041,7 @@
     }
 
     function refreshAllAfterDataChange() {
+        recalculateEstimatedUnitWeights();
         recalculateAllRunsRecovery();
         if (typeof renderRunsTable === 'function') renderRunsTable();
         if (typeof renderProfilesTable === 'function') renderProfilesTable();
@@ -4213,6 +4217,119 @@
             return boringId.trim();
         }
         return sampleId.toString().trim();
+    }
+
+    const soilWeightsMap = {
+        "fine sand": { min: 84, max: 136 },
+        "medium sand": { min: 84, max: 136 },
+        "coarse sand": { min: 84, max: 136 },
+        "silt": { min: 81, max: 136 },
+        "fine gravel": { min: 84, max: 136 },
+        "silty sand": { min: 88, max: 142 },
+        "varved fine sand": { min: 88, max: 142 },
+        "fine sand and silt": { min: 88, max: 142 },
+        "varved fine sand and silt": { min: 88, max: 142 },
+        "silt and fine sand": { min: 88, max: 142 },
+        "fine to coarse sand": { min: 86, max: 148 },
+        "medium to coarse sand": { min: 86, max: 148 },
+        "medium to coarse sand and fine gravel": { min: 86, max: 148 },
+        "medium to coarse sand and coarse gravel": { min: 86, max: 148 },
+        "fine to medium sand": { min: 86, max: 148 },
+        "varved fine to medium sand": { min: 86, max: 148 },
+        "fine to medium sand and silt": { min: 86, max: 148 },
+        "silty sand and gravel": { min: 90, max: 155 },
+        "gravelly fine to medium sand and silt": { min: 90, max: 155 },
+        "sandy clay": { min: 100, max: 147 },
+        "silty clay": { min: 100, max: 147 },
+        "clayey silt": { min: 100, max: 147 },
+        "varved silt": { min: 100, max: 147 },
+        "varved clayey silt": { min: 100, max: 147 },
+        "silt and clay": { min: 100, max: 147 },
+        "clay and silt": { min: 100, max: 147 },
+        "varved silt and clay": { min: 100, max: 147 },
+        "silty clay and gravel": { min: 115, max: 151 },
+        "clay": { min: 94, max: 133 },
+        "organic silt": { min: 87, max: 131 },
+        "organic clay": { min: 81, max: 125 },
+        "till": { min: 125, max: 156 },
+        "asphalt": { min: 84, max: 136 }
+    };
+
+    function getSoilWeights(soilType) {
+        if (!soilType) return { max: '-', min: '-' };
+        const st = soilType.toString().trim().toLowerCase();
+        
+        // Exact match
+        if (soilWeightsMap[st]) {
+            return { min: soilWeightsMap[st].min.toString(), max: soilWeightsMap[st].max.toString() };
+        }
+        
+        // Substring checks
+        if (st.includes('varved silt') || st.includes('varved clayey silt') || st.includes('clayey silt') || st.includes('silt and clay') || st.includes('clay and silt') || st.includes('varved silt and clay')) {
+            return { min: '100', max: '147' };
+        }
+        if (st.includes('silty clay and gravel')) {
+            return { min: '115', max: '151' };
+        }
+        if (st.includes('silty clay') || st.includes('sandy clay')) {
+            return { min: '100', max: '147' };
+        }
+        if (st.includes('organic silt')) {
+            return { min: '87', max: '131' };
+        }
+        if (st.includes('organic clay')) {
+            return { min: '81', max: '125' };
+        }
+        if (st.includes('clay')) {
+            return { min: '94', max: '133' };
+        }
+        if (st.includes('silty sand and gravel')) {
+            return { min: '90', max: '155' };
+        }
+        if (st.includes('gravelly fine to medium sand and silt')) {
+            return { min: '90', max: '155' };
+        }
+        if (st.includes('fine sand and silt') || st.includes('varved fine sand and silt') || st.includes('silt and fine sand')) {
+            return { min: '88', max: '142' };
+        }
+        if (st.includes('fine to coarse sand') || st.includes('medium to coarse sand') || st.includes('fine to medium sand') || st.includes('varved fine to medium sand')) {
+            return { min: '86', max: '148' };
+        }
+        if (st.includes('silty sand') || st.includes('varved fine sand')) {
+            return { min: '88', max: '142' };
+        }
+        if (st.includes('fine sand') || st.includes('medium sand') || st.includes('coarse sand') || st.includes('fine gravel') || st.includes('asphalt')) {
+            return { min: '84', max: '136' };
+        }
+        if (st.includes('silt')) {
+            return { min: '81', max: '136' };
+        }
+        if (st.includes('till')) {
+            return { min: '125', max: '156' };
+        }
+        if (st.includes('sand') || st.includes('gravel')) {
+            return { min: '86', max: '148' };
+        }
+        
+        return { max: '-', min: '-' };
+    }
+
+    function recalculateEstimatedUnitWeights() {
+        datasetProfiles.forEach(profile => {
+            const bId = getBoringIdFromSampleId(profile["Sample ID"]);
+            const sampleId = profile["Sample ID"];
+            const run = datasetRuns.find(r => r["Sample ID"] === sampleId || r["Sample ID"] === (bId + "-" + sampleId.replace(bId, "").replace("-", "")));
+            const nVal = (run && run["SPT N-Value"] !== undefined && run["SPT N-Value"] !== null) ? Number(run["SPT N-Value"]) : 0;
+            const weights = getSoilWeights(profile["Soil Type"]);
+            if (weights.min !== '-' && weights.max !== '-') {
+                const min = parseFloat(weights.min);
+                const max = parseFloat(weights.max);
+                const n = isNaN(nVal) || nVal < 0 ? 0 : nVal;
+                profile["Estimated Unit Weight (pcf)"] = (min + (n * 1.3 + 10) * (max - min) / 50).toFixed(1);
+            } else {
+                profile["Estimated Unit Weight (pcf)"] = '-';
+            }
+        });
     }
 
     function rebuildBoringMapsFromDatasets() {
@@ -5801,6 +5918,7 @@
                         soilType: layer["Soil Type"] || '-',
                         minors: getLayerMinorsString(layer),
                         moisture: layer["Moisture Condition"] || '-',
+                        estimatedWeight: layer["Estimated Unit Weight (pcf)"] || '-',
                         desc,
                         comments: [run["Comments"], layer["Comments"]].filter(x => x && x.trim()).join(' | ') || '',
                         layerObj: layer
@@ -5825,6 +5943,7 @@
                     soilType: "",
                     minors: "",
                     moisture: "",
+                    estimatedWeight: "-",
                     desc: "No layers defined for this sample run",
                     comments: run["Comments"] || ''
                 });
@@ -6023,18 +6142,6 @@
             return (a["Start Depth (ft)"] || 0) - (b["Start Depth (ft)"] || 0);
         });
 
-        function getSoilWeights(soilType) {
-            if (!soilType) return { max: '-', min: '-' };
-            const st = soilType.toLowerCase();
-            if (st.includes('varved silt') || st.includes('clayey silt')) return { max: '147', min: '100' };
-            if (st.includes('silty clay') || st.includes('silty-clay') || st.includes('clay') || st.includes('cohesive')) return { max: '147', min: '100' };
-            if (st.includes('fine sand') || st.includes('silty sand') || st.includes('silty-sand')) return { max: '136', min: '84' };
-            if (st.includes('coarse sand') || st.includes('gravel')) return { max: '148', min: '86' };
-            if (st.includes('medium sand')) return { max: '136', min: '84' };
-            if (st.includes('sand')) return { max: '136', min: '84' };
-            return { max: '-', min: '-' };
-        }
-
         let rows = [];
         sortedRuns.forEach(run => {
             let boringId = run["Boring ID"];
@@ -6191,6 +6298,7 @@
                         "Burmister Description": desc,
                         "Max Unit Weight (pcf)": weights.max,
                         "Min Unit Weight (pcf)": weights.min,
+                        "Est Unit Weight (pcf)": profile["Estimated Unit Weight (pcf)"] || '-',
                         // Drilling parameters
                         "Drilling Contractor": driller,
                         "Drilling Equipment Rig": rig,
@@ -6249,6 +6357,7 @@
                     "Burmister Description": "No soil layers defined",
                     "Max Unit Weight (pcf)": "-",
                     "Min Unit Weight (pcf)": "-",
+                    "Est Unit Weight (pcf)": "-",
                     // Drilling parameters
                     "Drilling Contractor": driller,
                     "Drilling Equipment Rig": rig,
@@ -6299,10 +6408,11 @@
                     <td style="min-width: 250px;"><small style="color: #4b5563; font-style: italic;">${row["Burmister Description"]}</small></td>
                     <td style="color: #b91c1c; font-weight: 600; white-space: nowrap;">${row["Max Unit Weight (pcf)"]}</td>
                     <td style="color: #b91c1c; font-weight: 600; white-space: nowrap;">${row["Min Unit Weight (pcf)"]}</td>
+                    <td style="color: #1e3a8a; font-weight: 600; white-space: nowrap;">${row["Est Unit Weight (pcf)"]}</td>
                     <td style="min-width: 250px; white-space: pre-wrap;"><small style="color: #4b5563;">${row["Comments"] || ''}</small></td>
                 </tr>
                 <tr class="summary-details-row">
-                    <td colspan="22" style="background-color: #f1f5f9 !important; font-family: inherit; font-size: 0.775rem; color: #475569; padding: 0.45rem 0.8rem; border-top: none; border-bottom: 1px solid var(--border);">
+                    <td colspan="23" style="background-color: #f1f5f9 !important; font-family: inherit; font-size: 0.775rem; color: #475569; padding: 0.45rem 0.8rem; border-top: none; border-bottom: 1px solid var(--border);">
                         Drilling Contractor: ${row["Drilling Contractor"]} &nbsp;|&nbsp; 
                         Rig: ${row["Drilling Equipment Rig"]} &nbsp;|&nbsp; 
                         Hammer Setup: ${row["Hammer Setup"]} &nbsp;|&nbsp; 
@@ -6786,13 +6896,29 @@
         const relSoil = document.getElementById('rel_soil');
         const runNval = document.getElementById('run_nval');
         const layerCDInput = document.getElementById('layer_correlated_density');
-        if (!relSoil || !layerCDInput) return;
+        const layerWeightInput = document.getElementById('layer_calculated_weight');
+        if (!relSoil) return;
         
         const soilType = relSoil.value || "";
         const nValue = runNval ? (parseInt(runNval.value) || 0) : 0;
         
-        const density = getRelativeDensity(nValue, soilType);
-        layerCDInput.value = density || "N/A";
+        if (layerCDInput) {
+            const density = getRelativeDensity(nValue, soilType);
+            layerCDInput.value = density || "N/A";
+        }
+        
+        if (layerWeightInput) {
+            const weights = getSoilWeights(soilType);
+            if (weights.min !== '-' && weights.max !== '-') {
+                const min = parseFloat(weights.min);
+                const max = parseFloat(weights.max);
+                const n = isNaN(nValue) || nValue < 0 ? 0 : nValue;
+                const estWeight = (min + (n * 1.3 + 10) * (max - min) / 50).toFixed(1);
+                layerWeightInput.value = estWeight + " pcf";
+            } else {
+                layerWeightInput.value = "N/A";
+            }
+        }
     }
 
     function generateBurmisterDescription(layer) {
@@ -7880,7 +8006,7 @@
                 "boringId", "shortSampleId", "date", "capacity", "sampleRange",
                 "blowcounts", "nVal", "recovery", "fieldTesting", "layerId",
                 "layerRange", "color", "primary", "soilType", "minors",
-                "moisture", "desc", "comments"
+                "moisture", "estimatedWeight", "desc", "comments"
             ];
             sheetSummary.columns = summaryKeys.map(k => ({ header: k, key: k, width: 20 }));
             sheetSummary.addRows(boringDataDirect);
@@ -8029,7 +8155,7 @@
                 const numericFieldsProfiles = [
                     "Top Depth (ft)", "Bottom Depth (ft)",
                     "PID (ppm)", "Pocket Penetrometer (tsf)", "Pocket Torvane (tsf)",
-                    "Default PID", "Default PP", "Default TV"
+                    "Default PID", "Default PP", "Default TV", "Estimated Unit Weight (pcf)"
                 ];
                 datasetProfiles = parseSheetToObjects(sheetProfiles, numericFieldsProfiles);
             }
@@ -8053,6 +8179,9 @@
                     const shortSampleId = sampleId.replace(bId + "-", "").replace(bId, "");
                     run["Recovery (in)"] = calculateSampleRecovery(bId, shortSampleId);
                 });
+                
+                // Recalculate estimated unit weights on import
+                recalculateEstimatedUnitWeights();
             }
 
             // Import Boring GPS
@@ -9339,7 +9468,7 @@ async function exportStylizedExcel() {
     // 4. Layers Sheet (from Tab 4: Layer Description)
     const sheetPres = workbook.addWorksheet('Layers');
     sheetPres.views = [{ showGridLines: false }];
-    sheetPres.columns = [{ width: 5 }, { width: 15 }, { width: 25 }, { width: 50 }, { width: 15 }, { width: 25 }];
+    sheetPres.columns = [{ width: 5 }, { width: 15 }, { width: 25 }, { width: 50 }, { width: 18 }, { width: 25 }];
     
     // Header
     sheetPres.mergeCells('B1:F1');
@@ -9349,7 +9478,26 @@ async function exportStylizedExcel() {
     sheetPres.getCell('B1').alignment = { vertical: 'middle', horizontal: 'left' };
     sheetPres.getRow(1).height = 35;
     
-    let presRow = 3;
+    // Column header labels at Row 3
+    sheetPres.getCell('C3').value = "Depth Range";
+    sheetPres.getCell('D3').value = "Burmister Description";
+    sheetPres.getCell('E3').value = "Est Unit Weight";
+    sheetPres.getCell('F3').value = "Comments";
+    ['C3', 'D3', 'E3', 'F3'].forEach(c => {
+        let cell = sheetPres.getCell(c);
+        cell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FF475569' } };
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
+        cell.border = { 
+            top: {style:'thin', color: {argb: 'FF94A3B8'}}, 
+            left: {style:'thin', color: {argb: 'FF94A3B8'}}, 
+            bottom: {style:'thin', color: {argb: 'FF94A3B8'}}, 
+            right: {style:'thin', color: {argb: 'FF94A3B8'}} 
+        };
+    });
+    sheetPres.getRow(3).height = 20;
+
+    let presRow = 5;
     
     // Iterating borings
     boringIds.forEach(bId => {
@@ -9400,8 +9548,13 @@ async function exportStylizedExcel() {
                     let dCell2 = sheetPres.getCell(`D${presRow}`);
                     dCell2.value = desc;
                     dCell2.font = { name: 'Segoe UI', size: 10, color: { argb: 'FF334155' } };
-                    sheetPres.mergeCells(`D${presRow}:E${presRow}`);
                     dCell2.alignment = { wrapText: true, vertical: 'top' };
+                    
+                    let eCell = sheetPres.getCell(`E${presRow}`);
+                    const estWt = layer["Estimated Unit Weight (pcf)"];
+                    eCell.value = (estWt && estWt !== '-') ? `${Number(estWt).toFixed(1)} pcf` : '-';
+                    eCell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FF15803D' } };
+                    eCell.alignment = { vertical: 'top', horizontal: 'center' };
                     
                     let cCell = sheetPres.getCell(`F${presRow}`);
                     cCell.value = layer["Comments"] || "";
