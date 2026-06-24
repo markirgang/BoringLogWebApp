@@ -690,6 +690,13 @@
             background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
         }
 
+        .btn-artistic-red {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .btn-artistic-red:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
+
         .btn-artistic-icon {
             flex-shrink: 0;
             display: flex;
@@ -839,12 +846,20 @@
                     </div>
                 </div>
 
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label>Site Address</label>
+                    <div class="input-addon-group">
+                        <input type="text" id="cov_gps_address" style="flex: 1; padding: 0.5rem; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 4px;" placeholder="Enter site address...">
+                        <button type="button" class="btn-small" onclick="fillLocationFromGPS(event)" title="Fill address from GPS location">📍 Use GPS Address</button>
+                    </div>
+                </div>
+
                 <div style="grid-column: 1 / -1; margin-top: 1rem; background: #f8fafc; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 6px;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
                         <h4 style="margin: 0; color: var(--slate-800); font-size: 1.0rem;">Site GPS Coordinates</h4>
                         <button type="button" class="btn btn-primary" style="padding: 0.3rem 0.6rem; font-size: 0.85rem;" onclick="fillLocationFromGPS(event)">📍 Capture GPS Location</button>
                     </div>
-                    <div class="grid-3" style="gap: 0.5rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
                         <div class="form-group" style="margin-bottom: 0;">
                             <label style="font-size: 0.8rem;">Latitude</label>
                             <input type="text" id="cov_gps_lat" readonly style="background-color: #e2e8f0; font-size: 0.9rem;" placeholder="e.g., 34.0522">
@@ -852,10 +867,6 @@
                         <div class="form-group" style="margin-bottom: 0;">
                             <label style="font-size: 0.8rem;">Longitude</label>
                             <input type="text" id="cov_gps_lon" readonly style="background-color: #e2e8f0; font-size: 0.9rem;" placeholder="e.g., -118.2437">
-                        </div>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label style="font-size: 0.8rem;">GPS Site Address</label>
-                            <input type="text" id="cov_gps_address" readonly style="background-color: #e2e8f0; font-size: 0.9rem;" placeholder="Mapped address details">
                         </div>
                     </div>
                 </div>
@@ -1357,8 +1368,6 @@
                             <th style="min-width: 80px;">Color</th>
                             <th style="min-width: 85px;">Moisture</th>
                             <th style="min-width: 250px;">Burmister Description</th>
-                            <th style="min-width: 120px;">Max Unit Weight (pcf)</th>
-                            <th style="min-width: 120px;">Min Unit Weight (pcf)</th>
                             <th style="min-width: 140px;">Est Unit Weight (pcf)</th>
                             <th style="min-width: 250px;">Comments</th>
                         </tr>
@@ -1569,7 +1578,7 @@
                 
                 <div class="form-group">
                     <label>Recovery Length(Inches)</label>
-                    <input type="text" id="run_rec" readonly style="background-color: #f1f5f9; font-weight: bold; color: var(--blue-700); font-size: 0.95rem; border: 1px solid var(--border); border-radius: 4px; padding: 0.5rem; width: 100%; box-sizing: border-box;" placeholder="0.0" value="0.0">
+                    <input type="number" id="run_rec" step="0.1" min="0" style="padding: 0.5rem; width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 4px;" placeholder="0.0" value="0.0">
                 </div>
                 
                 <div class="form-group">
@@ -1895,37 +1904,21 @@
                             <div class="input-addon-group">
                                 <input type="text" id="rel_color" list="rel_color_list" onfocus="this.dataset.val=this.value; this.placeholder=this.value; this.value='';" onblur="if(this.value==='') this.value=this.dataset.val; this.placeholder='';" placeholder="" autocomplete="off" style="flex: 1; min-width: 0; padding: 0.35rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px;" >
 <datalist id="rel_color_list">
-                                    <option value="">
-                                    <option value="Black">
-                                    <option value="Gray">
-                                    <option value="Light Gray">
-                                    <option value="Dark Gray">
-                                    <option value="White">
-                                    <option value="Red">
-                                    <option value="Light Red">
-                                    <option value="Dark Red">
-                                    <option value="Reddish Gray">
-                                    <option value="Reddish Brown">
-                                    <option value="Brown">
-                                    <option value="Light Brown">
-                                    <option value="Dark Brown">
-                                    <option value="Yellowish Brown">
-                                    <option value="Olive Brown">
-                                    <option value="Grayish Brown">
-                                    <option value="Mottled Brown">
-                                    <option value="Mottled Gray">
-                                    <option value="Yellow">
-                                    <option value="Light Yellow">
-                                    <option value="Dark Yellow">
-                                    <option value="Brownish Yellow">
-                                    <option value="Olive">
-                                    <option value="Olive Gray">
-                                    <option value="Greenish Gray">
-                                    <option value="Bluish Gray">
-                                    <option value="Tan">
-                                    <option value="Light Tan">
-                                    <option value="Orange">
-                                    <option value="Orange-Brown">
+                                    <option value="brown(very light)">
+                                    <option value="brown(light)">
+                                    <option value="brown(none)">
+                                    <option value="brown(dark)">
+                                    <option value="brown(very dark)">
+                                    <option value="gray">
+                                    <option value="orange">
+                                    <option value="orage">
+                                    <option value="red">
+                                    <option value="pink">
+                                    <option value="black">
+                                    <option value="white">
+                                    <option value="green">
+                                    <option value="mixed color">
+                                    <option value="multiple colors">
 </datalist>
                             </div>
                         </div>
@@ -1947,333 +1940,51 @@
                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                             <!-- Major Soil Type Dropdown -->
                             <div style="display: flex; flex-direction: column; gap: 0.2rem;">
-                                <label style="font-size: 0.75rem; color: var(--slate-500); font-weight: 600;">Major Soil Type</label>
+                                <label style="font-size: 0.75rem; color: var(--slate-500); font-weight: 600;">General Soil Type</label>
                                 <select id="rel_soil" style="font-size: 0.8rem; padding: 0.35rem; border: 1px solid var(--border); border-radius: 4px; background: white; height: 34px; width: 100%;">
-<option value="ALLUVIUM">ALLUVIUM</option>
-                                    <option value="AMPHIBOLITE">AMPHIBOLITE</option>
-                                    <option value="ANDESITE">ANDESITE</option>
-                                    <option value="ANHYDRITE">ANHYDRITE</option>
-                                    <option value="ASH">ASH</option>
-                                    <option value="ASPHALT">ASPHALT</option>
-                                    <option value="ASPHALT CONCRETE">ASPHALT CONCRETE</option>
-                                    <option value="ASPHALT FILL">ASPHALT FILL</option>
-                                    <option value="BALLAST">BALLAST</option>
-                                    <option value="BALLAST FILL">BALLAST FILL</option>
-                                    <option value="BANK RUN GRAVEL">BANK RUN GRAVEL</option>
-                                    <option value="BARK FILL">BARK FILL</option>
-                                    <option value="BASALT">BASALT</option>
-                                    <option value="BASE COURSE">BASE COURSE</option>
-                                    <option value="BEDROCK">BEDROCK</option>
-                                    <option value="BENTONITE">BENTONITE</option>
-                                    <option value="BOG IRON">BOG IRON</option>
-                                    <option value="BOTTOM ASH">BOTTOM ASH</option>
-                                    <option value="BOTTOM ASH FILL">BOTTOM ASH FILL</option>
-                                    <option value="BOULDERS">BOULDERS</option>
-                                    <option value="BRECCIA">BRECCIA</option>
-                                    <option value="BRICK">BRICK</option>
-                                    <option value="BRICK FILL">BRICK FILL</option>
-                                    <option value="BRICK FRAGMENTS">BRICK FRAGMENTS</option>
-                                    <option value="CALCAREOUS CLAY">CALCAREOUS CLAY</option>
-                                    <option value="CALCAREOUS NODULES">CALCAREOUS NODULES</option>
-                                    <option value="CALCAREOUS SAND">CALCAREOUS SAND</option>
-                                    <option value="CALCAREOUS SILT">CALCAREOUS SILT</option>
-                                    <option value="CALICHE">CALICHE</option>
-                                    <option value="CEMENT-BENTONITE MIX">CEMENT-BENTONITE MIX</option>
-                                    <option value="CHALK">CHALK</option>
-                                    <option value="CHERT">CHERT</option>
-                                    <option value="CINDERS">CINDERS</option>
-                                    <option value="CINDERS FILL">CINDERS FILL</option>
-                                    <option value="CLAY">CLAY</option>
-                                    <option value="CLAY FILL">CLAY FILL</option>
-                                    <option value="CLAY LOAM">CLAY LOAM</option>
-                                    <option value="CLAY WITH GRAVEL">CLAY WITH GRAVEL</option>
-                                    <option value="CLAY WITH SAND">CLAY WITH SAND</option>
-                                    <option value="CLAY WITH SILT">CLAY WITH SILT</option>
-                                    <option value="CLAY SHALE">CLAY SHALE</option>
-                                    <option value="CLAYEY FINE SAND">CLAYEY FINE SAND</option>
-                                    <option value="CLAYEY GRAVEL">CLAYEY GRAVEL</option>
-                                    <option value="CLAYEY GRAVELLY LOAM">CLAYEY GRAVELLY LOAM</option>
-                                    <option value="CLAYEY GRAVELLY SAND">CLAYEY GRAVELLY SAND</option>
-                                    <option value="CLAYEY GRAVELLY SILT">CLAYEY GRAVELLY SILT</option>
-                                    <option value="CLAYEY SAND">CLAYEY SAND</option>
-                                    <option value="CLAYEY SAND WITH GRAVEL">CLAYEY SAND WITH GRAVEL</option>
-                                    <option value="CLAYEY SILT">CLAYEY SILT</option>
-                                    <option value="CLAYSTONE">CLAYSTONE</option>
-                                    <option value="COAL">COAL</option>
-                                    <option value="COAL FRAGMENTS">COAL FRAGMENTS</option>
-                                    <option value="COAL WASTE">COAL WASTE</option>
-                                    <option value="COARSE GRAVEL">COARSE GRAVEL</option>
-                                    <option value="COARSE SAND">COARSE SAND</option>
-                                    <option value="COARSE TO FINE SAND">COARSE TO FINE SAND</option>
-                                    <option value="COARSE TO MEDIUM SAND">COARSE TO MEDIUM SAND</option>
-                                    <option value="COBBLES">COBBLES</option>
-                                    <option value="COHESIVE SOIL">COHESIVE SOIL</option>
-                                    <option value="COLLUVIUM">COLLUVIUM</option>
-                                    <option value="COLLUVIUM FILL">COLLUVIUM FILL</option>
-                                    <option value="COMPACTED CLAY FILL">COMPACTED CLAY FILL</option>
-                                    <option value="COMPACTED GRAVEL FILL">COMPACTED GRAVEL FILL</option>
-                                    <option value="COMPACTED SAND FILL">COMPACTED SAND FILL</option>
-                                    <option value="COMPOST">COMPOST</option>
-                                    <option value="CONCRETE">CONCRETE</option>
-                                    <option value="CONCRETE FILL">CONCRETE FILL</option>
-                                    <option value="CONCRETE FRAGMENTS">CONCRETE FRAGMENTS</option>
-                                    <option value="CONGLOMERATE">CONGLOMERATE</option>
-                                    <option value="CONSTRUCTION DEBRIS">CONSTRUCTION DEBRIS</option>
-                                    <option value="CONTROLLED LOW-STRENGTH MATERIAL (CLSM)">CONTROLLED LOW-STRENGTH MATERIAL (CLSM)</option>
-                                    <option value="COQUINA">COQUINA</option>
-                                    <option value="CORAL GRAVEL">CORAL GRAVEL</option>
-                                    <option value="CORAL SAND">CORAL SAND</option>
-                                    <option value="CRUSHED BRICK">CRUSHED BRICK</option>
-                                    <option value="CRUSHED CONCRETE">CRUSHED CONCRETE</option>
-                                    <option value="CRUSHED SHALE">CRUSHED SHALE</option>
-                                    <option value="CRUSHED STONE">CRUSHED STONE</option>
-                                    <option value="CRUSHED STONE (1/2-INCH)">CRUSHED STONE (1/2-INCH)</option>
-                                    <option value="CRUSHED STONE (3/4-INCH)">CRUSHED STONE (3/4-INCH)</option>
-                                    <option value="CRUSHED STONE (3/8-INCH)">CRUSHED STONE (3/8-INCH)</option>
-                                    <option value="CRUSHED STONE (No. 2)">CRUSHED STONE (No. 2)</option>
-                                    <option value="CRUSHED STONE (No. 4)">CRUSHED STONE (No. 4)</option>
-                                    <option value="CRUSHED STONE (No. 57)">CRUSHED STONE (No. 57)</option>
-                                    <option value="DECOMPOSED BEDROCK">DECOMPOSED BEDROCK</option>
-                                    <option value="DENSE-GRADED AGGREGATE (DGA)">DENSE-GRADED AGGREGATE (DGA)</option>
-                                    <option value="DIABASE">DIABASE</option>
-                                    <option value="DIATOMACEOUS EARTH">DIATOMACEOUS EARTH</option>
-                                    <option value="DIATOMITE">DIATOMITE</option>
-                                    <option value="DIORITE">DIORITE</option>
-                                    <option value="DOLOMITE">DOLOMITE</option>
-                                    <option value="DOLOMITIC LIMESTONE">DOLOMITIC LIMESTONE</option>
-                                    <option value="ELASTIC SILT (MH)">ELASTIC SILT (MH)</option>
-                                    <option value="ESTUARINE CLAY">ESTUARINE CLAY</option>
-                                    <option value="ESTUARINE SILT">ESTUARINE SILT</option>
-                                    <option value="FAT CLAY (CH)">FAT CLAY (CH)</option>
-                                    <option value="FIBROUS PEAT">FIBROUS PEAT</option>
-                                    <option value="FILL">FILL</option>
-                                    <option value="FILL MATERIAL">FILL MATERIAL</option>
-                                    <option value="FINE GRAVEL">FINE GRAVEL</option>
-                                    <option value="FINE SAND">FINE SAND</option>
-                                    <option value="FINE TO MEDIUM SAND">FINE TO MEDIUM SAND</option>
-                                    <option value="FINE TO COARSE SAND">FINE TO COARSE SAND</option>
-                                    <option value="FLINT">FLINT</option>
-                                    <option value="FLOWABLE FILL">FLOWABLE FILL</option>
-                                    <option value="FLY ASH">FLY ASH</option>
-                                    <option value="FLY ASH FILL">FLY ASH FILL</option>
-                                    <option value="FOUNDRY SAND">FOUNDRY SAND</option>
-                                    <option value="GABBRO">GABBRO</option>
-                                    <option value="GARBAGE">GARBAGE</option>
-                                    <option value="GLACIAL LAKE DEPOSITS">GLACIAL LAKE DEPOSITS</option>
-                                    <option value="GLACIAL TILL">GLACIAL TILL</option>
-                                    <option value="GLASS">GLASS</option>
-                                    <option value="GLASS FILL">GLASS FILL</option>
-                                    <option value="GNEISS">GNEISS</option>
-                                    <option value="GNEISSIC BEDROCK">GNEISSIC BEDROCK</option>
-                                    <option value="GRANITE">GRANITE</option>
-                                    <option value="GRANITIC BEDROCK">GRANITIC BEDROCK</option>
-                                    <option value="GRANULAR SOIL">GRANULAR SOIL</option>
-                                    <option value="GRAVEL">GRAVEL</option>
-                                    <option value="GRAVEL FILL">GRAVEL FILL</option>
-                                    <option value="GRAVELLY CLAY">GRAVELLY CLAY</option>
-                                    <option value="GRAVELLY ELASTIC SILT">GRAVELLY ELASTIC SILT</option>
-                                    <option value="GRAVELLY FAT CLAY">GRAVELLY FAT CLAY</option>
-                                    <option value="GRAVELLY LEAN CLAY">GRAVELLY LEAN CLAY</option>
-                                    <option value="GRAVELLY LOAM">GRAVELLY LOAM</option>
-                                    <option value="GRAVELLY SAND">GRAVELLY SAND</option>
-                                    <option value="GRAVELLY SILT">GRAVELLY SILT</option>
-                                    <option value="GRAVELLY SILTY CLAY">GRAVELLY SILTY CLAY</option>
-                                    <option value="GYPSUM">GYPSUM</option>
-                                    <option value="HEMIC PEAT">HEMIC PEAT</option>
-                                    <option value="HIGH PLASTICITY CLAY">HIGH PLASTICITY CLAY</option>
-                                    <option value="HIGH PLASTICITY SILT">HIGH PLASTICITY SILT</option>
-                                    <option value="HUMUS">HUMUS</option>
-                                    <option value="IRON OXIDE STAINING">IRON OXIDE STAINING</option>
-                                    <option value="KAOLIN CLAY">KAOLIN CLAY</option>
-                                    <option value="LANDFILL WASTE">LANDFILL WASTE</option>
-                                    <option value="LATERITE">LATERITE</option>
-                                    <option value="LEAF LITTER">LEAF LITTER</option>
-                                    <option value="LEAN CLAY (CL)">LEAN CLAY (CL)</option>
-                                    <option value="LIGNITE">LIGNITE</option>
-                                    <option value="LIMESTONE">LIMESTONE</option>
-                                    <option value="LIMESTONE BEDROCK">LIMESTONE BEDROCK</option>
-                                    <option value="LIMESTONE DEBRIS">LIMESTONE DEBRIS</option>
-                                    <option value="LOAM">LOAM</option>
-                                    <option value="LOAMY GRAVEL">LOAMY GRAVEL</option>
-                                    <option value="LOAMY SAND">LOAMY SAND</option>
-                                    <option value="LOESS">LOESS</option>
-                                    <option value="LOW PLASTICITY CLAY">LOW PLASTICITY CLAY</option>
-                                    <option value="LOW PLASTICITY SILT">LOW PLASTICITY SILT</option>
-                                    <option value="MARBLE">MARBLE</option>
-                                    <option value="MARINE CLAY">MARINE CLAY</option>
-                                    <option value="MARINE SILT">MARINE SILT</option>
-                                    <option value="MARL">MARL</option>
-                                    <option value="MARLSTONE">MARLSTONE</option>
-                                    <option value="MEDIUM GRAVEL">MEDIUM GRAVEL</option>
-                                    <option value="MEDIUM SAND">MEDIUM SAND</option>
-                                    <option value="MEDIUM TO COARSE SAND">MEDIUM TO COARSE SAND</option>
-                                    <option value="METAL FRAGMENTS">METAL FRAGMENTS</option>
-                                    <option value="METASEDIMENT">METASEDIMENT</option>
-                                    <option value="MICA">MICA</option>
-                                    <option value="MICA SCHIST">MICA SCHIST</option>
-                                    <option value="MICA SCHIST BEDROCK">MICA SCHIST BEDROCK</option>
-                                    <option value="MINE TAILINGS">MINE TAILINGS</option>
-                                    <option value="MUCK">MUCK</option>
-                                    <option value="MUD">MUD</option>
-                                    <option value="MUDSTONE">MUDSTONE</option>
-                                    <option value="MUNICIPAL SOLID WASTE">MUNICIPAL SOLID WASTE</option>
-                                    <option value="NON-PLASTIC SILT">NON-PLASTIC SILT</option>
-                                    <option value="OOLITIC LIMESTONE">OOLITIC LIMESTONE</option>
-                                    <option value="ORGANIC CLAY (OL/OH)">ORGANIC CLAY (OL/OH)</option>
-                                    <option value="ORGANIC CLAY WITH SAND">ORGANIC CLAY WITH SAND</option>
-                                    <option value="ORGANIC MATTER">ORGANIC MATTER</option>
-                                    <option value="ORGANIC PEAT">ORGANIC PEAT</option>
-                                    <option value="ORGANIC SILT (OL/OH)">ORGANIC SILT (OL/OH)</option>
-                                    <option value="ORGANIC SILTY CLAY">ORGANIC SILTY CLAY</option>
-                                    <option value="ORGANIC CLAYEY SILT">ORGANIC CLAYEY SILT</option>
-                                    <option value="ORGANIC SILT WITH SAND">ORGANIC SILT WITH SAND</option>
-                                    <option value="ORGANIC SOIL">ORGANIC SOIL</option>
-                                    <option value="PEAT (PT)">PEAT (PT)</option>
-                                    <option value="PEGMATITE">PEGMATITE</option>
-                                    <option value="PERIDOTITE">PERIDOTITE</option>
-                                    <option value="PHYLLITE">PHYLLITE</option>
-                                    <option value="POORLY GRADED GRAVEL (GP)">POORLY GRADED GRAVEL (GP)</option>
-                                    <option value="POORLY GRADED GRAVEL WITH SAND (GP)">POORLY GRADED GRAVEL WITH SAND (GP)</option>
-                                    <option value="POORLY GRADED SAND (SP)">POORLY GRADED SAND (SP)</option>
-                                    <option value="POORLY GRADED SAND WITH GRAVEL (SP)">POORLY GRADED SAND WITH GRAVEL (SP)</option>
-                                    <option value="PUDDLED CLAY">PUDDLED CLAY</option>
-                                    <option value="PULVERIZED FUEL ASH">PULVERIZED FUEL ASH</option>
-                                    <option value="PYRITE">PYRITE</option>
-                                    <option value="QUARRY WASTE">QUARRY WASTE</option>
-                                    <option value="QUARTZITE">QUARTZITE</option>
-                                    <option value="RECYCLED ASPHALT PAVEMENT (RAP)">RECYCLED ASPHALT PAVEMENT (RAP)</option>
-                                    <option value="REFUSE">REFUSE</option>
-                                    <option value="REWORKED">REWORKED</option>
-                                    <option value="REWORKED NATIVE SOIL">REWORKED NATIVE SOIL</option>
-                                    <option value="ROOTS">ROOTS</option>
-                                    <option value="RUBBISH">RUBBISH</option>
-                                    <option value="RYOLITE">RYOLITE</option>
-                                    <option value="SAND">SAND</option>
-                                    <option value="SAND FILL">SAND FILL</option>
-                                    <option value="SAND WITH CLAY">SAND WITH CLAY</option>
-                                    <option value="SAND WITH GRAVEL">SAND WITH GRAVEL</option>
-                                    <option value="SAND WITH SILT">SAND WITH SILT</option>
-                                    <option value="SANDSTONE">SANDSTONE</option>
-                                    <option value="SANDSTONE BEDROCK">SANDSTONE BEDROCK</option>
-                                    <option value="SANDSTONE DEBRIS">SANDSTONE DEBRIS</option>
-                                    <option value="SANDY CLAY">SANDY CLAY</option>
-                                    <option value="SANDY CLAY LOAM">SANDY CLAY LOAM</option>
-                                    <option value="SANDY CLAYEY GRAVEL">SANDY CLAYEY GRAVEL</option>
-                                    <option value="SANDY CLAYEY SILT">SANDY CLAYEY SILT</option>
-                                    <option value="SANDY ELASTIC SILT">SANDY ELASTIC SILT</option>
-                                    <option value="SANDY FAT CLAY">SANDY FAT CLAY</option>
-                                    <option value="SANDY GRAVEL">SANDY GRAVEL</option>
-                                    <option value="SANDY GRAVELLY LOAM">SANDY GRAVELLY LOAM</option>
-                                    <option value="SANDY LEAN CLAY">SANDY LEAN CLAY</option>
-                                    <option value="SANDY LOAM">SANDY LOAM</option>
-                                    <option value="SANDY SILT">SANDY SILT</option>
-                                    <option value="SANDY SILTY CLAY">SANDY SILTY CLAY</option>
-                                    <option value="SANDY SILTY GRAVEL">SANDY SILTY GRAVEL</option>
-                                    <option value="SAPRIC PEAT">SAPRIC PEAT</option>
-                                    <option value="SAPROLITE">SAPROLITE</option>
-                                    <option value="SAPROLITIC CLAY">SAPROLITIC CLAY</option>
-                                    <option value="SAPROLITIC SAND">SAPROLITIC SAND</option>
-                                    <option value="SCHIST">SCHIST</option>
-                                    <option value="SCHISTOSE GLACIAL TILL">SCHISTOSE GLACIAL TILL</option>
-                                    <option value="SCREENINGS">SCREENINGS</option>
-                                    <option value="SERPENTINITE">SERPENTINITE</option>
-                                    <option value="SERPENTINITE BEDROCK">SERPENTINITE BEDROCK</option>
-                                    <option value="SHALE">SHALE</option>
-                                    <option value="SHALE DEBRIS">SHALE DEBRIS</option>
-                                    <option value="SHALY BEDROCK">SHALY BEDROCK</option>
-                                    <option value="SHELL DEPOSIT">SHELL DEPOSIT</option>
-                                    <option value="SHELLS">SHELLS</option>
-                                    <option value="SILICIOUS SILT">SILICIOUS SILT</option>
-                                    <option value="SILT">SILT</option>
-                                    <option value="SILT FILL">SILT FILL</option>
-                                    <option value="SILT LOAM">SILT LOAM</option>
-                                    <option value="SILT WITH CLAY">SILT WITH CLAY</option>
-                                    <option value="SILT WITH GRAVEL">SILT WITH GRAVEL</option>
-                                    <option value="SILT WITH SAND">SILT WITH SAND</option>
-                                    <option value="SILTSTONE">SILTSTONE</option>
-                                    <option value="SILTSTONE DEBRIS">SILTSTONE DEBRIS</option>
-                                    <option value="SILTY CLAY">SILTY CLAY</option>
-                                    <option value="SILTY CLAY LOAM">SILTY CLAY LOAM</option>
-                                    <option value="SILTY CLAYEY GRAVEL">SILTY CLAYEY GRAVEL</option>
-                                    <option value="SILTY CLAYEY SAND (SC-SM)">SILTY CLAYEY SAND (SC-SM)</option>
-                                    <option value="SILTY CLAYEY SAND">SILTY CLAYEY SAND</option>
-                                    <option value="SILTY FINE SAND">SILTY FINE SAND</option>
-                                    <option value="SILTY GRAVEL">SILTY GRAVEL</option>
-                                    <option value="SILTY GRAVELLY CLAY">SILTY GRAVELLY CLAY</option>
-                                    <option value="SILTY GRAVELLY LOAM">SILTY GRAVELLY LOAM</option>
-                                    <option value="SILTY GRAVELLY SAND">SILTY GRAVELLY SAND</option>
-                                    <option value="SILTY SAND">SILTY SAND</option>
-                                    <option value="SILTY SAND WITH GRAVEL">SILTY SAND WITH GRAVEL</option>
-                                    <option value="SLAG">SLAG</option>
-                                    <option value="SLAG FILL">SLAG FILL</option>
-                                    <option value="SLATE">SLATE</option>
-                                    <option value="SLURRY WALL BENTONITE">SLURRY WALL BENTONITE</option>
-                                    <option value="SOAPSTONE">SOAPSTONE</option>
-                                    <option value="SOIL-CEMENT MIX">SOIL-CEMENT MIX</option>
-                                    <option value="SPONGE CRUST">SPONGE CRUST</option>
-                                    <option value="STONE DUST">STONE DUST</option>
-                                    <option value="STRUCTURAL FILL">STRUCTURAL FILL</option>
-                                    <option value="SUBBASE">SUBBASE</option>
-                                    <option value="TOP SOIL">TOP SOIL</option>
-                                    <option value="TOPSOIL">TOPSOIL</option>
-                                    <option value="TOPSOIL FILL">TOPSOIL FILL</option>
-                                    <option value="TOP SOIL MAJOR">TOP SOIL MAJOR</option>
-                                    <option value="TUFF">TUFF</option>
-                                    <option value="TUFFACEOUS SANDSTONE">TUFFACEOUS SANDSTONE</option>
-                                    <option value="UNKNOWN">UNKNOWN</option>
-                                    <option value="USCS CH">USCS CH</option>
-                                    <option value="USCS CL">USCS CL</option>
-                                    <option value="USCS CL-ML">USCS CL-ML</option>
-                                    <option value="USCS GC">USCS GC</option>
-                                    <option value="USCS GC-GM">USCS GC-GM</option>
-                                    <option value="USCS GM">USCS GM</option>
-                                    <option value="USCS GP">USCS GP</option>
-                                    <option value="USCS GP-GC">USCS GP-GC</option>
-                                    <option value="USCS GP-GM">USCS GP-GM</option>
-                                    <option value="USCS GW">USCS GW</option>
-                                    <option value="USCS GW-GC">USCS GW-GC</option>
-                                    <option value="USCS GW-GM">USCS GW-GM</option>
-                                    <option value="USCS MH">USCS MH</option>
-                                    <option value="USCS ML">USCS ML</option>
-                                    <option value="USCS OH">USCS OH</option>
-                                    <option value="USCS OL">USCS OL</option>
-                                    <option value="USCS PT">USCS PT</option>
-                                    <option value="USCS SC">USCS SC</option>
-                                    <option value="USCS SC-SM">USCS SC-SM</option>
-                                    <option value="USCS SM">USCS SM</option>
-                                    <option value="USCS SP">USCS SP</option>
-                                    <option value="USCS SP-SC">USCS SP-SC</option>
-                                    <option value="USCS SP-SM">USCS SP-SM</option>
-                                    <option value="USCS SW">USCS SW</option>
-                                    <option value="USCS SW-SC">USCS SW-SC</option>
-                                    <option value="USCS SW-SM">USCS SW-SM</option>
-                                    <option value="VARVED SILT">VARVED SILT</option>
-                                    <option value="VEGETATION">VEGETATION</option>
-                                    <option value="VOID">VOID</option>
-                                    <option value="VOLCANIC ASH">VOLCANIC ASH</option>
-                                    <option value="WEATHERED BEDROCK">WEATHERED BEDROCK</option>
-                                    <option value="WEATHERED DIABASE">WEATHERED DIABASE</option>
-                                    <option value="WEATHERED GNEISS">WEATHERED GNEISS</option>
-                                    <option value="WEATHERED GRANITE">WEATHERED GRANITE</option>
-                                    <option value="WEATHERED SANDSTONE">WEATHERED SANDSTONE</option>
-                                    <option value="WEATHERED SCHIST">WEATHERED SCHIST</option>
-                                    <option value="WEATHERED SHALE">WEATHERED SHALE</option>
-                                    <option value="WELL-GRADED GRAVEL (GW)">WELL-GRADED GRAVEL (GW)</option>
-                                    <option value="WELL-GRADED GRAVEL WITH SAND (GW)">WELL-GRADED GRAVEL WITH SAND (GW)</option>
-                                    <option value="WELL-GRADED SAND (SW)">WELL-GRADED SAND (SW)</option>
-                                    <option value="WELL-GRADED SAND WITH GRAVEL (SW)">WELL-GRADED SAND WITH GRAVEL (SW)</option>
-                                    <option value="WOOD">WOOD</option>
-                                    <option value="WOOD CHIPS">WOOD CHIPS</option>
-                                    <option value="WOOD FRAGMENTS">WOOD FRAGMENTS</option>
+                                    <option value="top soil">top soil</option>
+                                    <option value="asphalt">asphalt</option>
+                                    <option value="base course">base course</option>
+                                    <option value="fill">fill</option>
+                                    <option value="native granular">native granular</option>
+                                    <option value="native silty">native silty</option>
+                                    <option value="native cohesive">native cohesive</option>
+                                    <option value="glacial till">glacial till</option>
+                                    <option value="clay(clayey silt)">clay(clayey silt)</option>
+                                    <option value="clay(silt and clay)">clay(silt and clay)</option>
+                                    <option value="clay only">clay only</option>
                                 </select>
                             </div>
                             
-                            <!-- Dropdown Rows for Constituents -->
-                            <div style="display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.25rem;">
-                                <div id="minor_constituents_container" style="display: flex; flex-direction: column; gap: 0.4rem;"></div>
-                                <button type="button" id="add_minor_btn" class="btn-small" style="align-self: flex-start; font-size: 0.75rem; padding: 0.35rem 0.6rem; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.25rem; border: 1px dashed var(--border); background: #f8fafc; color: var(--slate-600); cursor: pointer; border-radius: 4px; transition: all 0.2s;" onclick="addMinorConstituentRow()">
+                            <!-- Constituents Grid -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem; border-top: 1px solid #e2e8f0; padding-top: 0.5rem;">
+                                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                    <label style="font-size: 0.75rem; color: var(--slate-500); font-weight: 600;">and</label>
+                                    <select id="rel_soil_and" style="font-size: 0.8rem; padding: 0.35rem; border: 1px solid var(--border); border-radius: 4px; background: white; height: 34px; width: 100%;">
+                                        <option value="">-</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                    <label style="font-size: 0.75rem; color: var(--slate-500); font-weight: 600;">some (1)</label>
+                                    <select id="rel_soil_some_1" style="font-size: 0.8rem; padding: 0.35rem; border: 1px solid var(--border); border-radius: 4px; background: white; height: 34px; width: 100%;">
+                                        <option value="">-</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                    <label style="font-size: 0.75rem; color: var(--slate-500); font-weight: 600;">some (2)</label>
+                                    <select id="rel_soil_some_2" style="font-size: 0.8rem; padding: 0.35rem; border: 1px solid var(--border); border-radius: 4px; background: white; height: 34px; width: 100%;">
+                                        <option value="">-</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Little / Trace Subform -->
+                            <div style="display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.5rem; border-top: 1px dashed #e2e8f0; padding-top: 0.5rem;">
+                                <label style="font-size: 0.75rem; color: var(--slate-500); font-weight: 600;">little / trace constituents</label>
+                                <div id="little_trace_container" style="display: flex; flex-direction: column; gap: 0.4rem;"></div>
+                                <button type="button" id="add_little_trace_btn" class="btn-small" style="align-self: flex-start; font-size: 0.75rem; padding: 0.35rem 0.6rem; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.25rem; border: 1px dashed var(--border); background: #f8fafc; color: var(--slate-600); cursor: pointer; border-radius: 4px; transition: all 0.2s;" onclick="addLittleTraceRow('little', '')">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                                    Add Minor Constituent
+                                    Add Little/Trace
                                 </button>
                             </div>
                         </div>
@@ -2311,7 +2022,12 @@
                         <div class="form-group">
                             <label>Layer Comments</label>
                             <input type="text" id="rel_comments" placeholder="Layer remarks..." style="padding: 0.5rem; font-size: 0.85rem;">
-                        </div>
+                    </div>
+
+                    <!-- Material Profile Type Field -->
+                    <div class="form-group" style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                        <label style="font-size: 0.75rem; font-weight: 700; color: var(--slate-600);">Layer Description</label>
+                        <textarea id="generated_material_profile" readonly rows="2" style="width: 100%; resize: none; background-color: #f0fdf4; font-weight: 700; color: #166534; font-size: 0.85rem; padding: 0.4rem; border: 1px solid #bbf7d0; border-radius: 4px; box-sizing: border-box; font-family: inherit; line-height: 1.25;" placeholder="Generated automatically based on constituents, density, color, and moisture..."></textarea>
                     </div>
 
                     <!-- Logged Layers Subform List -->
@@ -2744,7 +2460,7 @@
             <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--slate-800);">Export Stylized Presentation Workbook</h2>
             <span style="font-weight: 700; color: #dc2626; font-size: 0.95rem; display: block; margin-bottom: 0.5rem;">FOR EXPORT ONLY-DO NOT RE-IMPORT THESE INTO STRATAPRO!</span>
             <p style="margin-top: 0;">Generate formatted, presentation-ready reports containing all project data by tab</p>
-            <div class="artistic-exports-grid" style="max-width: 800px;">
+            <div class="artistic-exports-grid" style="max-width: 950px;">
                 <div style="display: flex; flex-direction: column; gap: 0.5rem; height: 100%;">
                     <span style="font-weight: 700; color: #dc2626; font-size: 0.85rem;">Export Excel Presentation Workbook</span>
                     <button class="btn-artistic btn-artistic-emerald" id="exportStylizedExcelBtn" onclick="exportStylizedExcel()">
@@ -2776,6 +2492,25 @@
                         <div class="btn-artistic-content">
                             <span class="btn-artistic-title">Export Geotech Narrative</span>
                             <span class="btn-artistic-subtitle">Professional Word report (.doc) with site data & signatures</span>
+                        </div>
+                    </button>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; height: 100%;">
+                    <span style="font-weight: 700; color: var(--blue-700); font-size: 0.85rem;">Export Geotechnical Narrative Report in Plain Text Format (TXT)</span>
+                    <button class="btn-artistic btn-artistic-blue" id="exportGeotechNarrativeTxtBtn" onclick="exportGeotechNarrativeTxt()">
+                        <div class="btn-artistic-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; color: white;">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                        </div>
+                        <div class="btn-artistic-content">
+                            <span class="btn-artistic-title">Export Geotech Narrative (TXT)</span>
+                            <span class="btn-artistic-subtitle">Plain text report (.txt) with site data & structured analysis</span>
                         </div>
                     </button>
                 </div>
@@ -3444,12 +3179,12 @@
         "stone dust", "stones", "vegetation", "wood fragments", "wood chips", "wood fibers"
     ];
 
-    function addMinorConstituentRow(value = "") {
-        const container = document.getElementById('minor_constituents_container');
+    function addLittleTraceRow(modifier = "little", value = "") {
+        const container = document.getElementById('little_trace_container');
         if (!container) return;
 
         const row = document.createElement('div');
-        row.className = 'minor-constituent-row';
+        row.className = 'little-trace-row';
         row.style.display = 'flex';
         row.style.alignItems = 'center';
         row.style.gap = '0.5rem';
@@ -3457,53 +3192,67 @@
         row.style.transform = 'translateY(5px)';
         row.style.transition = 'all 0.2s ease-out';
 
-        // Left Label
-        const label = document.createElement('span');
-        label.innerText = 'and some little';
-        label.style.fontSize = '0.8rem';
-        label.style.fontWeight = '600';
-        label.style.color = 'var(--slate-600)';
-        label.style.minWidth = '100px';
-        row.appendChild(label);
+        // Modifier select (little or trace)
+        const modSelect = document.createElement('select');
+        modSelect.className = 'rel-minor-modifier-select';
+        modSelect.style.width = '80px';
+        modSelect.style.fontSize = '0.8rem';
+        modSelect.style.padding = '0.35rem';
+        modSelect.style.border = '1px solid var(--border)';
+        modSelect.style.borderRadius = '4px';
+        modSelect.style.background = 'white';
+        modSelect.style.height = '34px';
 
-        // Select element
-        const select = document.createElement('select');
-        select.className = 'rel-minor-select';
-        select.style.flex = '1';
-        select.style.fontSize = '0.8rem';
-        select.style.padding = '0.35rem';
-        select.style.border = '1px solid var(--border)';
-        select.style.borderRadius = '4px';
-        select.style.background = 'white';
-        select.style.height = '34px';
+        const optLittle = document.createElement('option');
+        optLittle.value = 'little';
+        optLittle.text = 'little';
+        modSelect.appendChild(optLittle);
+
+        const optTrace = document.createElement('option');
+        optTrace.value = 'trace';
+        optTrace.text = 'trace';
+        modSelect.appendChild(optTrace);
+
+        modSelect.value = modifier;
+        row.appendChild(modSelect);
+
+        // Constituent select
+        const typeSelect = document.createElement('select');
+        typeSelect.className = 'rel-minor-type-select';
+        typeSelect.style.flex = '1';
+        typeSelect.style.fontSize = '0.8rem';
+        typeSelect.style.padding = '0.35rem';
+        typeSelect.style.border = '1px solid var(--border)';
+        typeSelect.style.borderRadius = '4px';
+        typeSelect.style.background = 'white';
+        typeSelect.style.height = '34px';
 
         // Add empty option
         const emptyOpt = document.createElement('option');
         emptyOpt.value = '';
         emptyOpt.text = '-';
-        select.appendChild(emptyOpt);
+        typeSelect.appendChild(emptyOpt);
 
-        // Add options
+        // Add choices
         MINOR_CONSTITUENT_OPTIONS.forEach(optVal => {
             const opt = document.createElement('option');
             opt.value = optVal;
             opt.text = optVal;
-            select.appendChild(opt);
+            typeSelect.appendChild(opt);
         });
 
         // Set value if provided
         if (value) {
-            let exists = Array.from(select.options).some(o => o.value === value);
+            let exists = Array.from(typeSelect.options).some(o => o.value === value);
             if (!exists) {
                 let opt = document.createElement('option');
                 opt.value = value;
                 opt.text = value;
-                select.appendChild(opt);
+                typeSelect.appendChild(opt);
             }
-            select.value = value;
+            typeSelect.value = value;
         }
-
-        row.appendChild(select);
+        row.appendChild(typeSelect);
 
         // Remove button
         const removeBtn = document.createElement('button');
@@ -3512,7 +3261,7 @@
         removeBtn.style.padding = '0.35rem';
         removeBtn.style.display = 'inline-flex';
         removeBtn.style.alignItems = 'center';
-        removeBtn.style.justify = 'center';
+        removeBtn.style.justifyContent = 'center';
         removeBtn.style.background = '#fee2e2';
         removeBtn.style.color = '#ef4444';
         removeBtn.style.border = '1px solid #fca5a5';
@@ -3521,9 +3270,9 @@
         removeBtn.style.borderRadius = '4px';
         removeBtn.style.cursor = 'pointer';
         removeBtn.style.transition = 'all 0.2s';
-        removeBtn.title = 'Remove minor constituent';
+        removeBtn.title = 'Remove constituent';
         removeBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`;
-        
+
         removeBtn.addEventListener('mouseenter', () => {
             removeBtn.style.background = '#fecaca';
         });
@@ -3531,7 +3280,8 @@
             removeBtn.style.background = '#fee2e2';
         });
 
-        const minorHandler = () => {
+        const changeHandler = () => {
+            updateGeneratedMaterialProfile();
             const currentBoringId = document.getElementById('run_boring_id') ? document.getElementById('run_boring_id').value : '';
             if (currentBoringId && typeof saveBoringFieldsFromUI === 'function') {
                 saveBoringFieldsFromUI(currentBoringId);
@@ -3543,12 +3293,12 @@
             row.style.transform = 'translateY(-5px)';
             setTimeout(() => {
                 row.remove();
-                minorHandler();
+                changeHandler();
             }, 200);
         });
 
-        select.addEventListener('change', minorHandler);
-        select.addEventListener('input', minorHandler);
+        modSelect.addEventListener('change', changeHandler);
+        typeSelect.addEventListener('change', changeHandler);
 
         row.appendChild(removeBtn);
         container.appendChild(row);
@@ -3559,24 +3309,38 @@
             row.style.transform = 'translateY(0)';
         });
 
-        // Initialize makeSelectEditable on the new select element
+        // Initialize makeSelectEditable on the new select elements
         if (typeof makeSelectEditable === 'function') {
-            makeSelectEditable(select);
+            makeSelectEditable(modSelect);
+            makeSelectEditable(typeSelect);
         }
     }
 
+    function addMinorConstituentRow(value = "") {
+        addLittleTraceRow("little", value);
+    }
+
     function clearMinorConstituentRows() {
-        const container = document.getElementById('minor_constituents_container');
+        const andSel = document.getElementById('rel_soil_and');
+        if (andSel) andSel.value = '';
+        const some1Sel = document.getElementById('rel_soil_some_1');
+        if (some1Sel) some1Sel.value = '';
+        const some2Sel = document.getElementById('rel_soil_some_2');
+        if (some2Sel) some2Sel.value = '';
+        
+        const container = document.getElementById('little_trace_container');
         if (container) {
             container.innerHTML = '';
         }
+        
+        const genProfile = document.getElementById('generated_material_profile');
+        if (genProfile) genProfile.value = '';
     }
 
     function initDefaultMinorConstituentRows() {
         clearMinorConstituentRows();
-        addMinorConstituentRow("");
-        addMinorConstituentRow("");
-        addMinorConstituentRow("");
+        addLittleTraceRow("little", "");
+        addLittleTraceRow("trace", "");
     }
 
     function getLayerMinorsString(layer) {
@@ -4025,18 +3789,21 @@
             totalSpan.textContent = `${totalFt.toFixed(2)} ft (${totalInches.toFixed(1)}")`;
         }
 
-        const runRecInput = document.getElementById('run_rec');
-        if (runRecInput) {
-            runRecInput.value = totalInches.toFixed(1);
-        }
+        // Manual input: do not overwrite run_rec automatically
+        // const runRecInput = document.getElementById('run_rec');
+        // if (runRecInput) {
+        //     runRecInput.value = totalInches.toFixed(1);
+        // }
     }
 
     function recalculateAllRunsRecovery() {
         datasetRuns.forEach(run => {
-            const bId = run["Boring ID"];
-            const sampleId = run["Sample ID"] || "";
-            const shortSampleId = sampleId.replace(bId + "-", "").replace(bId, "");
-            run["Recovery (in)"] = calculateSampleRecovery(bId, shortSampleId);
+            if (run["Recovery (in)"] === undefined || run["Recovery (in)"] === null || run["Recovery (in)"] === "" || run["Recovery (in)"] === "-") {
+                const bId = run["Boring ID"];
+                const sampleId = run["Sample ID"] || "";
+                const shortSampleId = sampleId.replace(bId + "-", "").replace(bId, "");
+                run["Recovery (in)"] = calculateSampleRecovery(bId, shortSampleId);
+            }
         });
     }
 
@@ -4077,40 +3844,40 @@
     // Stateful Data storage arrays with built-in reference placeholders
     let datasetProfiles = [
         // B-1: Deep and highly stratified
-        { "Sample ID": "B-1S-1", "Layer ID": "B-1S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.5, "Soil Type": "TOPSOIL", "Color": "Dark Brown", "Moisture Condition": "damp", "Comments": "Dark organic matter with roots" },
-        { "Sample ID": "B-1S-1", "Layer ID": "B-1S-1L-2", "Top Depth (ft)": 0.5, "Bottom Depth (ft)": 1.5, "Soil Type": "FINE SAND", "Color": "Light Brown", "Moisture Condition": "dry", "Comments": "Trace silt" },
-        { "Sample ID": "B-1S-1", "Layer ID": "B-1S-1L-3", "Top Depth (ft)": 1.5, "Bottom Depth (ft)": 2.0, "Soil Type": "FINE TO MEDIUM SAND", "Color": "Brown", "Moisture Condition": "moist", "Comments": "Well graded" },
-        { "Sample ID": "B-1S-2", "Layer ID": "B-1S-2L-1", "Top Depth (ft)": 2.0, "Bottom Depth (ft)": 3.0, "Soil Type": "FINE TO MEDIUM SAND", "Color": "Brown", "Moisture Condition": "moist", "Comments": "Continued" },
-        { "Sample ID": "B-1S-2", "Layer ID": "B-1S-2L-2", "Top Depth (ft)": 3.0, "Bottom Depth (ft)": 4.0, "Soil Type": "SILTY FINE SAND", "Color": "Tan", "Moisture Condition": "wet", "Comments": "Increased fines" },
-        { "Sample ID": "B-1S-3", "Layer ID": "B-1S-3L-1", "Top Depth (ft)": 4.0, "Bottom Depth (ft)": 6.0, "Soil Type": "CLAYEY SILT", "Color": "Gray", "Moisture Condition": "wet", "Comments": "Low plasticity, stiff" },
-        { "Sample ID": "B-1S-4", "Layer ID": "B-1S-4L-1", "Top Depth (ft)": 6.0, "Bottom Depth (ft)": 8.0, "Soil Type": "CLAY", "Color": "Dark Gray", "Moisture Condition": "wet", "Comments": "Very stiff, high plasticity" },
+        { "Sample ID": "B-1S-1", "Layer ID": "B-1S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.5, "Soil Type": "TOPSOIL", "Color": "Dark Brown", "Moisture Condition": "damp", "Comments": "Dark organic matter with roots", "Minor 1": "trace roots" },
+        { "Sample ID": "B-1S-1", "Layer ID": "B-1S-1L-2", "Top Depth (ft)": 0.5, "Bottom Depth (ft)": 1.5, "Soil Type": "FINE SAND", "Color": "Light Brown", "Moisture Condition": "dry", "Comments": "Trace silt", "Minor 1": "trace silt" },
+        { "Sample ID": "B-1S-1", "Layer ID": "B-1S-1L-3", "Top Depth (ft)": 1.5, "Bottom Depth (ft)": 2.0, "Soil Type": "FINE TO MEDIUM SAND", "Color": "Brown", "Moisture Condition": "moist", "Comments": "Well graded", "Minor 1": "and gravel", "Minor 2": "some silt", "Minor 3": "little clay" },
+        { "Sample ID": "B-1S-2", "Layer ID": "B-1S-2L-1", "Top Depth (ft)": 2.0, "Bottom Depth (ft)": 3.0, "Soil Type": "FINE TO MEDIUM SAND", "Color": "Brown", "Moisture Condition": "moist", "Comments": "Continued", "Minor 1": "some coarse gravel", "Minor 2": "little silt" },
+        { "Sample ID": "B-1S-2", "Layer ID": "B-1S-2L-2", "Top Depth (ft)": 3.0, "Bottom Depth (ft)": 4.0, "Soil Type": "SILTY FINE SAND", "Color": "Tan", "Moisture Condition": "wet", "Comments": "Increased fines", "Minor 1": "and clay", "Minor 2": "trace iron oxide staining" },
+        { "Sample ID": "B-1S-3", "Layer ID": "B-1S-3L-1", "Top Depth (ft)": 4.0, "Bottom Depth (ft)": 6.0, "Soil Type": "CLAYEY SILT", "Color": "Gray", "Moisture Condition": "wet", "Comments": "Low plasticity, stiff", "Minor 1": "some fine sand", "Minor 2": "trace organic matter" },
+        { "Sample ID": "B-1S-4", "Layer ID": "B-1S-4L-1", "Top Depth (ft)": 6.0, "Bottom Depth (ft)": 8.0, "Soil Type": "CLAY", "Color": "Dark Gray", "Moisture Condition": "wet", "Comments": "Very stiff, high plasticity", "Minor 1": "little silt", "Minor 2": "trace sand" },
         
         // B-2: Typical Pavement Section
         { "Sample ID": "B-2S-1", "Layer ID": "B-2S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.3, "Soil Type": "ASPHALT", "Color": "Black", "Moisture Condition": "dry", "Comments": "Parking lot surface" },
-        { "Sample ID": "B-2S-1", "Layer ID": "B-2S-1L-2", "Top Depth (ft)": 0.3, "Bottom Depth (ft)": 1.0, "Soil Type": "BASE COURSE", "Color": "Gray", "Moisture Condition": "dry", "Comments": "Crushed gravel base" },
-        { "Sample ID": "B-2S-1", "Layer ID": "B-2S-1L-3", "Top Depth (ft)": 1.0, "Bottom Depth (ft)": 2.0, "Soil Type": "FILL", "Color": "Brown", "Moisture Condition": "moist", "Comments": "Reworked native soil" },
-        { "Sample ID": "B-2S-2", "Layer ID": "B-2S-2L-1", "Top Depth (ft)": 2.0, "Bottom Depth (ft)": 4.0, "Soil Type": "SILTY FINE SAND", "Color": "Light Gray", "Moisture Condition": "wet", "Comments": "Loose" },
-
+        { "Sample ID": "B-2S-1", "Layer ID": "B-2S-1L-2", "Top Depth (ft)": 0.3, "Bottom Depth (ft)": 1.0, "Soil Type": "BASE COURSE", "Color": "Gray", "Moisture Condition": "dry", "Comments": "Crushed gravel base", "Minor 1": "and sand", "Minor 2": "some silt" },
+        { "Sample ID": "B-2S-1", "Layer ID": "B-2S-1L-3", "Top Depth (ft)": 1.0, "Bottom Depth (ft)": 2.0, "Soil Type": "FILL", "Color": "Brown", "Moisture Condition": "moist", "Comments": "Reworked native soil", "Minor 1": "some brick fragments", "Minor 2": "little roots" },
+        { "Sample ID": "B-2S-2", "Layer ID": "B-2S-2L-1", "Top Depth (ft)": 2.0, "Bottom Depth (ft)": 4.0, "Soil Type": "SILTY FINE SAND", "Color": "Light Gray", "Moisture Condition": "wet", "Comments": "Loose", "Minor 1": "and clay", "Minor 2": "trace organic silt" },
+ 
         // B-3: Debris and clay
-        { "Sample ID": "B-3S-1", "Layer ID": "B-3S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 2.0, "Soil Type": "FILL", "Color": "Mottled Brown", "Moisture Condition": "moist", "Comments": "Construction debris, brick fragments" },
-        { "Sample ID": "B-3S-2", "Layer ID": "B-3S-2L-1", "Top Depth (ft)": 2.0, "Bottom Depth (ft)": 4.0, "Soil Type": "CLAY", "Color": "Dark Gray", "Moisture Condition": "wet", "Comments": "High plasticity, very stiff" },
+        { "Sample ID": "B-3S-1", "Layer ID": "B-3S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 2.0, "Soil Type": "FILL", "Color": "Mottled Brown", "Moisture Condition": "moist", "Comments": "Construction debris, brick fragments", "Minor 1": "some concrete fragments", "Minor 2": "little glass fragments", "Minor 3": "trace metal fragments" },
+        { "Sample ID": "B-3S-2", "Layer ID": "B-3S-2L-1", "Top Depth (ft)": 2.0, "Bottom Depth (ft)": 4.0, "Soil Type": "CLAY", "Color": "Dark Gray", "Moisture Condition": "wet", "Comments": "High plasticity, very stiff", "Minor 1": "some organic clay", "Minor 2": "little silt" },
         
         // B-4: All sand layers, deep
-        { "Sample ID": "B-4S-1", "Layer ID": "B-4S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 1.0, "Soil Type": "TOPSOIL", "Color": "Brown", "Moisture Condition": "damp", "Comments": "" },
-        { "Sample ID": "B-4S-1", "Layer ID": "B-4S-1L-2", "Top Depth (ft)": 1.0, "Bottom Depth (ft)": 2.0, "Soil Type": "FINE SAND", "Color": "Tan", "Moisture Condition": "dry", "Comments": "" },
-        { "Sample ID": "B-4S-2", "Layer ID": "B-4S-2L-1", "Top Depth (ft)": 2.0, "Bottom Depth (ft)": 4.0, "Soil Type": "FINE TO MEDIUM SAND", "Color": "Tan", "Moisture Condition": "dry", "Comments": "Clean" },
-        { "Sample ID": "B-4S-3", "Layer ID": "B-4S-3L-1", "Top Depth (ft)": 4.0, "Bottom Depth (ft)": 5.0, "Soil Type": "MEDIUM SAND", "Color": "Light Brown", "Moisture Condition": "moist", "Comments": "" },
-        { "Sample ID": "B-4S-3", "Layer ID": "B-4S-3L-2", "Top Depth (ft)": 5.0, "Bottom Depth (ft)": 6.0, "Soil Type": "COARSE SAND", "Color": "Brown", "Moisture Condition": "wet", "Comments": "Trace fine gravel" },
+        { "Sample ID": "B-4S-1", "Layer ID": "B-4S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 1.0, "Soil Type": "TOPSOIL", "Color": "Brown", "Moisture Condition": "damp", "Comments": "", "Minor 1": "trace rootlets" },
+        { "Sample ID": "B-4S-1", "Layer ID": "B-4S-1L-2", "Top Depth (ft)": 1.0, "Bottom Depth (ft)": 2.0, "Soil Type": "FINE SAND", "Color": "Tan", "Moisture Condition": "dry", "Comments": "", "Minor 1": "trace silt" },
+        { "Sample ID": "B-4S-2", "Layer ID": "B-4S-2L-1", "Top Depth (ft)": 2.0, "Bottom Depth (ft)": 4.0, "Soil Type": "FINE TO MEDIUM SAND", "Color": "Tan", "Moisture Condition": "dry", "Comments": "Clean", "Minor 1": "some gravel", "Minor 2": "trace mica" },
+        { "Sample ID": "B-4S-3", "Layer ID": "B-4S-3L-1", "Top Depth (ft)": 4.0, "Bottom Depth (ft)": 5.0, "Soil Type": "MEDIUM SAND", "Color": "Light Brown", "Moisture Condition": "moist", "Comments": "", "Minor 1": "some coarse sand" },
+        { "Sample ID": "B-4S-3", "Layer ID": "B-4S-3L-2", "Top Depth (ft)": 5.0, "Bottom Depth (ft)": 6.0, "Soil Type": "COARSE SAND", "Color": "Brown", "Moisture Condition": "wet", "Comments": "Trace fine gravel", "Minor 1": "and gravel", "Minor 2": "trace fine gravel" },
         
         // B-5: Alternating Thin Layers
-        { "Sample ID": "B-5S-1", "Layer ID": "B-5S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.5, "Soil Type": "SILTY SAND", "Color": "Gray", "Moisture Condition": "moist", "Comments": "" },
-        { "Sample ID": "B-5S-1", "Layer ID": "B-5S-1L-2", "Top Depth (ft)": 0.5, "Bottom Depth (ft)": 1.0, "Soil Type": "CLAYEY SILT", "Color": "Dark Gray", "Moisture Condition": "moist", "Comments": "" },
-        { "Sample ID": "B-5S-1", "Layer ID": "B-5S-1L-3", "Top Depth (ft)": 1.0, "Bottom Depth (ft)": 1.5, "Soil Type": "SILTY SAND", "Color": "Gray", "Moisture Condition": "moist", "Comments": "" },
-        { "Sample ID": "B-5S-1", "Layer ID": "B-5S-1L-4", "Top Depth (ft)": 1.5, "Bottom Depth (ft)": 2.0, "Soil Type": "CLAYEY SILT", "Color": "Dark Gray", "Moisture Condition": "moist", "Comments": "" },
+        { "Sample ID": "B-5S-1", "Layer ID": "B-5S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.5, "Soil Type": "SILTY SAND", "Color": "Gray", "Moisture Condition": "moist", "Comments": "", "Minor 1": "some clay" },
+        { "Sample ID": "B-5S-1", "Layer ID": "B-5S-1L-2", "Top Depth (ft)": 0.5, "Bottom Depth (ft)": 1.0, "Soil Type": "CLAYEY SILT", "Color": "Dark Gray", "Moisture Condition": "moist", "Comments": "", "Minor 1": "little sand" },
+        { "Sample ID": "B-5S-1", "Layer ID": "B-5S-1L-3", "Top Depth (ft)": 1.0, "Bottom Depth (ft)": 1.5, "Soil Type": "SILTY SAND", "Color": "Gray", "Moisture Condition": "moist", "Comments": "", "Minor 1": "some clay" },
+        { "Sample ID": "B-5S-1", "Layer ID": "B-5S-1L-4", "Top Depth (ft)": 1.5, "Bottom Depth (ft)": 2.0, "Soil Type": "CLAYEY SILT", "Color": "Dark Gray", "Moisture Condition": "moist", "Comments": "", "Minor 1": "little sand" },
         
         // B-6: Shallow Refusal
         { "Sample ID": "B-6S-1", "Layer ID": "B-6S-1L-1", "Top Depth (ft)": 0.0, "Bottom Depth (ft)": 0.5, "Soil Type": "ASPHALT", "Color": "Black", "Moisture Condition": "dry", "Comments": "" },
-        { "Sample ID": "B-6S-1", "Layer ID": "B-6S-1L-2", "Top Depth (ft)": 0.5, "Bottom Depth (ft)": 1.5, "Soil Type": "BASE COURSE", "Color": "Gray", "Moisture Condition": "dry", "Comments": "Large cobbles" }
+        { "Sample ID": "B-6S-1", "Layer ID": "B-6S-1L-2", "Top Depth (ft)": 0.5, "Bottom Depth (ft)": 1.5, "Soil Type": "BASE COURSE", "Color": "Gray", "Moisture Condition": "dry", "Comments": "Large cobbles", "Minor 1": "some cobbles", "Minor 2": "little silt" }
     ];
 
     let datasetRuns = [
@@ -4325,7 +4092,10 @@
                 const min = parseFloat(weights.min);
                 const max = parseFloat(weights.max);
                 const n = isNaN(nVal) || nVal < 0 ? 0 : nVal;
-                profile["Estimated Unit Weight (pcf)"] = (min + (n * 1.3 + 10) * (max - min) / 50).toFixed(1);
+                let est = min + (n * 1.3 + 10) * (max - min) / 50;
+                if (est > max) est = max;
+                if (est < min) est = min;
+                profile["Estimated Unit Weight (pcf)"] = est.toFixed(1);
             } else {
                 profile["Estimated Unit Weight (pcf)"] = '-';
             }
@@ -4924,6 +4694,9 @@
             document.getElementById('rel_pid').value = '0.0';
             document.getElementById('rel_pp').value = '0.0';
             document.getElementById('rel_tv').value = '0.0';
+            if (document.getElementById('generated_material_profile')) {
+                document.getElementById('generated_material_profile').value = '';
+            }
             updateSoilPreview('');
             
             const mappings = [
@@ -4977,6 +4750,33 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        // Populate and/some dropdown choices dynamically from MINOR_CONSTITUENT_OPTIONS
+        const relSoilAnd = document.getElementById('rel_soil_and');
+        const relSoilSome1 = document.getElementById('rel_soil_some_1');
+        const relSoilSome2 = document.getElementById('rel_soil_some_2');
+        
+        [relSoilAnd, relSoilSome1, relSoilSome2].forEach(sel => {
+            if (sel) {
+                sel.innerHTML = '<option value="">-</option>';
+                MINOR_CONSTITUENT_OPTIONS.forEach(optVal => {
+                    const opt = document.createElement('option');
+                    opt.value = optVal;
+                    opt.text = optVal;
+                    sel.appendChild(opt);
+                });
+                
+                const handler = () => {
+                    updateGeneratedMaterialProfile();
+                    const currentBoringId = document.getElementById('run_boring_id') ? document.getElementById('run_boring_id').value : '';
+                    if (currentBoringId && typeof saveBoringFieldsFromUI === 'function') {
+                        saveBoringFieldsFromUI(currentBoringId);
+                    }
+                };
+                sel.addEventListener('change', handler);
+                sel.addEventListener('input', handler);
+            }
+        });
+
         initAllEditableSelects();
         const runBoring = document.getElementById('run_boring_id');
         const runId = document.getElementById('run_id');
@@ -5057,6 +4857,7 @@
             const relSoilHandler = (e) => {
                 updateSoilPreview(e.target.value);
                 updateActiveLayerCorrelatedDensity();
+                updateGeneratedMaterialProfile();
                 const currentBoringId = document.getElementById('run_boring_id') ? document.getElementById('run_boring_id').value : '';
                 if (currentBoringId && typeof saveBoringFieldsFromUI === 'function') {
                     saveBoringFieldsFromUI(currentBoringId);
@@ -5065,8 +4866,26 @@
             relSoil.addEventListener('change', relSoilHandler);
             relSoil.addEventListener('input', relSoilHandler);
             updateSoilPreview(relSoil.value);
+            updateGeneratedMaterialProfile();
             if (typeof renderTraceDropdownsUI === "function") renderTraceDropdownsUI();
             updateActiveLayerCorrelatedDensity();
+        }
+
+        const relColor = document.getElementById('rel_color');
+        if (relColor) {
+            const handler = () => {
+                updateGeneratedMaterialProfile();
+            };
+            relColor.addEventListener('change', handler);
+            relColor.addEventListener('input', handler);
+        }
+        const relMoisture = document.getElementById('rel_moisture');
+        if (relMoisture) {
+            const handler = () => {
+                updateGeneratedMaterialProfile();
+            };
+            relMoisture.addEventListener('change', handler);
+            relMoisture.addEventListener('input', handler);
         }
 
         const relTop = document.getElementById('rel_top');
@@ -5198,8 +5017,34 @@
     ['run_bc_1', 'run_bc_2', 'run_bc_3', 'run_bc_4', 'run_start', 'run_end', 'run_bc_in_1', 'run_bc_in_2', 'run_bc_in_3', 'run_bc_in_4'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-            el.addEventListener('input', () => { updateBlowcounts(id); updateBlowcountPlaceholders(); updateSampleLengthUI(); });
-            el.addEventListener('change', () => { updateBlowcounts(id); updateBlowcountPlaceholders(); updateSampleLengthUI(); });
+            const handleUpdate = () => {
+                updateBlowcounts(id);
+                updateBlowcountPlaceholders();
+                updateSampleLengthUI();
+                
+                if (id === 'run_start' || id === 'run_end') {
+                    const currentBoring = document.getElementById('run_boring_id')?.value || '';
+                    const currentSample = document.getElementById('run_id')?.value || '';
+                    const currentLayerVal = document.getElementById('rel_layer_id')?.value || 'L-1';
+                    if (currentBoring && currentSample && currentLayerVal) {
+                        const activeBoring = currentBoring.toLowerCase();
+                        const activeSample = currentSample.replace(/^S-?/i, "").trim().toLowerCase();
+                        const cleanLayer = currentLayerVal.replace(/^-?[Ll]-?/, "").trim().toLowerCase();
+                        let exists = datasetProfiles.some(p => {
+                            let details = getLayerDetails(p);
+                            return details.boring === activeBoring && details.sample === activeSample && details.layer === cleanLayer;
+                        });
+                        if (!exists) {
+                            applyDefaultDepthsForLayer(currentBoring, currentSample, currentLayerVal);
+                            if (typeof clearValidationErrorOnInput === 'function') {
+                                clearValidationErrorOnInput();
+                            }
+                        }
+                    }
+                }
+            };
+            el.addEventListener('input', handleUpdate);
+            el.addEventListener('change', handleUpdate);
         }
     });
 
@@ -5336,6 +5181,79 @@
     document.getElementById('boringInfoForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
+        let boringRaw = document.getElementById('run_boring_id').value;
+        let sampleRaw = document.getElementById('run_id').value;
+        let newSampleId = boringRaw + "-" + sampleRaw;
+        let combinedSampleId = boringRaw + sampleRaw; // e.g. B-1S-1
+        
+        let newBoring = boringRaw.trim().toLowerCase();
+        let newSample = sampleRaw.replace(/^S-?/i, "").trim().toLowerCase();
+        let layerNum = document.getElementById('rel_layer_id').value;
+        let newLayer = layerNum.replace(/^-?[Ll]-?/, "").trim().toLowerCase();
+        let layerId = combinedSampleId + layerNum;
+
+        // Auto-reduce last layer depth if it exceeds recovery length
+        let recoveryLengthInches = parseFloat(document.getElementById('run_rec').value);
+        if (isNaN(recoveryLengthInches) || recoveryLengthInches < 0) {
+            recoveryLengthInches = 0;
+        }
+        
+        let relTopVal = parseFloat(document.getElementById('rel_top').value);
+        let relBottomVal = parseFloat(document.getElementById('rel_bottom').value);
+
+        if (!isNaN(relTopVal) && !isNaN(relBottomVal)) {
+            let otherLayers = datasetProfiles.filter(p => {
+                let details = getLayerDetails(p);
+                return details.boring === newBoring && details.sample === newSample && details.layer !== newLayer;
+            });
+
+            let allLayers = [
+                ...otherLayers.map(p => ({
+                    layerId: p["Layer ID"],
+                    top: parseFloat(p["Top Depth (ft)"]),
+                    bottom: parseFloat(p["Bottom Depth (ft)"]),
+                    isCurrent: false,
+                    profileObj: p
+                })),
+                {
+                    layerId: layerId,
+                    top: relTopVal,
+                    bottom: relBottomVal,
+                    isCurrent: true
+                }
+            ];
+
+            allLayers.sort((a, b) => a.top - b.top);
+
+            let totalThicknessFt = 0;
+            allLayers.forEach(l => {
+                totalThicknessFt += Math.max(0, l.bottom - l.top);
+            });
+            let totalThicknessInches = totalThicknessFt * 12;
+
+            if (totalThicknessInches > (recoveryLengthInches + 0.001)) {
+                let lastLayer = allLayers[allLayers.length - 1];
+
+                let otherSumFt = 0;
+                for (let i = 0; i < allLayers.length - 1; i++) {
+                    otherSumFt += Math.max(0, allLayers[i].bottom - allLayers[i].top);
+                }
+
+                let newThicknessFt = (recoveryLengthInches / 12) - otherSumFt;
+                if (newThicknessFt < 0) {
+                    newThicknessFt = 0;
+                }
+                let newBottomDepth = lastLayer.top + newThicknessFt;
+
+                if (lastLayer.isCurrent) {
+                    relBottomVal = newBottomDepth;
+                    document.getElementById('rel_bottom').value = newBottomDepth.toFixed(2);
+                } else {
+                    lastLayer.profileObj["Bottom Depth (ft)"] = newBottomDepth.toFixed(2);
+                }
+            }
+        }
+
         const validationError = validateBoringInfoFormInputs();
         if (validationError) {
             showToast(validationError, 'error');
@@ -5355,40 +5273,6 @@
                 errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
             return;
-        }
-        
-        let boringRaw = document.getElementById('run_boring_id').value;
-        let sampleRaw = document.getElementById('run_id').value;
-        let newSampleId = boringRaw + "-" + sampleRaw;
-        let combinedSampleId = boringRaw + sampleRaw; // e.g. B-1S-1
-        
-        let newBoring = boringRaw.trim().toLowerCase();
-        let newSample = sampleRaw.replace(/^S-?/i, "").trim().toLowerCase();
-        let layerNum = document.getElementById('rel_layer_id').value;
-        let newLayer = layerNum.replace(/^-?[Ll]-?/, "").trim().toLowerCase();
-
-        // Calculate recovery value to save based on current inputs
-        const relTopVal = parseFloat(document.getElementById('rel_top').value);
-        const relBottomVal = parseFloat(document.getElementById('rel_bottom').value);
-        let calculatedRecInches = 0;
-        if (!isNaN(relTopVal) && !isNaN(relBottomVal) && relBottomVal > relTopVal) {
-            const currentLayerThickness = relBottomVal - relTopVal;
-            let otherLayersThickness = 0;
-            datasetProfiles.forEach(p => {
-                let details = getLayerDetails(p);
-                const isMatch = details.boring === newBoring && details.sample === newSample;
-                const isCurrentLayer = isMatch && details.layer === newLayer;
-                if (isMatch && !isCurrentLayer) {
-                    const t = parseFloat(p["Bottom Depth (ft)"]) - parseFloat(p["Top Depth (ft)"]);
-                    if (!isNaN(t) && t > 0) {
-                        otherLayersThickness += t;
-                    }
-                }
-            });
-            calculatedRecInches = Math.round((otherLayersThickness + currentLayerThickness) * 12 * 10) / 10;
-        }
-        if (document.getElementById('run_rec')) {
-            document.getElementById('run_rec').value = calculatedRecInches.toFixed(1);
         }
 
         // Sync legacy selectors
@@ -5428,7 +5312,7 @@
             "Blowcount 4 (18-24)": parseInt(document.getElementById('run_bc_4').value) || 0,
             
             "SPT N-Value": parseInt(document.getElementById('run_nval').value) || 0,
-            "Recovery (in)": calculatedRecInches,
+            "Recovery (in)": recoveryLengthInches,
             "PID (ppm)": 0.0,
             "Pocket Penetrometer (tsf)": 0.0,
             "Pocket Torvane (tsf)": 0.0,
@@ -5475,7 +5359,7 @@
         saveBoringFieldsFromUI(boringRaw);
         
         // 2. Process Layer Data
-        let layerId = combinedSampleId + layerNum; // e.g. B-1S-1L-1
+        layerId = combinedSampleId + layerNum; // e.g. B-1S-1L-1
         
         let existingProfileIndex = datasetProfiles.findIndex(p => {
             let details = getLayerDetails(p);
@@ -5495,6 +5379,7 @@
             "PID (ppm)": parseFloat(document.getElementById('rel_pid').value) || 0.0,
             "Pocket Penetrometer (tsf)": parseFloat(document.getElementById('rel_pp').value) || 0.0,
             "Pocket Torvane (tsf)": parseFloat(document.getElementById('rel_tv').value) || 0.0,
+            "Material Profile Type": document.getElementById('generated_material_profile') ? document.getElementById('generated_material_profile').value : "",
             
             // Boring Defaults saved on layer profile (reading from Column 3 overrides!)
             "Drilling Contractor": document.getElementById('layer_override_contractor') ? document.getElementById('layer_override_contractor').value : "",
@@ -5515,11 +5400,38 @@
             "Rock Size": document.getElementById('layer_override_rock_size') ? document.getElementById('layer_override_rock_size').value : ""
         };
 
-        // Dynamically add Minor constituents from DOM
-        const minorSelects = document.querySelectorAll('#minor_constituents_container .rel-minor-select');
-        minorSelects.forEach((select, idx) => {
-            const val = select.value;
-            newProfileObj["Minor " + (idx + 1)] = val ? "and some little " + val : "";
+        // Dynamically collect and add Minor constituents from new UI dropdowns and subform
+        let minorsList = [];
+        
+        // 1. and dropdown
+        const andSelect = document.getElementById('rel_soil_and');
+        if (andSelect && andSelect.value) {
+            minorsList.push("and " + andSelect.value);
+        }
+        
+        // 2. some dropdowns
+        const some1Select = document.getElementById('rel_soil_some_1');
+        if (some1Select && some1Select.value) {
+            minorsList.push("some " + some1Select.value);
+        }
+        const some2Select = document.getElementById('rel_soil_some_2');
+        if (some2Select && some2Select.value) {
+            minorsList.push("some " + some2Select.value);
+        }
+        
+        // 3. little / trace subform rows
+        const littleTraceRows = document.querySelectorAll('#little_trace_container .little-trace-row');
+        littleTraceRows.forEach(row => {
+            const modSelect = row.querySelector('.rel-minor-modifier-select');
+            const typeSelect = row.querySelector('.rel-minor-type-select');
+            if (modSelect && typeSelect && typeSelect.value) {
+                minorsList.push(modSelect.value + " " + typeSelect.value);
+            }
+        });
+        
+        // Write sequentially as Minor 1, Minor 2, etc.
+        minorsList.forEach((m, idx) => {
+            newProfileObj["Minor " + (idx + 1)] = m;
         });
         
         if (existingProfileIndex !== -1) {
@@ -6406,13 +6318,11 @@
                     <td style="white-space: nowrap;">${row["Color"]}</td>
                     <td style="white-space: nowrap;">${row["Moisture"]}</td>
                     <td style="min-width: 250px;"><small style="color: #4b5563; font-style: italic;">${row["Burmister Description"]}</small></td>
-                    <td style="color: #b91c1c; font-weight: 600; white-space: nowrap;">${row["Max Unit Weight (pcf)"]}</td>
-                    <td style="color: #b91c1c; font-weight: 600; white-space: nowrap;">${row["Min Unit Weight (pcf)"]}</td>
                     <td style="color: #1e3a8a; font-weight: 600; white-space: nowrap;">${row["Est Unit Weight (pcf)"]}</td>
                     <td style="min-width: 250px; white-space: pre-wrap;"><small style="color: #4b5563;">${row["Comments"] || ''}</small></td>
                 </tr>
                 <tr class="summary-details-row">
-                    <td colspan="23" style="background-color: #f1f5f9 !important; font-family: inherit; font-size: 0.775rem; color: #475569; padding: 0.45rem 0.8rem; border-top: none; border-bottom: 1px solid var(--border);">
+                    <td colspan="21" style="background-color: #f1f5f9 !important; font-family: inherit; font-size: 0.775rem; color: #475569; padding: 0.45rem 0.8rem; border-top: none; border-bottom: 1px solid var(--border);">
                         Drilling Contractor: ${row["Drilling Contractor"]} &nbsp;|&nbsp; 
                         Rig: ${row["Drilling Equipment Rig"]} &nbsp;|&nbsp; 
                         Hammer Setup: ${row["Hammer Setup"]} &nbsp;|&nbsp; 
@@ -6751,19 +6661,43 @@
                 setSelectVal('rel_color', layer["Color"]);
                 setSelectVal('rel_primary_size', layer["Primary Size"]);
                 setSelectVal('rel_soil', layer["Soil Type"]);
-                const cleanMinorVal = (val) => {
-                    if (!val) return "";
-                    return val.replace(/^(and some little|trace|some|little|and)\s+/i, "").trim();
-                };
                 clearMinorConstituentRows();
                 let minorKeys = Object.keys(layer)
                     .filter(k => k.startsWith("Minor ") && !isNaN(parseInt(k.replace("Minor ", ""))))
                     .sort((a, b) => parseInt(a.replace("Minor ", "")) - parseInt(b.replace("Minor ", "")));
+                
                 let loadedAny = false;
+                let someCount = 0;
+                
                 minorKeys.forEach(k => {
-                    let val = cleanMinorVal(layer[k]);
-                    if (val) {
-                        addMinorConstituentRow(val);
+                    let fullVal = (layer[k] || "").trim();
+                    if (!fullVal) return;
+                    
+                    let match = fullVal.match(/^(and some little|and|some|little|trace)\s+(.+)$/i);
+                    if (match) {
+                        let modifier = match[1].toLowerCase();
+                        let type = match[2];
+                        
+                        if (modifier === "and some little") {
+                            addLittleTraceRow("little", type);
+                            loadedAny = true;
+                        } else if (modifier === "and") {
+                            setSelectVal('rel_soil_and', type);
+                            loadedAny = true;
+                        } else if (modifier === "some") {
+                            if (someCount === 0) {
+                                setSelectVal('rel_soil_some_1', type);
+                                someCount++;
+                            } else {
+                                setSelectVal('rel_soil_some_2', type);
+                            }
+                            loadedAny = true;
+                        } else if (modifier === "little" || modifier === "trace") {
+                            addLittleTraceRow(modifier, type);
+                            loadedAny = true;
+                        }
+                    } else {
+                        addLittleTraceRow("little", fullVal);
                         loadedAny = true;
                     }
                 });
@@ -6773,6 +6707,12 @@
                 setSelectVal('rel_moisture', layer["Moisture Condition"]);
                 if (document.getElementById('rel_comments')) {
                     document.getElementById('rel_comments').value = layer["Comments"] || '';
+                }
+                if (document.getElementById('generated_material_profile')) {
+                    document.getElementById('generated_material_profile').value = layer["Material Profile Type"] || '';
+                    if (!layer["Material Profile Type"]) {
+                        updateGeneratedMaterialProfile();
+                    }
                 }
                 document.getElementById('rel_pid').value = layer["PID (ppm)"] !== undefined ? layer["PID (ppm)"] : 0.0;
                 document.getElementById('rel_pp').value = layer["Pocket Penetrometer (tsf)"] !== undefined ? layer["Pocket Penetrometer (tsf)"] : 0.0;
@@ -6828,6 +6768,8 @@
             if (document.getElementById('rel_comments')) {
                 document.getElementById('rel_comments').value = '';
             }
+            resetVal('generated_material_profile', '');
+            updateGeneratedMaterialProfile();
             
             const defaults = getBoringDefaults(boringId);
             resetVal('rel_pid', defaults["Default PID"] !== undefined ? defaults["Default PID"] : 0.0);
@@ -6869,11 +6811,8 @@
         let cleaned = (soilType || "").trim().toLowerCase();
         if (!cleaned) return "";
         
-        // Determine behavior based on the primary component (the last word in Burmister description)
-        let words = cleaned.split(/\s+/);
-        let primary = words[words.length - 1];
-        
-        let isCohesive = primary.includes("clay") || primary.includes("silt") || primary.includes("loam") || primary.includes("peat") || primary.includes("muck") || primary.includes("cohesive");
+        // Determine behavior based on cohesive keywords in the soil type string
+        let isCohesive = cleaned.includes("clay") || cleaned.includes("silt") || cleaned.includes("loam") || cleaned.includes("peat") || cleaned.includes("muck") || cleaned.includes("cohesive") || cleaned.includes("silty");
         let behavior = isCohesive ? "cohesive" : "granular";
         
         if (behavior === "granular") {
@@ -6919,41 +6858,244 @@
                 layerWeightInput.value = "N/A";
             }
         }
+        if (typeof updateGeneratedMaterialProfile === 'function') {
+            updateGeneratedMaterialProfile();
+        }
+    }
+
+    function getAdjectiveForm(soilType) {
+        if (!soilType) return "";
+        let s = soilType.trim().toLowerCase();
+        
+        // Dictionary-based conversion for common soil types
+        const dictionary = {
+            "silt": "silty",
+            "clay": "clayey",
+            "gravel": "gravelly",
+            "sand": "sandy",
+            "loam": "loamy",
+            "peat": "peaty",
+            "muck": "mucky",
+            "mica": "micaceous",
+            "ash": "ashy",
+            "cobbles": "cobbly",
+            "boulders": "bouldery",
+            "shells": "shelly",
+            "stone": "stony",
+            "stones": "stony",
+            "wood": "woody",
+            "vegetation": "vegetative"
+        };
+
+        if (dictionary[s]) return dictionary[s];
+
+        // Handle composite words like "fine sand", "silty clay", "clayey silt"
+        let words = s.split(/\s+/);
+        if (words.length > 1) {
+            // Convert the last word to adjective
+            let lastWord = words[words.length - 1];
+            if (dictionary[lastWord]) {
+                words[words.length - 1] = dictionary[lastWord];
+                return words.join(" ");
+            }
+        }
+
+        // Default fallback: return original string unchanged to avoid putting a 'y' on everything
+        return s;
+    }
+
+    function updateGeneratedMaterialProfile() {
+        const generatedInput = document.getElementById('generated_material_profile');
+        if (!generatedInput) return;
+
+        const relSoil = document.getElementById('rel_soil');
+        if (!relSoil) return;
+
+        let majorSoil = relSoil.value || "";
+        if (!majorSoil) {
+            generatedInput.value = "";
+            return;
+        }
+
+        // Look up in referenceSoilTypes first to get nice case/spacing
+        let matchedRef = referenceSoilTypes.find(r => r["Major Soil Type"].toLowerCase() === majorSoil.toLowerCase());
+        let baseMajor = matchedRef ? matchedRef["Major Soil Type"] : majorSoil;
+
+        // Find parent sample run N-value
+        const boringSelect = document.getElementById('run_boring_id');
+        const sampleSelect = document.getElementById('run_id');
+        const boringId = boringSelect ? boringSelect.value : '';
+        const sampleRaw = sampleSelect ? sampleSelect.value : '';
+        const combinedSampleId = boringId + sampleRaw;
+        const sampleFullId = boringId + "-" + sampleRaw;
+
+        let parentRun = datasetRuns.find(r => 
+            (r["Boring ID"] + r["Sample ID"]) === combinedSampleId || 
+            r["Sample ID"] === combinedSampleId ||
+            r["Sample ID"] === sampleFullId ||
+            r["Sample ID"] === (boringId + "-" + sampleRaw.replace(/^S-?/i, ""))
+        );
+        
+        let nValue = 0;
+        const runNval = document.getElementById('run_nval');
+        if (runNval && runNval.value !== "") {
+            nValue = parseInt(runNval.value) || 0;
+        } else if (parentRun) {
+            nValue = parseInt(parentRun["SPT N-Value"]) || 0;
+        }
+
+        let density = getRelativeDensity(nValue, majorSoil);
+
+        const color = document.getElementById('rel_color')?.value || "";
+        const moisture = document.getElementById('rel_moisture')?.value || "";
+
+        let constituentsParts = [baseMajor];
+
+        // 1. and components
+        const andSelect = document.getElementById('rel_soil_and');
+        if (andSelect && andSelect.value) {
+            let val = andSelect.value.toLowerCase();
+            constituentsParts.push("and " + val);
+        }
+
+        // 2. some components
+        const some1Select = document.getElementById('rel_soil_some_1');
+        if (some1Select && some1Select.value) {
+            let val = some1Select.value.toLowerCase();
+            constituentsParts.push("some " + val);
+        }
+        const some2Select = document.getElementById('rel_soil_some_2');
+        if (some2Select && some2Select.value) {
+            let val = some2Select.value.toLowerCase();
+            constituentsParts.push("some " + val);
+        }
+
+        // 3. little components & 4. trace components
+        let littleParts = [];
+        let traceParts = [];
+        
+        const littleTraceRows = document.querySelectorAll('#little_trace_container .little-trace-row');
+        littleTraceRows.forEach(row => {
+            const modSelect = row.querySelector('.rel-minor-modifier-select');
+            const typeSelect = row.querySelector('.rel-minor-type-select');
+            if (modSelect && typeSelect && typeSelect.value) {
+                let mod = modSelect.value.toLowerCase();
+                let val = typeSelect.value.toLowerCase();
+                if (mod === "little") {
+                    littleParts.push("little " + val);
+                } else if (mod === "trace") {
+                    traceParts.push("trace " + val);
+                }
+            }
+        });
+
+        if (littleParts.length > 0) {
+            constituentsParts.push(littleParts.join(", "));
+        }
+        if (traceParts.length > 0) {
+            constituentsParts.push(traceParts.join(", "));
+        }
+
+        const constituentsDescription = constituentsParts.join(", ");
+
+        let finalParts = [];
+        if (density && density !== "N/A" && density !== "-") {
+            finalParts.push(density);
+        }
+        if (color) {
+            finalParts.push(color);
+        }
+        if (constituentsDescription) {
+            finalParts.push(constituentsDescription);
+        }
+        if (moisture) {
+            finalParts.push(moisture);
+        }
+
+        generatedInput.value = finalParts.join(", ");
     }
 
     function generateBurmisterDescription(layer) {
-        let parts = [];
-        
-        // Color
-        if (layer["Color"]) parts.push(layer["Color"]);
-        
-        // Primary Size + Soil Type
-        let major = "";
-        if (layer["Primary Size"]) major += layer["Primary Size"] + " ";
-        if (layer["Soil Type"]) major += layer["Soil Type"];
-        if (major.trim()) parts.push(major.trim());
-        
-        // Minors
-        let minorKeys = Object.keys(layer)
-            .filter(k => k.startsWith("Minor ") && !isNaN(parseInt(k.replace("Minor ", ""))))
-            .sort((a, b) => parseInt(a.replace("Minor ", "")) - parseInt(b.replace("Minor ", "")));
-        minorKeys.forEach(k => {
-            if (layer[k]) parts.push(layer[k]);
-        });
-        
-        // Moisture
-        if (layer["Moisture Condition"]) parts.push(layer["Moisture Condition"]);
-        
-        // Relative Density (calc from N-value of run)
+        if (!layer) return "";
+
+        // 1. Look up in referenceSoilTypes first to get nice case/spacing
+        let majorSoil = layer["Soil Type"] || "";
+        let matchedRef = referenceSoilTypes.find(r => r["Major Soil Type"].toLowerCase() === majorSoil.toLowerCase());
+        let baseMajor = matchedRef ? matchedRef["Major Soil Type"] : majorSoil;
+
+        // 2. Relative Density (calc from N-value of run)
         let parentRun = datasetRuns.find(r => 
             (r["Boring ID"] + r["Sample ID"]) === layer["Sample ID"] || 
             r["Sample ID"] === layer["Sample ID"]
         );
         let nValue = parentRun ? parseFloat(parentRun["SPT N-Value"]) : 0;
-        let density = getRelativeDensity(nValue, layer["Soil Type"] || "");
-        if (density) parts.push(density);
+        let density = getRelativeDensity(nValue, majorSoil);
+
+        // 3. Color
+        let color = layer["Color"] || "";
+
+        // 4. Moisture
+        let moisture = layer["Moisture Condition"] || "";
+
+        // 5. Constituents description from left to right (major component first, then "and" component, then "some" components, then "little" components, then "trace" components)
+        let andPart = "";
+        let someParts = [];
+        let littleParts = [];
+        let traceParts = [];
+
+        let minorKeys = Object.keys(layer)
+            .filter(k => k.startsWith("Minor ") && !isNaN(parseInt(k.replace("Minor ", ""))))
+            .sort((a, b) => parseInt(a.replace("Minor ", "")) - parseInt(b.replace("Minor ", "")));
         
-        return parts.join(", ");
+        minorKeys.forEach(k => {
+            let val = layer[k];
+            if (val) {
+                let lowerVal = val.trim().toLowerCase();
+                if (lowerVal.startsWith("and ")) {
+                    andPart = lowerVal.replace(/^and\s+/, "");
+                } else if (lowerVal.startsWith("some ")) {
+                    someParts.push(lowerVal.replace(/^some\s+/, ""));
+                } else if (lowerVal.startsWith("little ")) {
+                    littleParts.push(lowerVal.replace(/^little\s+/, ""));
+                } else if (lowerVal.startsWith("trace ")) {
+                    traceParts.push(lowerVal.replace(/^trace\s+/, ""));
+                } else {
+                    traceParts.push(lowerVal);
+                }
+            }
+        });
+
+        let constituentsParts = [baseMajor];
+        if (andPart) {
+            constituentsParts.push("and " + andPart);
+        }
+        someParts.forEach(sp => {
+            constituentsParts.push("some " + sp);
+        });
+        if (littleParts.length > 0) {
+            constituentsParts.push(littleParts.map(lp => "little " + lp).join(", "));
+        }
+        if (traceParts.length > 0) {
+            constituentsParts.push(traceParts.map(tp => "trace " + tp).join(", "));
+        }
+
+        const constituentsDescription = constituentsParts.join(", ");
+
+        let finalParts = [];
+        if (density && density !== "N/A" && density !== "-") {
+            finalParts.push(density);
+        }
+        if (color) {
+            finalParts.push(color);
+        }
+        if (constituentsDescription) {
+            finalParts.push(constituentsDescription);
+        }
+        if (moisture) {
+            finalParts.push(moisture);
+        }
+
+        return finalParts.join(", ");
     }
 
     function updateCorrelatedDensity() {
@@ -7203,7 +7345,7 @@
                     .sort((a, b) => parseInt(a.replace("Minor ", "")) - parseInt(b.replace("Minor ", "")));
                 
                 minorKeys.forEach((k, idx) => {
-                    let val = (layer[k] || "").replace(/^and some little\s+/i, "").trim().toLowerCase();
+                    let val = (layer[k] || "").replace(/^(and some little|trace|some|little|and)\s+/i, "").trim().toLowerCase();
                     if (val) {
                         if (idx === 0) {
                             burmister += " with some " + val;
@@ -7786,6 +7928,8 @@
             contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
         } else if (filename.endsWith('.doc')) {
             contentType = 'application/msword';
+        } else if (filename.endsWith('.txt')) {
+            contentType = 'text/plain;charset=utf-8';
         }
         const blob = new Blob([byteArray], { type: contentType });
 
@@ -8172,12 +8316,14 @@
                 ];
                 datasetRuns = parseSheetToObjects(sheetRuns, numericFieldsRuns);
                 
-                // Automatically recalculate Recovery for imported runs based on profiles
+                // Automatically recalculate Recovery for imported runs based on profiles if missing
                 datasetRuns.forEach(run => {
-                    const bId = run["Boring ID"];
-                    const sampleId = run["Sample ID"] || "";
-                    const shortSampleId = sampleId.replace(bId + "-", "").replace(bId, "");
-                    run["Recovery (in)"] = calculateSampleRecovery(bId, shortSampleId);
+                    if (run["Recovery (in)"] === undefined || run["Recovery (in)"] === null || run["Recovery (in)"] === "" || run["Recovery (in)"] === "-") {
+                        const bId = run["Boring ID"];
+                        const sampleId = run["Sample ID"] || "";
+                        const shortSampleId = sampleId.replace(bId + "-", "").replace(bId, "");
+                        run["Recovery (in)"] = calculateSampleRecovery(bId, shortSampleId);
+                    }
                 });
                 
                 // Recalculate estimated unit weights on import
@@ -8440,12 +8586,14 @@
         alert("All project and sample data has been cleared.");
     }
 
-    // Automatically calculate initial sample run recovery based on profiles
+    // Automatically calculate initial sample run recovery based on profiles if missing
     datasetRuns.forEach(run => {
-        const bId = run["Boring ID"];
-        const sampleId = run["Sample ID"] || "";
-        const shortSampleId = sampleId.replace(bId + "-", "").replace(bId, "");
-        run["Recovery (in)"] = calculateSampleRecovery(bId, shortSampleId);
+        if (run["Recovery (in)"] === undefined || run["Recovery (in)"] === null || run["Recovery (in)"] === "" || run["Recovery (in)"] === "-") {
+            const bId = run["Boring ID"];
+            const sampleId = run["Sample ID"] || "";
+            const shortSampleId = sampleId.replace(bId + "-", "").replace(bId, "");
+            run["Recovery (in)"] = calculateSampleRecovery(bId, shortSampleId);
+        }
     });
 
     // Run baseline initialization loops on system load
@@ -10994,6 +11142,507 @@ async function exportGeotechNarrativeWord() {
 }
 
 
+async function exportGeotechNarrativeTxt() {
+    const btn = document.getElementById('exportGeotechNarrativeTxtBtn');
+    if (!btn) return;
+    const originalText = btn.innerHTML;
+    
+    try {
+        const { projectName, jobName, address, dateSuffix } = getHeaderInfo();
+        const filename = `Geotechnical_Narrative_${jobName.replace(/\s+/g, '_')}_${dateSuffix}.txt`;
+
+        // Change button text and disable to provide instant loading feedback
+        btn.innerHTML = `<span style="display: block; font-size: 2.2rem; margin-bottom: 0.5rem;">⏳</span> Generating Text...`;
+        btn.disabled = true;
+        showToast("Generating narrative report text... Please wait.", "info");
+
+        // Collect all borings
+        let borings = {};
+        datasetRuns.forEach(r => {
+            let bId = r["Boring ID"];
+            if (!borings[bId]) borings[bId] = [];
+            borings[bId].push({...r});
+        });
+        
+        let boringIds = Object.keys(borings).sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+        
+        if (boringIds.length === 0) {
+            showToast("No boring data available to summarize.", "error");
+            alert("No boring data available. Please add some boring logs first.");
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            return;
+        }
+
+        // Helper to get layers for a boring
+        function getLayersForBoring(boringId) {
+            let runs = datasetRuns.filter(r => r["Boring ID"] === boringId);
+            let sampleIds = runs.map(r => r["Sample ID"]);
+            let layers = [];
+            datasetProfiles.forEach(p => {
+                if (!p["Sample ID"]) return;
+                let sId = p["Sample ID"];
+                let isMatch = sampleIds.some(runSampleId => {
+                    let shortSampleId = runSampleId.replace(boringId + "-", "").replace(boringId, "");
+                    let combinedSampleId = boringId + shortSampleId;
+                    return sId === runSampleId || sId === combinedSampleId || sId === (boringId + "-" + shortSampleId);
+                });
+                if (isMatch) {
+                    layers.push({...p});
+                }
+            });
+            layers.sort((a, b) => (a["Top Depth (ft)"] || 0) - (b["Top Depth (ft)"] || 0));
+            return layers;
+        }
+
+        // Helper to get max depth of a boring
+        function getBoringMaxDepth(boringId) {
+            let layers = getLayersForBoring(boringId);
+            if (layers.length === 0) {
+                let runs = datasetRuns.filter(r => r["Boring ID"] === boringId);
+                if (runs.length === 0) return 0;
+                let maxDepthFt = Math.max(...runs.map(r => r["End Depth (ft)"] || 0));
+                return maxDepthFt;
+            }
+            return Math.max(...layers.map(l => l["Bottom Depth (ft)"] || 0));
+        }
+
+        // Gather site statistics
+        let allSoilTypes = new Set();
+        datasetProfiles.forEach(p => {
+            if (p["Soil Type"]) allSoilTypes.add(p["Soil Type"].toUpperCase());
+        });
+        let soilTypesStr = Array.from(allSoilTypes).join(', ');
+        if (!soilTypesStr) {
+            soilTypesStr = 'granular fill, fine-medium sand, silty sand, clayey silt, and clay deposits';
+        }
+
+        let sptValues = datasetRuns.map(r => r["SPT N-Value"]).filter(v => v !== undefined && v > 0);
+        let minN = sptValues.length > 0 ? Math.min(...sptValues) : 2;
+        let maxN = sptValues.length > 0 ? Math.max(...sptValues) : 50;
+
+        let refusals = [];
+        datasetRuns.forEach(r => {
+            if (r["Comments"] && (r["Comments"].toLowerCase().includes("refusal") || r["Comments"].toLowerCase().includes("refused"))) {
+                refusals.push(`Boring ${r["Boring ID"]} at ${(r["End Depth (ft)"]).toFixed(1)} ft (${r["Comments"]})`);
+            }
+        });
+
+        let drillContractors = new Set();
+        let drillRigs = new Set();
+        let drillDates = new Set();
+        boringIds.forEach(bId => {
+            const defaults = getBoringDefaults(bId) || {};
+            if (defaults["Drilling Contractor"]) drillContractors.add(defaults["Drilling Contractor"]);
+            if (defaults["Drilling Equipment Rig"]) drillRigs.add(defaults["Drilling Equipment Rig"]);
+            
+            const runs = datasetRuns.filter(r => r["Boring ID"] === bId);
+            runs.forEach(r => {
+                if (r["Date"]) drillDates.add(r["Date"]);
+            });
+        });
+        
+        let contractorsStr = Array.from(drillContractors).join(' and ') || 'Seasons Environmental Drilling';
+        let rigsStr = Array.from(drillRigs).join(', ') || 'Track Mounted Rig';
+        let datesList = Array.from(drillDates).sort();
+        let dateRangeStr = datesList.length > 0 ? (datesList.length === 1 ? datesList[0] : `${datesList[0]} to ${datesList[datesList.length - 1]}`) : dateSuffix;
+
+        let gwObservations = [];
+        boringIds.forEach(bId => {
+            const gw = boringGWMap[bId] || {};
+            if (gw["GW 1st Depth"] || gw["GW 2nd Depth"] || gw["GW 1st Comment"] || gw["GW 2nd Comment"]) {
+                let obs = [];
+                if (gw["GW 1st Depth"] || gw["GW 1st Comment"]) {
+                    let detail = gw["GW 1st Moisture"] ? `${gw["GW 1st Moisture"]}` : "";
+                    if (gw["GW 1st Depth"]) detail += (detail ? " @ " : "") + `${gw["GW 1st Depth"]} ft`;
+                    if (gw["GW 1st Comment"]) detail += ` (${gw["GW 1st Comment"]})`;
+                    obs.push(`Initial: ${detail}`);
+                }
+                if (gw["GW 2nd Depth"] || gw["GW 2nd Comment"]) {
+                    let detail = gw["GW 2nd Moisture"] ? `${gw["GW 2nd Moisture"]}` : "";
+                    if (gw["GW 2nd Depth"]) detail += (detail ? " @ " : "") + `${gw["GW 2nd Depth"]} ft`;
+                    if (gw["GW 2nd Comment"]) detail += ` (${gw["GW 2nd Comment"]})`;
+                    obs.push(`Stabilized: ${detail}`);
+                }
+                if (obs.length > 0) {
+                    gwObservations.push(`Boring ${bId} (${obs.join(', ')})`);
+                }
+            }
+        });
+
+        // Compute dynamic engineering parameters based on boring data
+        let sumAllN = 0;
+        let countAllN = 0;
+        datasetRuns.forEach(r => {
+            if (r["SPT N-Value"] > 0) {
+                sumAllN += r["SPT N-Value"];
+                countAllN++;
+            }
+        });
+        let globalAvgN = countAllN > 0 ? (sumAllN / countAllN) : 0;
+
+        let globalSiteClass = "D";
+        if (globalAvgN > 50) globalSiteClass = "C";
+        else if (globalAvgN < 15 && globalAvgN > 0) globalSiteClass = "E";
+
+        let allowableBearingCapacity = 3000;
+        if (globalAvgN > 30) {
+            allowableBearingCapacity = 4000;
+        } else if (globalAvgN > 15) {
+            allowableBearingCapacity = 3000;
+        } else if (globalAvgN > 0) {
+            allowableBearingCapacity = 2000;
+        }
+
+        // 1. Build Boring Summary Table Text
+        let boringTableRowsText = "";
+        boringIds.forEach(bId => {
+            const runs = datasetRuns.filter(r => r["Boring ID"] === bId);
+            let boringDate = "";
+            for (let r of runs) {
+                if (r["Date"]) {
+                    boringDate = r["Date"];
+                    break;
+                }
+            }
+            if (!boringDate) {
+                boringDate = document.getElementById('run_date')?.value || '';
+            }
+
+            let sumInverseN = 0;
+            let validRuns = 0;
+            runs.forEach(r => {
+                if (r["SPT N-Value"] > 0) {
+                    sumInverseN += (1 / r["SPT N-Value"]);
+                    validRuns++;
+                }
+            });
+            let avgN = validRuns > 0 ? (validRuns / sumInverseN) : 0;
+            
+            let siteClass = "E";
+            if (validRuns === 0) siteClass = "N/A";
+            else if (avgN > 50) siteClass = "C";
+            else if (avgN >= 15) siteClass = "D";
+
+            const defaults = getBoringDefaults(bId) || {};
+            const maxDepth = getBoringMaxDepth(bId);
+            
+            const gw = boringGWMap[bId] || {};
+            const gwStr = gw["GW 1st Depth"] ? `${gw["GW 1st Moisture"] ? gw["GW 1st Moisture"] + ' @ ' : ''}${gw["GW 1st Depth"]} ft` : (gw["GW 1st Moisture"] || '-');
+
+            let colId = bId.padEnd(10);
+            let colDate = (boringDate || '-').padEnd(12);
+            let colRig = (defaults["Drilling Equipment Rig"] || '-').padEnd(20);
+            let colDepth = `${maxDepth.toFixed(1)} ft`.padEnd(18);
+            let colClass = (validRuns > 0 ? `Class ${siteClass} (${avgN.toFixed(1)})` : 'Class E').padEnd(28);
+            let colGw = gwStr;
+
+            boringTableRowsText += `${colId} | ${colDate} | ${colRig} | ${colDepth} | ${colClass} | ${colGw}\n`;
+        });
+
+        // 2. Build detailed Stratigraphy summaries per boring
+        let boringSummariesText = "";
+        boringIds.forEach(bId => {
+            let layers = getLayersForBoring(bId);
+            let runs = datasetRuns.filter(r => r["Boring ID"] === bId);
+            
+            let layerDesc = "  No layers defined.";
+            if (layers.length > 0) {
+                layerDesc = layers.map(l => `  * ${l["Top Depth (ft)"]}-${l["Bottom Depth (ft)"]} ft: ${l["Color"] || ''} ${l["Soil Type"] || ''}${l["Moisture Condition"] ? ' (' + l["Moisture Condition"] + ')' : ''}${l["Comments"] ? ' - ' + l["Comments"] : ''}`).join('\n');
+            }
+            
+            let runsDesc = "  No sample runs defined.";
+            if (runs.length > 0) {
+                runsDesc = runs.map(r => `  * ${r["Sample ID"]} (${(r["Start Depth (ft)"]).toFixed(1)}-${(r["End Depth (ft)"]).toFixed(1)} ft): SPT N = ${r["SPT N-Value"] || 'N/A'}, Rec = ${r["Recovery (in)"] || 0} in${r["Comments"] ? ' [' + r["Comments"] + ']' : ''}`).join('\n');
+            }
+            
+            boringSummariesText += `
+================================================================================
+Boring Log ${bId} Details
+================================================================================
+Stratigraphic Layers:
+${layerDesc}
+
+Boring Runs & SPT Blowcounts:
+${runsDesc}
+`;
+        });
+
+        const currentDateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        let reportText = `================================================================================
+                               CAREN IRGANG, P.E.
+                       Geotechnical Engineering Consultant
+            New England Region * Tel: (860) 555-0199 * info@irganggeotech.com
+================================================================================
+
+COMPREHENSIVE GEOTECHNICAL ENGINEERING REPORT & DESIGN RECOMMENDATIONS
+
+Project Name:      ${projectName}
+Report Date:       ${currentDateStr}
+Job Code / No:     ${jobName}
+Geotechnical Eng:  Caren Irgang, P.E.
+Site Location:     ${address || 'As Mapped in GIS Database'}
+
+--------------------------------------------------------------------------------
+1. EXECUTIVE SUMMARY
+--------------------------------------------------------------------------------
+This geotechnical engineering evaluation report has been prepared for the proposed
+structural improvements at the ${projectName} project site located in
+${address || 'our mapped service region'}.
+A comprehensive subsurface exploration program consisting of ${boringIds.length}
+geotechnical test boring logs (designated ${boringIds.join(', ')}) was executed.
+The subsurface layers identified during drilling consist primarily of
+${soilTypesStr}.
+Based on our analyses of the field Standard Penetration Test (SPT) N-values and
+laboratory-estimated soil indices, standard spread footing systems or shallow
+mat foundations are structurally feasible for support of the proposed works,
+provided that subgrades are prepared according to our recommendations.
+
+--------------------------------------------------------------------------------
+2. PROJECT OBJECTIVES & SCOPE OF WORK
+--------------------------------------------------------------------------------
+The primary objective of this investigation was to characterize the subsurface
+stratigraphic profile and groundwater conditions across the designated building
+footprint and to provide geotechnical design parameters.
+The scope of work completed for this study included:
+1. Coordination of subsurface explorations, utility clearance, and site access.
+2. Execution of test borings to depths of up to ${Math.max(...boringIds.map(bId => getBoringMaxDepth(bId))).toFixed(1)} feet
+   below the existing ground surface.
+3. Soil classification mapping according to the modified Burmister and USCS
+   classification systems.
+4. Engineering analyses to determine allowable soil bearing capacities, estimated
+   settlement magnitudes, lateral earth pressures, and seismic site classifications.
+5. Development of earthwork specifications, subgrade preparation, and compaction
+   criteria.
+
+--------------------------------------------------------------------------------
+3. SUBSURFACE EXPLORATION PROGRAM
+--------------------------------------------------------------------------------
+Subsurface conditions at the site were explored on ${dateRangeStr} by performing
+${boringIds.length} test borings at locations selected to outline the proposed
+structural improvements.
+Drilling operations were completed by ${contractorsStr} utilizing a ${rigsStr}.
+The borings were advanced using hollow-stem augers and casing techniques.
+Standard Penetration Tests (SPTs) were conducted within the borehole intervals by
+driving a standard 2-inch outer diameter split-spoon sampler with a 140-pound
+automatic hammer falling 30 inches (ASTM D1586).
+The soil samples were field-logged, sealed in moisture-proof jars, and transferred
+to the engineering office for further classification.
+
+--------------------------------------------------------------------------------
+4. SUBSURFACE & GROUNDWATER CONDITIONS
+--------------------------------------------------------------------------------
+The subsurface stratigraphy generally consists of a surficial layer of topsoil
+or granular fill, underlain by native alluvial sand/gravel deposits and glacial
+till. Detailed descriptions of each layer and sample recovery values are
+provided in the companion Stratigraphy worksheets.
+
+4.1 Subsurface Stratigraphy Summary
+
+Boring ID  | Drill Date   | Drilling Equipment   | Termination Depth  | Seismic Site Class (Avg N)   | Water Level Obs.
+-----------+--------------+----------------------+--------------------+------------------------------+------------------
+${boringTableRowsText.trim()}
+
+4.2 Groundwater Observations
+${gwObservations.length > 0 
+    ? `Water was observed at the following depths:\n` + gwObservations.map(o => `  * ${o}`).join('\n') 
+    : 'No free groundwater was detected in the boreholes within the exploration depths at the time of drilling.'}
+
+Note that groundwater levels fluctuate seasonally in response to precipitation,
+runoff, and local utility leaks. Consequently, water levels encountered during
+construction may differ from those logged.
+
+${refusals.length > 0 
+    ? `\nDrilling Refusal/Bedrock Notice:\n` + refusals.map(r => `  * ${r}`).join('\n') + `\nThis indicates the presence of bedrock, large boulders, or highly cemented glacial till.`
+    : ''}
+
+--------------------------------------------------------------------------------
+5. GEOTECHNICAL RECOMMENDATIONS & ENGINEERING ANALYSIS
+--------------------------------------------------------------------------------
+The following design recommendations are based on the subsurface data gathered,
+the proposed structural loads, and our experience with similar soil profiles.
+
+5.1 Foundation Type & Allowable Soil Bearing Capacity
+The proposed structure may be supported on conventional spread footings bearing on
+the undisturbed natural sandy soils or on properly placed and compacted structural
+fill.
+Based on an average SPT blowcount of ${globalAvgN.toFixed(1)} blows/foot, we recommend
+an allowable soil bearing pressure of ${allowableBearingCapacity} psf for footings bearing on
+native sand or structural fill.
+All footings should bear at a minimum depth of 42 inches below final exterior grade
+for frost protection. Continuous wall footings should have a minimum width of 18
+inches, and isolated column footings should be at least 24 inches wide.
+
+5.2 Settlement Estimates
+Total settlements of foundations designed using the recommended maximum allowable
+bearing capacity of ${allowableBearingCapacity} psf and bearing on verified subgrades are
+estimated to be less than 1.0 inch. Differential settlement between adjacent
+columns or across a 40-foot span is estimated to be less than 0.5 inches. The
+majority of this settlement is expected to occur rapidly during construction as
+structural loads are applied.
+
+5.3 Floor Slab Subgrade Preparation
+Slabs-on-grade should bear on at least 12 inches of compacted, clean granular
+fill over verified native subgrade. A 10-mil polyethylene vapor retarder must be
+placed directly beneath the concrete slab to prevent capillary rise and moisture
+migration.
+
+5.4 Lateral Earth Pressures (Retaining/Foundation Walls)
+Below-grade walls must be designed to resist lateral earth pressures. The following
+design parameters are recommended for clean granular backfill:
+
+Soil Parameter                   | Design Value | Remarks / Conditions
+---------------------------------+--------------+---------------------------------------
+Soil Unit Weight (gamma)         | 125 pcf      | Moist, well-graded granular backfill
+Angle of Internal Friction (phi) | 32 degrees   | Undisturbed/compacted sands
+Active Earth Pressure (Ka)       | 0.31         | 40 pcf equiv. fluid pressure (yielding)
+At-Rest Earth Pressure (Ko)      | 0.47         | 60 pcf (non-yielding walls)
+Passive Earth Pressure (Kp)      | 3.00         | 360 pcf (resisting toe)
+
+These parameters assume that a perimeter drainage system will be installed to
+prevent hydrostatic pressure from building up behind the retaining walls. If water
+cannot be drained, hydrostatic pressures must be added to the lateral earth pressures.
+
+5.5 Seismic Site Classification & Seismic Design Parameters
+In accordance with the State Building Code and the International Building Code (IBC)
+guidelines, the average shear wave velocity, standard penetration resistance, or
+undrained shear strength of the upper 100 feet of the soil profile must be
+evaluated.
+
+Based on the average SPT N-value of ${globalAvgN.toFixed(1)} blows/foot calculated across
+the exploration depths, the site is classified as Site Class ${globalSiteClass}. Seismic design
+parameters, including spectral response accelerations, should be obtained using
+this classification. The potential for soil liquefaction during a design seismic
+event is considered low due to the cohesive nature of the silts/clays and the
+relative density of the underlying natural sands.
+
+--------------------------------------------------------------------------------
+6. CONSTRUCTION CONSIDERATIONS & EARTHWORK SPECIFICATIONS
+--------------------------------------------------------------------------------
+This section outlines constructibility and earthwork recommendations for the owner
+and the general contractor to ensure that foundation subgrades are properly
+prepared and that earthworks are executed safely and cost-effectively.
+
+6.1 Excavation Feasibility & Difficulty
+Excavation of the onsite soils (sands, gravels, silts, clays) can be accomplished
+using conventional earthmoving equipment, such as excavators, backhoes, and scrapers.
+Unless bedrock or refusal conditions were encountered at shallow depths, rock
+excavation techniques (like hoe-ramming or blasting) are not anticipated.
+
+6.2 Reuse of Excavated Soils
+The suitability of excavated soils for reuse as structural fill depends on their
+gradation and moisture content:
+- Granular Soils: Clean granular sands logged onsite are generally suitable for
+  reuse as structural fill, provided that their moisture content is maintained
+  within +-2% of the optimum moisture content for compaction.
+- Silty and Clayey Soils: Excavated soils with a high fines content (silt and clay)
+  are highly sensitive to moisture and difficult to compact. These soils are NOT
+  suitable for reuse as structural fill beneath foundations, slabs, or pavements.
+  They may, however, be reused in non-structural landscaped areas.
+
+6.3 Subgrade Verification & Proof-Rolling
+Prior to placing concrete for footings or placing structural fill, the exposed
+subgrade must be verified by a qualified geotechnical engineer. The subgrade should
+be proof-rolled using a heavy, loaded tandem-axle dump truck or a 10-ton vibratory
+roller to identify any soft, loose, or yielding zones. Any unstable materials
+detected during proof-rolling must be excavated and replaced with compacted
+structural fill or crushed stone.
+
+6.4 Structural Fill Materials & Compaction Criteria
+Structural fill placed beneath foundations, slab-on-grade slabs, or pavements
+should consist of a clean, well-graded gravelly sand containing less than 12%
+passing the No. 200 sieve (ASTM D422). Fill should be placed in loose lifts not
+exceeding 8 to 12 inches in thickness and compacted to at least 95% of the modified
+Proctor maximum dry density (ASTM D1557). Moisture content during compaction
+should be maintained within 2 percentage points of optimum.
+
+6.5 Construction Dewatering & Stormwater Control
+Depending on seasonal conditions and excavation depths, groundwater or perched water
+may be encountered in excavations. The contractor must control runoff and keep
+excavations dry. Dewatering can generally be accomplished using conventional sump
+pump and trench systems. If deep excavations extend below the groundwater levels
+reported in Section 4, wellpoint systems may be required to lower the water table.
+
+6.6 Excavation Safety & OSHA Shoring Regulations
+Temporary excavations must comply with OSHA excavation safety standards (29 CFR Part
+1926). The contractor is solely responsible for job site safety, including shoring,
+sloping, and utility protection. Prior to commencing excavation, the contractor
+must contact DigSafe to locate all underground utilities, referencing the utility
+ticket numbers and contacts logged in the 'DigSafe' worksheet of the companion
+workbook.
+
+--------------------------------------------------------------------------------
+7. INTEGRATION WITH STRATAPRO PRESENTATION WORKBOOK
+--------------------------------------------------------------------------------
+To ensure a complete and rigorous engineering record, this report is integrated
+with the companion StrataPro Presentation Workbook. The workbook contains the
+following worksheets:
+1. 'Job': Lists project names, job codes, office and project locations, and GPS
+   coordinates.
+2. 'Boring Information': Lists drilling contractors, rig models, Site Class
+   calculations, and groundwater level maps.
+3. 'Layers': Records soil classifications according to the modified Burmister soil
+   description system.
+4. 'Vert Stack': Displays color-coded stratigraphic columns for each boring.
+5. 'Horoz Stack': Displays lateral profile correlations between adjacent borings.
+6. 'Reference': Technical references and lookup tables.
+7. 'DigSafe': Utility ticket logs and contact information.
+8. 'Location Map': GPS-based map showing plan view boring locations.
+
+These worksheets represent the formalized engineering record for this project.
+
+Respectfully submitted,
+
+Caren Irgang
+Caren Irgang, P.E.
+Senior Geotechnical Engineer
+State of Connecticut License No. 47507
+
+================================================================================
+                                 PE STAMP RECORD
+================================================================================
+State of Connecticut Licensed Professional Engineer
+Caren Irgang, License No. 47507
+================================================================================
+
+--------------------------------------------------------------------------------
+APPENDIX: DETAILED BORING STRATIGRAPHY LOGS
+--------------------------------------------------------------------------------
+${boringSummariesText.trim()}
+`;
+
+        const encoder = new TextEncoder();
+        const uint8 = encoder.encode(reportText);
+        const base64Data = arrayBufferToBase64(uint8.buffer);
+
+        await saveToDesktop(filename, base64Data, () => {
+            const blob = new Blob([uint8], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = filename;
+            document.body.appendChild(anchor);
+            anchor.click();
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(anchor);
+            }, 100);
+        });
+
+        showToast("Report text document generated successfully!", "success");
+
+    } catch (err) {
+        console.error("Error exporting narrative Text:", err);
+        showToast("Failed to export geotechnical narrative in Text format: " + err.message, "error");
+        alert("Failed to export geotechnical narrative in Text format: " + err.message);
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+
 // Browser-based Automated Test Suite (runs only when ?test=true is in the URL)
 window.addEventListener('load', () => {
     if (!window.location.search.includes('test=true')) return;
@@ -11068,6 +11717,10 @@ window.addEventListener('load', () => {
         const wordBtn = document.getElementById('exportGeotechNarrativeWordBtn');
         assert(wordBtn !== null, "Found Geotechnical Narrative Word button in Export tab.");
         assert(typeof exportGeotechNarrativeWord === 'function', "exportGeotechNarrativeWord function is defined and active.");
+
+        const txtBtn = document.getElementById('exportGeotechNarrativeTxtBtn');
+        assert(txtBtn !== null, "Found Geotechnical Narrative TXT button in Export tab.");
+        assert(typeof exportGeotechNarrativeTxt === 'function', "exportGeotechNarrativeTxt function is defined and active.");
 
     } catch (err) {
         assert(false, "Test suite crashed with error: " + err.message);
