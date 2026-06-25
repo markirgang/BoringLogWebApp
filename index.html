@@ -531,6 +531,10 @@
         .editable-select-wrapper {
             position: relative;
         }
+        .input-addon-group .editable-select-wrapper {
+            flex: 1;
+            min-width: 0;
+        }
         .editable-select-dropdown {
             position: absolute;
             top: 100%;
@@ -1029,7 +1033,7 @@
                                 <option value="B-1" selected>B-1</option>
                                 <option value="B-2">B-2</option>
                             </select>
-                            <button type="button" class="btn-small" onclick="promptAddChoice('run_boring_id')">➕ Choice</button>
+                            <button type="button" class="btn-small" onclick="addNewBoringChoice()" title="Add Boring" style="font-weight: bold; font-size: 1rem; padding: 0.25rem 0.5rem;">➕</button>
                             <button type="button" class="btn-small" style="background:#fee2e2; color:#b91c1c; border-color:#fecaca;" onclick="deleteActiveBoring()">🗑️ Delete</button>
                         </div>
                     </div>
@@ -1367,7 +1371,7 @@
                             </div>
                         </div>
                     </details>
-                    <button type="button" id="save_boring_btn" class="btn" style="background: var(--blue-600); color: #ffffff; border-color: var(--blue-700); width: 100%; padding: 0.5rem 0; font-size: 0.95rem; font-weight: 700; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.25rem; margin-top: 0.25rem;" onclick="saveActiveBoring()">💾 Save Boring</button>
+
                 </div>
                 
                 
@@ -1471,7 +1475,7 @@
                                 <option value="S-3">S-3</option>
                                 <option value="S-4">S-4</option>
                             </select>
-                            <button type="button" class="btn-small" onclick="promptAddChoice('run_id')">➕ Choice</button>
+                            <button type="button" class="btn-small" onclick="addNewSampleChoice()" title="Add Sample" style="font-weight: bold; font-size: 1rem; padding: 0.25rem 0.5rem;">➕</button>
                             <button type="button" class="btn-small" style="background:#fee2e2; color:#b91c1c; border-color:#fecaca;" onclick="deleteActiveSample()">🗑️ Delete</button>
                         </div>
                     </div>
@@ -1541,10 +1545,7 @@
                                     <input type="number" step="any" id="run_bc_in_4" list="list_bc_in" value="6" style="width: 100%; font-size: 0.9rem; padding: 0.4rem; border: 1px solid var(--border); border-radius: 4px; text-align: center; height: 34px; color: var(--slate-800); font-weight: 600; box-sizing: border-box;" onchange="updateBlowcountPlaceholders()">
                                 </div>
                             </div>
-                            <!-- Increment sample run (+) button -->
-                            <div style="display: flex; justify-content: center; margin-top: 0.5rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
-                                <button type="button" class="btn-small" style="background: var(--emerald-600); color: #ffffff; border-color: var(--emerald-700); width: 100%; padding: 0.4rem 0; font-size: 0.9rem; font-weight: 700; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.25rem;" onclick="saveAndIncrementSampleRun(event)" title="Save current sample and go to next sample">➕ Save Sample</button>
-                            </div>
+
                         </div>
                     </div>
 
@@ -1904,6 +1905,7 @@
                                     <option value="L-4">
                                     <option value="L-5">
 </datalist>
+                                <button type="button" class="btn-small" style="background: var(--blue-50); color: var(--blue-700); border-color: var(--blue-200); font-weight: bold; font-size: 1rem; padding: 0.25rem 0.5rem;" onclick="addNewLayerChoice()" title="Add Layer">➕</button>
                                 <button type="button" class="btn-small" style="background:#fee2e2; color:#b91c1c; border-color:#fecaca;" onclick="deleteActiveLayer()">🗑️ Delete</button>
                             </div>
                         </div>
@@ -2117,12 +2119,7 @@
                         </div>
                     </div>
                     
-                    <!-- SUBMIT BUTTON placed inside layers column -->
-                    <div style="margin-top: 1rem;">
-                        <button type="button" class="btn btn-success" style="width: 100%; padding: 0.75rem; font-size: 1.15rem; font-weight: 700; border-radius: 8px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.25);" onclick="saveSampleLayer()">
-                            ➕ Save Sample Layer
-                        </button>
-                    </div>
+
                 
                 <!-- ERROR MESSAGE CONTAINER FOR TAB 3 -->
                 <div id="boringFormErrorTab3" style="display: none; background-color: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; padding: 0.75rem 1rem; border-radius: 6px; font-weight: bold; font-size: 0.95rem; margin-top: 0.5rem; align-items: center; gap: 0.5rem;">
@@ -2952,6 +2949,19 @@
                 if (typeof populateSampleDropdown === 'function') {
                     populateSampleDropdown();
                 }
+                // Initialize/reset first sample S-1 and layer L-1 for the new boring
+                if (typeof resetRunFormFieldsForNewRun === 'function') {
+                    resetRunFormFieldsForNewRun(bId, 'S-1');
+                }
+                if (typeof resetLayerFieldsForNewLayer === 'function') {
+                    resetLayerFieldsForNewLayer(bId, 'S-1');
+                }
+                if (typeof saveCurrentRunData === 'function') {
+                    saveCurrentRunData();
+                }
+                if (typeof saveCurrentLayerData === 'function') {
+                    saveCurrentLayerData();
+                }
             }
 
             let pairedId = null;
@@ -3343,9 +3353,8 @@
 
         const changeHandler = () => {
             updateGeneratedMaterialProfile();
-            const currentBoringId = document.getElementById('run_boring_id') ? document.getElementById('run_boring_id').value : '';
-            if (currentBoringId && typeof saveBoringFieldsFromUI === 'function') {
-                saveBoringFieldsFromUI(currentBoringId);
+            if (typeof autoSaveActiveData === 'function') {
+                autoSaveActiveData();
             }
         };
 
@@ -3599,6 +3608,26 @@
                 }
                 syncUIToBoringFields(bId);
                 populateSampleDropdown();
+                
+                // Initialize/reset first sample S-1 and layer L-1 for the new boring
+                if (typeof resetRunFormFieldsForNewRun === 'function') {
+                    resetRunFormFieldsForNewRun(bId, 'S-1');
+                }
+                if (typeof resetLayerFieldsForNewLayer === 'function') {
+                    resetLayerFieldsForNewLayer(bId, 'S-1');
+                }
+                if (typeof saveBoringFieldsFromUI === 'function') {
+                    saveBoringFieldsFromUI(bId);
+                }
+                if (typeof saveCurrentRunData === 'function') {
+                    saveCurrentRunData();
+                }
+                if (typeof saveCurrentLayerData === 'function') {
+                    saveCurrentLayerData();
+                }
+                if (typeof refreshAllAfterDataChange === 'function') {
+                    refreshAllAfterDataChange();
+                }
             }
 
             const mappings = {
@@ -5010,6 +5039,20 @@
 
         updateLayersAndRecovery();
         updateSampleLengthUI();
+
+        const form = document.getElementById('boringInfoForm');
+        if (form) {
+            const formChangeHandler = (e) => {
+                if (e.target && (e.target.id === 'run_boring_id' || e.target.id === 'run_id' || e.target.id === 'rel_layer_id')) {
+                    return;
+                }
+                if (typeof autoSaveActiveData === 'function') {
+                    autoSaveActiveData();
+                }
+            };
+            form.addEventListener('change', formChangeHandler);
+            form.addEventListener('input', formChangeHandler);
+        }
     });
 
     function formatBlowcounts(b1, in1, b2, in2, b3, in3, b4, in4) {
@@ -5242,7 +5285,6 @@
             if (errorText3) errorText3.innerText = validationError;
         }
     };
-    
     ['run_start', 'run_end', 'run_rec', 'rel_top', 'rel_bottom',
      'run_bc_in_1', 'run_bc_in_2', 'run_bc_in_3', 'run_bc_in_4'].forEach(id => {
         const el = document.getElementById(id);
@@ -5254,370 +5296,9 @@
 
     document.getElementById('boringInfoForm').addEventListener('submit', function(e) {
         e.preventDefault();
-
-        let boringRaw = document.getElementById('run_boring_id').value;
-        let sampleRaw = document.getElementById('run_id').value;
-        let newSampleId = boringRaw + "-" + sampleRaw;
-        let combinedSampleId = boringRaw + sampleRaw; // e.g. B-1S-1
-        
-        let newBoring = boringRaw.trim().toLowerCase();
-        let newSample = sampleRaw.replace(/^S-?/i, "").trim().toLowerCase();
-        let layerNum = document.getElementById('rel_layer_id').value;
-        let newLayer = layerNum.replace(/^-?[Ll]-?/, "").trim().toLowerCase();
-        let layerId = combinedSampleId + layerNum;
-
-        // Auto-reduce last layer depth if it exceeds recovery length
-        let recoveryLengthInches = parseFloat(document.getElementById('run_rec').value);
-        if (isNaN(recoveryLengthInches) || recoveryLengthInches < 0) {
-            recoveryLengthInches = 0;
+        if (typeof autoSaveActiveData === 'function') {
+            autoSaveActiveData();
         }
-        
-        let relTopVal = parseFloat(document.getElementById('rel_top').value);
-        let relBottomVal = parseFloat(document.getElementById('rel_bottom').value);
-
-        if (!isNaN(relTopVal) && !isNaN(relBottomVal)) {
-            let otherLayers = datasetProfiles.filter(p => {
-                let details = getLayerDetails(p);
-                return details.boring === newBoring && details.sample === newSample && details.layer !== newLayer;
-            });
-
-            let allLayers = [
-                ...otherLayers.map(p => ({
-                    layerId: p["Layer ID"],
-                    top: parseFloat(p["Top Depth (ft)"]),
-                    bottom: parseFloat(p["Bottom Depth (ft)"]),
-                    isCurrent: false,
-                    profileObj: p
-                })),
-                {
-                    layerId: layerId,
-                    top: relTopVal,
-                    bottom: relBottomVal,
-                    isCurrent: true
-                }
-            ];
-
-            allLayers.sort((a, b) => a.top - b.top);
-
-            let totalThicknessFt = 0;
-            allLayers.forEach(l => {
-                totalThicknessFt += Math.max(0, l.bottom - l.top);
-            });
-            let totalThicknessInches = totalThicknessFt * 12;
-
-            if (totalThicknessInches > (recoveryLengthInches + 0.001)) {
-                let lastLayer = allLayers[allLayers.length - 1];
-
-                let otherSumFt = 0;
-                for (let i = 0; i < allLayers.length - 1; i++) {
-                    otherSumFt += Math.max(0, allLayers[i].bottom - allLayers[i].top);
-                }
-
-                let newThicknessFt = (recoveryLengthInches / 12) - otherSumFt;
-                if (newThicknessFt < 0) {
-                    newThicknessFt = 0;
-                }
-                let newBottomDepth = lastLayer.top + newThicknessFt;
-
-                if (lastLayer.isCurrent) {
-                    relBottomVal = newBottomDepth;
-                    document.getElementById('rel_bottom').value = newBottomDepth.toFixed(2);
-                } else {
-                    lastLayer.profileObj["Bottom Depth (ft)"] = newBottomDepth.toFixed(2);
-                }
-            }
-        }
-
-        const validationError = validateBoringInfoFormInputs();
-        if (validationError) {
-            showToast(validationError, 'error');
-            const errorDiv = document.getElementById('boringFormError');
-            const errorText = document.getElementById('boringFormErrorText');
-            if (errorDiv && errorText) {
-                errorText.innerText = validationError;
-                errorDiv.style.display = 'flex';
-            }
-            const errorDiv3 = document.getElementById('boringFormErrorTab3');
-            const errorText3 = document.getElementById('boringFormErrorTextTab3');
-            if (errorDiv3 && errorText3) {
-                errorText3.innerText = validationError;
-                errorDiv3.style.display = 'flex';
-                errorDiv3.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            } else if (errorDiv) {
-                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            return;
-        }
-
-        // Sync legacy selectors
-        const relBoring = document.getElementById('rel_boring_id');
-        const relSample = document.getElementById('rel_sample_id');
-        if (relBoring) {
-            relBoring.innerHTML = `<option value="${boringRaw}" selected>${boringRaw}</option>`;
-            relBoring.value = boringRaw;
-        }
-        if (relSample) {
-            relSample.innerHTML = `<option value="${sampleRaw}" selected>${sampleRaw}</option>`;
-            relSample.value = sampleRaw;
-        }
-        
-        // 1. Process Run Data
-        let existingRunIndex = datasetRuns.findIndex(r => r["Sample ID"] === newSampleId || r["Sample ID"] === combinedSampleId);
-        let newRunObj = {
-            "Boring ID": boringRaw,
-            "Date": document.getElementById('run_date').value,
-            "Sample ID": newSampleId,
-            "Start Depth (ft)": parseFloat(document.getElementById('run_start').value) || 0,
-            "End Depth (ft)": parseFloat(document.getElementById('run_end').value) || 0,
-            
-            // New & Legacy Blowcounts
-            "Blowcount 1": parseInt(document.getElementById('run_bc_1').value) || 0,
-            "Blowcount 1 Inches": parseFloat(document.getElementById('run_bc_in_1').value) || 6,
-            "Blowcount 2": parseInt(document.getElementById('run_bc_2').value) || 0,
-            "Blowcount 2 Inches": parseFloat(document.getElementById('run_bc_in_2').value) || 6,
-            "Blowcount 3": parseInt(document.getElementById('run_bc_3').value) || 0,
-            "Blowcount 3 Inches": parseFloat(document.getElementById('run_bc_in_3').value) || 6,
-            "Blowcount 4": parseInt(document.getElementById('run_bc_4').value) || 0,
-            "Blowcount 4 Inches": parseFloat(document.getElementById('run_bc_in_4').value) || 6,
-            
-            "Blowcount 1 (0-6)": parseInt(document.getElementById('run_bc_1').value) || 0,
-            "Blowcount 2 (6-12)": parseInt(document.getElementById('run_bc_2').value) || 0,
-            "Blowcount 3 (12-18)": parseInt(document.getElementById('run_bc_3').value) || 0,
-            "Blowcount 4 (18-24)": parseInt(document.getElementById('run_bc_4').value) || 0,
-            
-            "SPT N-Value": parseInt(document.getElementById('run_nval').value) || 0,
-            "Recovery (in)": recoveryLengthInches,
-            "PID (ppm)": 0.0,
-            "Pocket Penetrometer (tsf)": 0.0,
-            "Pocket Torvane (tsf)": 0.0,
-            
-            // Boring Defaults (also saved on run for compatibility)
-            "Drilling Contractor": document.getElementById('run_contractor') ? document.getElementById('run_contractor').value : "",
-            "Drilling Equipment Rig": document.getElementById('run_equipment') ? document.getElementById('run_equipment').value : "",
-            "Hammer Configuration Type": document.getElementById('run_hammer') ? document.getElementById('run_hammer').value : "",
-            "Sampler Setup": document.getElementById('run_sampler') ? document.getElementById('run_sampler').value : "",
-            "Foreman": document.getElementById('run_foreman') ? document.getElementById('run_foreman').value : "",
-            "Helper": document.getElementById('run_helper') ? document.getElementById('run_helper').value : "",
-            "Bit Type": document.getElementById('run_bit_type') ? document.getElementById('run_bit_type').value : "",
-            "Rod Type": document.getElementById('run_rod_type') ? document.getElementById('run_rod_type').value : "",
-            "Casing": document.getElementById('run_casing') ? document.getElementById('run_casing').value : "",
-            "Casing Lining": document.getElementById('run_casing_lining') ? document.getElementById('run_casing_lining').value : "",
-            "Case Diameter": document.getElementById('run_case_diameter') ? document.getElementById('run_case_diameter').value : "",
-            "Hammer Wgt": document.getElementById('run_hammer_wgt') ? document.getElementById('run_hammer_wgt').value : "",
-            "Hammer Drop": document.getElementById('run_hammer_drop') ? document.getElementById('run_hammer_drop').value : "",
-            "Rock Hammer Type": document.getElementById('run_rock_hammer_type') ? document.getElementById('run_rock_hammer_type').value : "",
-            "Rock Hammer Wgt/Drop": document.getElementById('run_rock_hammer_wgt_drop') ? document.getElementById('run_rock_hammer_wgt_drop').value : "",
-            "Rock Size": document.getElementById('run_rock_size') ? document.getElementById('run_rock_size').value : "",
-            
-            // Groundwater associated with boring/runs
-            "GW 1st Moisture": document.getElementById('run_gw_moisture_1') ? document.getElementById('run_gw_moisture_1').value : "",
-            "GW 1st Depth": document.getElementById('run_gw_depth_1') ? document.getElementById('run_gw_depth_1').value : "",
-            "GW 1st Date": document.getElementById('run_gw_date_1') ? document.getElementById('run_gw_date_1').value : "",
-            "GW 1st Time": document.getElementById('run_gw_time_1') ? document.getElementById('run_gw_time_1').value : "",
-            "GW 1st Comment": document.getElementById('run_gw_comment_1') ? document.getElementById('run_gw_comment_1').value : "",
-            "GW 2nd Moisture": document.getElementById('run_gw_moisture_2') ? document.getElementById('run_gw_moisture_2').value : "",
-            "GW 2nd Depth": document.getElementById('run_gw_depth_2') ? document.getElementById('run_gw_depth_2').value : "",
-            "GW 2nd Date": document.getElementById('run_gw_date_2') ? document.getElementById('run_gw_date_2').value : "",
-            "GW 2nd Time": document.getElementById('run_gw_time_2') ? document.getElementById('run_gw_time_2').value : "",
-            "GW 2nd Comment": document.getElementById('run_gw_comment_2') ? document.getElementById('run_gw_comment_2').value : "",
-            
-            "Comments": document.getElementById('run_comments').value
-        };
-        if (existingRunIndex !== -1) {
-            datasetRuns[existingRunIndex] = newRunObj;
-        } else {
-            datasetRuns.push(newRunObj);
-        }
-        
-        // Make sure maps are up-to-date
-        saveBoringFieldsFromUI(boringRaw);
-        
-        // 2. Process Layer Data
-        layerId = combinedSampleId + layerNum; // e.g. B-1S-1L-1
-        
-        let existingProfileIndex = datasetProfiles.findIndex(p => {
-            let details = getLayerDetails(p);
-            return details.boring === newBoring && details.sample === newSample && details.layer === newLayer;
-        });
-        
-        let newProfileObj = {
-            "Sample ID": combinedSampleId,
-            "Layer ID": layerId,
-            "Top Depth (ft)": parseFloat(document.getElementById('rel_top').value) || 0,
-            "Bottom Depth (ft)": parseFloat(document.getElementById('rel_bottom').value) || 0,
-            "Color": document.getElementById('rel_color').value,
-            "General Soil Type": document.getElementById('rel_general_soil') ? document.getElementById('rel_general_soil').value : "",
-            "Primary Size": document.getElementById('rel_primary_size') ? document.getElementById('rel_primary_size').value : "",
-            "Soil Type": document.getElementById('rel_soil').value,
-            "Moisture Condition": document.getElementById('rel_moisture').value,
-            "Comments": document.getElementById('rel_comments') ? document.getElementById('rel_comments').value : "",
-            "PID (ppm)": parseFloat(document.getElementById('rel_pid').value) || 0.0,
-            "Pocket Penetrometer (tsf)": parseFloat(document.getElementById('rel_pp').value) || 0.0,
-            "Pocket Torvane (tsf)": parseFloat(document.getElementById('rel_tv').value) || 0.0,
-            "Material Profile Type": document.getElementById('generated_material_profile') ? document.getElementById('generated_material_profile').value : "",
-            
-            // Boring Defaults saved on layer profile (reading from Column 3 overrides!)
-            "Drilling Contractor": document.getElementById('layer_override_contractor') ? document.getElementById('layer_override_contractor').value : "",
-            "Drilling Equipment Rig": document.getElementById('layer_override_equipment') ? document.getElementById('layer_override_equipment').value : "",
-            "Hammer Configuration Type": document.getElementById('layer_override_hammer') ? document.getElementById('layer_override_hammer').value : "",
-            "Sampler Setup": document.getElementById('layer_override_sampler') ? document.getElementById('layer_override_sampler').value : "",
-            "Foreman": document.getElementById('layer_override_foreman') ? document.getElementById('layer_override_foreman').value : "",
-            "Helper": document.getElementById('layer_override_helper') ? document.getElementById('layer_override_helper').value : "",
-            "Bit Type": document.getElementById('layer_override_bit_type') ? document.getElementById('layer_override_bit_type').value : "",
-            "Rod Type": document.getElementById('layer_override_rod_type') ? document.getElementById('layer_override_rod_type').value : "",
-            "Casing": document.getElementById('layer_override_casing') ? document.getElementById('layer_override_casing').value : "",
-            "Casing Lining": document.getElementById('layer_override_casing_lining') ? document.getElementById('layer_override_casing_lining').value : "",
-            "Case Diameter": document.getElementById('layer_override_case_diameter') ? document.getElementById('layer_override_case_diameter').value : "",
-            "Hammer Wgt": document.getElementById('layer_override_hammer_wgt') ? document.getElementById('layer_override_hammer_wgt').value : "",
-            "Hammer Drop": document.getElementById('layer_override_hammer_drop') ? document.getElementById('layer_override_hammer_drop').value : "",
-            "Rock Hammer Type": document.getElementById('layer_override_rock_hammer_type') ? document.getElementById('layer_override_rock_hammer_type').value : "",
-            "Rock Hammer Wgt/Drop": document.getElementById('layer_override_rock_hammer_wgt_drop') ? document.getElementById('layer_override_rock_hammer_wgt_drop').value : "",
-            "Rock Size": document.getElementById('layer_override_rock_size') ? document.getElementById('layer_override_rock_size').value : ""
-        };
-
-        // Dynamically collect and add Minor constituents from new UI dropdowns and subform
-        let minorsList = [];
-        
-        // 1. and dropdown
-        const andSelect = document.getElementById('rel_soil_and');
-        if (andSelect && andSelect.value) {
-            minorsList.push("and " + andSelect.value);
-        }
-        
-        // 2. some dropdowns
-        const some1Select = document.getElementById('rel_soil_some_1');
-        if (some1Select && some1Select.value) {
-            minorsList.push("some " + some1Select.value);
-        }
-        const some2Select = document.getElementById('rel_soil_some_2');
-        if (some2Select && some2Select.value) {
-            minorsList.push("some " + some2Select.value);
-        }
-        
-        // 3. little / trace subform rows
-        const littleTraceRows = document.querySelectorAll('#little_trace_container .little-trace-row');
-        littleTraceRows.forEach(row => {
-            const modSelect = row.querySelector('.rel-minor-modifier-select');
-            const typeSelect = row.querySelector('.rel-minor-type-select');
-            if (modSelect && typeSelect && typeSelect.value) {
-                minorsList.push(modSelect.value + " " + typeSelect.value);
-            }
-        });
-        
-        // Write sequentially as Minor 1, Minor 2, etc.
-        minorsList.forEach((m, idx) => {
-            newProfileObj["Minor " + (idx + 1)] = m;
-        });
-        
-        if (existingProfileIndex !== -1) {
-            datasetProfiles.splice(existingProfileIndex, 1);
-            datasetProfiles.push(newProfileObj);
-        } else {
-            datasetProfiles.push(newProfileObj);
-        }
-
-        // Post-save duplicate elimination: keep only the most recently added layer (backward traversal)
-        let seen = new Set();
-        let uniqueProfiles = [];
-        for (let i = datasetProfiles.length - 1; i >= 0; i--) {
-            let p = datasetProfiles[i];
-            let details = getLayerDetails(p);
-            let uniqKey = `${details.boring}_${details.sample}_${details.layer}`;
-            if (!seen.has(uniqKey)) {
-                seen.add(uniqKey);
-                uniqueProfiles.unshift(p);
-            }
-        }
-        datasetProfiles = uniqueProfiles;
-        
-        // Update layer counters
-        if (!layerCounters[newSampleId]) layerCounters[newSampleId] = 0;
-        layerCounters[newSampleId]++;
-        
-        // Refresh everything
-        refreshAllAfterDataChange();
-        
-        // Auto-increment depths for next run
-        let endDepth = parseFloat(document.getElementById('run_end').value) || 0;
-        document.getElementById('run_start').value = endDepth.toFixed(1);
-        document.getElementById('run_end').value = (endDepth + 24.0).toFixed(1);
-        
-        // Sync layer depths automatically
-        let layerBottom = parseFloat(document.getElementById('rel_bottom').value) || 0;
-        const selectTop = document.getElementById('rel_top');
-        const selectBottom = document.getElementById('rel_bottom');
-        if (selectTop && selectBottom) {
-            let nextTopStr = layerBottom.toFixed(1);
-            let nextBottomStr = (layerBottom + 0.5).toFixed(1);
-            const addOpt = (el, val) => {
-                const list = el.options ? el : (el.list || document.getElementById(el.getAttribute('list')));
-                if (list) {
-                    let exists = Array.from(list.options || []).some(o => o.value === val);
-                    if (!exists) {
-                        let opt = document.createElement('option');
-                        opt.value = val;
-                        opt.text = val;
-                        if (list.add) {
-                            list.add(opt);
-                        } else {
-                            list.appendChild(opt);
-                        }
-                    }
-                }
-                el.value = val;
-            };
-            addOpt(selectTop, nextTopStr);
-            addOpt(selectBottom, nextBottomStr);
-            updateLayerLengthUI();
-        }
-        
-        // Auto-increment Layer ID (L-1 -> L-2 etc)
-        let layerSelect = document.getElementById('rel_layer_id');
-        if (layerSelect) {
-            let currVal = layerSelect.value;
-            let numMatch = currVal.match(/\d+/);
-            if (numMatch) {
-                let nextNum = parseInt(numMatch[0]) + 1;
-                let nextVal = currVal.replace(/\d+/, nextNum);
-                let exists = Array.from(layerSelect.options).some(o => o.value === nextVal);
-                if (!exists) {
-                    let opt = document.createElement('option');
-                    opt.value = nextVal;
-                    opt.text = nextVal;
-                    layerSelect.add(opt);
-                }
-                layerSelect.value = nextVal;
-            }
-        }
-        
-        // Reset specific inputs
-        ['run_bc_1', 'run_bc_2', 'run_bc_3', 'run_bc_4', 'run_nval', 'run_comments', 'rel_comments'].forEach(id => {
-            if(document.getElementById(id)) document.getElementById(id).value = '';
-        });
-        updateSampleLengthUI();
-        
-        // Populate layer field testing parameters from boring level defaults
-        const currentBoring = document.getElementById('run_boring_id') ? document.getElementById('run_boring_id').value : '';
-        const defaults = getBoringDefaults(currentBoring);
-        if (document.getElementById('rel_pid')) document.getElementById('rel_pid').value = defaults["Default PID"] !== undefined ? defaults["Default PID"] : '0.0';
-        if (document.getElementById('rel_pp')) document.getElementById('rel_pp').value = defaults["Default PP"] !== undefined ? defaults["Default PP"] : '0.0';
-        if (document.getElementById('rel_tv')) document.getElementById('rel_tv').value = defaults["Default TV"] !== undefined ? defaults["Default TV"] : '0.0';
-        
-        // Visual feedback for save
-        const submitBtn = document.querySelector('#boringInfoForm button[type="submit"]');
-        if (submitBtn) {
-            const originalColor = submitBtn.style.backgroundColor;
-            const originalText = submitBtn.innerHTML;
-            submitBtn.style.backgroundColor = 'var(--blue-600)'; // distinct color change (vibrant blue)
-            submitBtn.style.color = '#ffffff';
-            submitBtn.innerHTML = '🎉 Saved!';
-            setTimeout(() => {
-                submitBtn.style.backgroundColor = originalColor;
-                submitBtn.style.color = '';
-                submitBtn.innerHTML = originalText;
-            }, 1200);
-        }
-        showToast('Layer saved successfully!', 'success');
     });
 
     // Tab 2 Live Profile Table Inline Comment Field Binder
@@ -7295,77 +6976,469 @@
         saveBoringFieldsFromUI(boringRaw);
     }
 
-    function saveAndIncrementSampleRun(event) {
-        if (event) event.preventDefault();
-
-        // Validate first
-        const validationError = validateBoringInfoFormInputs();
-        if (validationError) {
-            showToast(validationError, 'error');
-            const errorDiv = document.getElementById('boringFormError');
-            const errorText = document.getElementById('boringFormErrorText');
-            if (errorDiv && errorText) {
-                errorText.innerText = validationError;
-                errorDiv.style.display = 'flex';
+    function saveCurrentLayerData() {
+        const boringSelect = document.getElementById('run_boring_id');
+        const sampleSelect = document.getElementById('run_id');
+        const layerSelect = document.getElementById('rel_layer_id');
+        if (!boringSelect || !sampleSelect || !layerSelect) return;
+        
+        let boringRaw = boringSelect.value;
+        let sampleRaw = sampleSelect.value;
+        let layerNum = layerSelect.value;
+        if (!boringRaw || !sampleRaw || !layerNum) return;
+        
+        let newSampleId = boringRaw + "-" + sampleRaw;
+        let combinedSampleId = boringRaw + sampleRaw;
+        let newBoring = boringRaw.trim().toLowerCase();
+        let newSample = sampleRaw.replace(/^S-?/i, "").trim().toLowerCase();
+        let newLayer = layerNum.replace(/^-?[Ll]-?/, "").trim().toLowerCase();
+        let layerId = combinedSampleId + layerNum;
+        
+        // Auto-reduce last layer depth if it exceeds recovery length (mirroring form submit)
+        let recoveryLengthInches = parseFloat(document.getElementById('run_rec').value);
+        if (isNaN(recoveryLengthInches) || recoveryLengthInches < 0) {
+            recoveryLengthInches = 0;
+        }
+        
+        let relTopVal = parseFloat(document.getElementById('rel_top').value);
+        let relBottomVal = parseFloat(document.getElementById('rel_bottom').value);
+        
+        if (!isNaN(relTopVal) && !isNaN(relBottomVal)) {
+            let otherLayers = datasetProfiles.filter(p => {
+                let details = getLayerDetails(p);
+                return details.boring === newBoring && details.sample === newSample && details.layer !== newLayer;
+            });
+            
+            let allLayers = [
+                ...otherLayers.map(p => ({
+                    layerId: p["Layer ID"],
+                    top: parseFloat(p["Top Depth (ft)"]),
+                    bottom: parseFloat(p["Bottom Depth (ft)"]),
+                    isCurrent: false,
+                    profileObj: p
+                })),
+                {
+                    layerId: layerId,
+                    top: relTopVal,
+                    bottom: relBottomVal,
+                    isCurrent: true
+                }
+            ];
+            
+            allLayers.sort((a, b) => a.top - b.top);
+            
+            let totalThicknessFt = 0;
+            allLayers.forEach(l => {
+                totalThicknessFt += Math.max(0, l.bottom - l.top);
+            });
+            let totalThicknessInches = totalThicknessFt * 12;
+            
+            if (totalThicknessInches > (recoveryLengthInches + 0.001)) {
+                let lastLayer = allLayers[allLayers.length - 1];
+                let otherSumFt = 0;
+                for (let i = 0; i < allLayers.length - 1; i++) {
+                    otherSumFt += Math.max(0, allLayers[i].bottom - allLayers[i].top);
+                }
+                let newThicknessFt = (recoveryLengthInches / 12) - otherSumFt;
+                if (newThicknessFt < 0) {
+                    newThicknessFt = 0;
+                }
+                let newBottomDepth = lastLayer.top + newThicknessFt;
+                
+                if (lastLayer.isCurrent) {
+                    relBottomVal = newBottomDepth;
+                    document.getElementById('rel_bottom').value = newBottomDepth.toFixed(2);
+                } else {
+                    lastLayer.profileObj["Bottom Depth (ft)"] = newBottomDepth.toFixed(2);
+                }
             }
+        }
+        
+        let newProfileObj = {
+            "Sample ID": combinedSampleId,
+            "Layer ID": layerId,
+            "Top Depth (ft)": parseFloat(document.getElementById('rel_top').value) || 0,
+            "Bottom Depth (ft)": parseFloat(document.getElementById('rel_bottom').value) || 0,
+            "Color": document.getElementById('rel_color').value,
+            "General Soil Type": document.getElementById('rel_general_soil') ? document.getElementById('rel_general_soil').value : "",
+            "Primary Size": document.getElementById('rel_primary_size') ? document.getElementById('rel_primary_size').value : "",
+            "Soil Type": document.getElementById('rel_soil').value,
+            "Moisture Condition": document.getElementById('rel_moisture').value,
+            "Comments": document.getElementById('rel_comments') ? document.getElementById('rel_comments').value : "",
+            "PID (ppm)": parseFloat(document.getElementById('rel_pid').value) || 0.0,
+            "Pocket Penetrometer (tsf)": parseFloat(document.getElementById('rel_pp').value) || 0.0,
+            "Pocket Torvane (tsf)": parseFloat(document.getElementById('rel_tv').value) || 0.0,
+            "Material Profile Type": document.getElementById('generated_material_profile') ? document.getElementById('generated_material_profile').value : "",
+            
+            // Boring Defaults
+            "Drilling Contractor": document.getElementById('layer_override_contractor') ? document.getElementById('layer_override_contractor').value : "",
+            "Drilling Equipment Rig": document.getElementById('layer_override_equipment') ? document.getElementById('layer_override_equipment').value : "",
+            "Hammer Configuration Type": document.getElementById('layer_override_hammer') ? document.getElementById('layer_override_hammer').value : "",
+            "Sampler Setup": document.getElementById('layer_override_sampler') ? document.getElementById('layer_override_sampler').value : "",
+            "Foreman": document.getElementById('layer_override_foreman') ? document.getElementById('layer_override_foreman').value : "",
+            "Helper": document.getElementById('layer_override_helper') ? document.getElementById('layer_override_helper').value : "",
+            "Bit Type": document.getElementById('layer_override_bit_type') ? document.getElementById('layer_override_bit_type').value : "",
+            "Rod Type": document.getElementById('layer_override_rod_type') ? document.getElementById('layer_override_rod_type').value : "",
+            "Casing": document.getElementById('layer_override_casing') ? document.getElementById('layer_override_casing').value : "",
+            "Casing Lining": document.getElementById('layer_override_casing_lining') ? document.getElementById('layer_override_casing_lining').value : "",
+            "Case Diameter": document.getElementById('layer_override_case_diameter') ? document.getElementById('layer_override_case_diameter').value : "",
+            "Hammer Wgt": document.getElementById('layer_override_hammer_wgt') ? document.getElementById('layer_override_hammer_wgt').value : "",
+            "Hammer Drop": document.getElementById('layer_override_hammer_drop') ? document.getElementById('layer_override_hammer_drop').value : "",
+            "Rock Hammer Type": document.getElementById('layer_override_rock_hammer_type') ? document.getElementById('layer_override_rock_hammer_type').value : "",
+            "Rock Hammer Wgt/Drop": document.getElementById('layer_override_rock_hammer_wgt_drop') ? document.getElementById('layer_override_rock_hammer_wgt_drop').value : "",
+            "Rock Size": document.getElementById('layer_override_rock_size') ? document.getElementById('layer_override_rock_size').value : ""
+        };
+        
+        let minorsList = [];
+        const andSelect = document.getElementById('rel_soil_and');
+        if (andSelect && andSelect.value) {
+            minorsList.push("and " + andSelect.value);
+        }
+        const some1Select = document.getElementById('rel_soil_some_1');
+        if (some1Select && some1Select.value) {
+            minorsList.push("some " + some1Select.value);
+        }
+        const some2Select = document.getElementById('rel_soil_some_2');
+        if (some2Select && some2Select.value) {
+            minorsList.push("some " + some2Select.value);
+        }
+        const littleTraceRows = document.querySelectorAll('#little_trace_container .little-trace-row');
+        littleTraceRows.forEach(row => {
+            const modSelect = row.querySelector('.rel-minor-modifier-select');
+            const typeSelect = row.querySelector('.rel-minor-type-select');
+            if (modSelect && typeSelect && typeSelect.value) {
+                minorsList.push(modSelect.value + " " + typeSelect.value);
+            }
+        });
+        
+        minorsList.forEach((m, idx) => {
+            newProfileObj["Minor " + (idx + 1)] = m;
+        });
+        
+        let existingProfileIndex = datasetProfiles.findIndex(p => {
+            let details = getLayerDetails(p);
+            return details.boring === newBoring && details.sample === newSample && details.layer === newLayer;
+        });
+        
+        if (existingProfileIndex !== -1) {
+            datasetProfiles.splice(existingProfileIndex, 1);
+            datasetProfiles.push(newProfileObj);
+        } else {
+            datasetProfiles.push(newProfileObj);
+        }
+        
+        // Post-save duplicate elimination
+        let seen = new Set();
+        let uniqueProfiles = [];
+        for (let i = datasetProfiles.length - 1; i >= 0; i--) {
+            let p = datasetProfiles[i];
+            let details = getLayerDetails(p);
+            let uniqKey = `${details.boring}_${details.sample}_${details.layer}`;
+            if (!seen.has(uniqKey)) {
+                seen.add(uniqKey);
+                uniqueProfiles.unshift(p);
+            }
+        }
+        datasetProfiles = uniqueProfiles;
+        
+        if (!layerCounters[newSampleId]) layerCounters[newSampleId] = 0;
+        layerCounters[newSampleId]++;
+    }
+
+    function autoSaveActiveData(e) {
+        if (e && e.target && (e.target.id === 'run_boring_id' || e.target.id === 'run_id' || e.target.id === 'rel_layer_id')) {
             return;
         }
-
-        // 1. Save current run
+        
+        const boringSelect = document.getElementById('run_boring_id');
+        if (!boringSelect) return;
+        const currentBoring = boringSelect.value;
+        if (!currentBoring) return;
+        
+        // Save boring fields
+        saveBoringFieldsFromUI(currentBoring);
+        
+        // Save sample run fields
         saveCurrentRunData();
-
-        // 2. Determine next Sample ID
-        const runIdSelect = document.getElementById('run_id');
-        if (!runIdSelect) return;
-
-        const currentSampleId = runIdSelect.value;
-        let nextSampleId = "S-2";
-        let numMatch = currentSampleId.match(/\d+/);
-        if (numMatch) {
-            let nextNum = parseInt(numMatch[0]) + 1;
-            nextSampleId = currentSampleId.replace(/\d+/, nextNum);
-        }
-
-        // Add option to dropdown if it doesn't exist
-        let exists = Array.from(runIdSelect.options).some(o => o.value === nextSampleId);
-        if (!exists) {
-            let opt = document.createElement('option');
-            opt.value = nextSampleId;
-            opt.text = nextSampleId;
-            runIdSelect.add(opt);
-        }
-
-        // 3. Increment depths (in feet)
-        const currentEndDepth = parseFloat(document.getElementById('run_end').value) || 0;
-        const nextStartDepth = currentEndDepth;
-        const nextEndDepth = nextStartDepth + 2.0; // default 2 ft run
-
-        // 4. Select the next sample
-        runIdSelect.value = nextSampleId;
-
-        // Trigger change event to load/prefill next sample run
-        const changeEvent = new Event('change', { bubbles: true });
-        runIdSelect.dispatchEvent(changeEvent);
-
-        // 5. Update start and end depths for the newly selected/created run
-        document.getElementById('run_start').value = nextStartDepth.toFixed(2);
-        document.getElementById('run_end').value = nextEndDepth.toFixed(2);
-
-        // Reset blowcounts and comments for the new run
-        ['run_bc_1', 'run_bc_2', 'run_bc_3', 'run_bc_4', 'run_nval', 'run_comments'].forEach(id => {
-            if (document.getElementById(id)) document.getElementById(id).value = '';
-        });
-
-        // Reset blowcount inches
-        ['run_bc_in_1', 'run_bc_in_2', 'run_bc_in_3', 'run_bc_in_4'].forEach(id => {
-            if (document.getElementById(id)) document.getElementById(id).value = 6;
-        });
-
-        updateBlowcountPlaceholders();
-        updateSampleLengthUI();
+        
+        // Save layer fields
+        saveCurrentLayerData();
+        
+        // Refresh tables and components
         refreshAllAfterDataChange();
         
-        showToast(`Saved and incremented to sample ${nextSampleId}!`, 'success');
+        // Perform real-time validation without alerts or scroll interruptions
+        const validationError = validateBoringInfoFormInputs();
+        const errorDiv = document.getElementById('boringFormError');
+        const errorText = document.getElementById('boringFormErrorText');
+        const errorDiv3 = document.getElementById('boringFormErrorTab3');
+        const errorText3 = document.getElementById('boringFormErrorTextTab3');
+        
+        if (validationError) {
+            if (errorText) errorText.innerText = validationError;
+            if (errorDiv) errorDiv.style.display = 'flex';
+            if (errorText3) errorText3.innerText = validationError;
+            if (errorDiv3) errorDiv3.style.display = 'flex';
+        } else {
+            if (errorDiv) errorDiv.style.display = 'none';
+            if (errorDiv3) errorDiv3.style.display = 'none';
+        }
+    }
+
+    function addNewBoringChoice() {
+        const boringSelect = document.getElementById('run_boring_id');
+        if (!boringSelect) return;
+        
+        let maxBoringNum = 0;
+        let prefix = "B-";
+        
+        const parseNum = (val) => {
+            if (!val) return;
+            const match = val.match(/^([a-zA-Z]+-?)(\d+)$/);
+            if (match) {
+                prefix = match[1];
+                const num = parseInt(match[2]) || 0;
+                if (num > maxBoringNum) {
+                    maxBoringNum = num;
+                }
+            } else {
+                const num = parseInt(val.replace(/\D/g, '')) || 0;
+                if (num > maxBoringNum) {
+                    maxBoringNum = num;
+                }
+            }
+        };
+
+        // Scan datasetRuns
+        datasetRuns.forEach(r => parseNum(r["Boring ID"]));
+        
+        // Scan datasetProfiles
+        datasetProfiles.forEach(p => {
+            const details = getLayerDetails(p);
+            parseNum(details.boring);
+        });
+        
+        // Scan run_boring_id options
+        Array.from(boringSelect.options).forEach(opt => parseNum(opt.value));
+        
+        const nextBoringNum = maxBoringNum + 1;
+        const nextBoringVal = prefix + nextBoringNum;
+        
+        // Add to run_boring_id
+        let exists = Array.from(boringSelect.options).some(o => o.value === nextBoringVal);
+        if (!exists) {
+            let opt = document.createElement('option');
+            opt.value = nextBoringVal;
+            opt.text = nextBoringVal;
+            boringSelect.add(opt);
+        }
+        
+        boringSelect.value = nextBoringVal;
+        
+        // Sync other boring dropdowns
+        const bId = nextBoringVal;
+        ['run_boring_id_details', 'layer_override_boring', 'rel_boring_id'].forEach(otherId => {
+            const sel = document.getElementById(otherId);
+            if (sel) {
+                let exists = Array.from(sel.options).some(opt => opt.value === bId);
+                if (!exists) {
+                    const newOpt = document.createElement("option");
+                    newOpt.text = bId;
+                    newOpt.value = bId;
+                    sel.add(newOpt);
+                }
+                sel.value = bId;
+            }
+        });
+        
+        // Initialize GPS map for new boring if needed
+        if (!boringGPSMap[bId]) {
+            boringGPSMap[bId] = {
+                lat: document.getElementById('cov_gps_lat')?.value || '',
+                lon: document.getElementById('cov_gps_lon')?.value || '',
+                address: document.getElementById('cov_gps_address')?.value || ''
+            };
+        }
+        
+        // Trigger select change logic so UI updates
+        boringSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        boringSelect.dispatchEvent(new Event('input', { bubbles: true }));
+        
+        // Initialize first sample S-1 and layer L-1 for the new boring
+        if (typeof resetRunFormFieldsForNewRun === 'function') {
+            resetRunFormFieldsForNewRun(bId, 'S-1');
+        }
+        if (typeof resetLayerFieldsForNewLayer === 'function') {
+            resetLayerFieldsForNewLayer(bId, 'S-1');
+        }
+        
+        // Save current run/layer data so it persists immediately
+        saveCurrentRunData();
+        saveCurrentLayerData();
+        refreshAllAfterDataChange();
+        
+        showToast(`Boring "${nextBoringVal}" added successfully!`, 'success');
+    }
+
+    function addNewSampleChoice() {
+        const boringSelect = document.getElementById('run_boring_id');
+        const sampleSelect = document.getElementById('run_id');
+        if (!boringSelect || !sampleSelect) return;
+        
+        const boringId = boringSelect.value;
+        if (!boringId) {
+            showToast("Please select a boring before adding a sample.", "error");
+            return;
+        }
+        
+        const activeBoring = boringId.trim().toLowerCase();
+        let boringRuns = datasetRuns.filter(r => r["Boring ID"].trim().toLowerCase() === activeBoring);
+        
+        let maxSampleNum = 0;
+        boringRuns.forEach(r => {
+            let num = parseInt(r["Sample ID"].replace(activeBoring, "").replace(/^s-?/i, "")) || 0;
+            if (num > maxSampleNum) {
+                maxSampleNum = num;
+            }
+        });
+        
+        datasetProfiles.forEach(p => {
+            let details = getLayerDetails(p);
+            if (details.boring === activeBoring) {
+                let num = parseInt(details.sample) || 0;
+                if (num > maxSampleNum) {
+                    maxSampleNum = num;
+                }
+            }
+        });
+        
+        Array.from(sampleSelect.options).forEach(opt => {
+            let num = parseInt(opt.value.replace(/^S-?/i, "")) || 0;
+            if (num > maxSampleNum) {
+                maxSampleNum = num;
+            }
+        });
+        
+        const nextSampleNum = maxSampleNum + 1;
+        const nextSampleVal = "S-" + nextSampleNum;
+        
+        let exists = Array.from(sampleSelect.options).some(o => o.value === nextSampleVal);
+        if (!exists) {
+            let opt = document.createElement('option');
+            opt.value = nextSampleVal;
+            opt.text = nextSampleVal;
+            sampleSelect.add(opt);
+        }
+        sampleSelect.value = nextSampleVal;
+        
+        resetRunFormFieldsForNewRun(boringId, nextSampleVal);
+        resetLayerFieldsForNewLayer(boringId, nextSampleVal);
+        
+        saveCurrentRunData();
+        saveCurrentLayerData();
+        refreshAllAfterDataChange();
+        
+        showToast(`Sample "${nextSampleVal}" added successfully!`, 'success');
+    }
+
+    function addNewLayerChoice() {
+        const boringSelect = document.getElementById('run_boring_id');
+        const sampleSelect = document.getElementById('run_id');
+        const layerSelect = document.getElementById('rel_layer_id');
+        if (!boringSelect || !sampleSelect || !layerSelect) return;
+        
+        const boringId = boringSelect.value;
+        const sampleId = sampleSelect.value;
+        if (!boringId || !sampleId) {
+            showToast("Please select a boring and sample before adding a layer.", "error");
+            return;
+        }
+        
+        const activeBoring = boringId.trim().toLowerCase();
+        const activeSample = sampleId.replace(/^S-?/i, "").trim().toLowerCase();
+        
+        let sampleLayers = datasetProfiles.filter(p => {
+            let details = getLayerDetails(p);
+            return details.boring === activeBoring && details.sample === activeSample;
+        });
+        
+        let maxLayerNum = 0;
+        sampleLayers.forEach(p => {
+            let details = getLayerDetails(p);
+            let num = parseInt(details.layer) || 0;
+            if (num > maxLayerNum) {
+                maxLayerNum = num;
+            }
+        });
+        
+        const nextLayerNum = maxLayerNum + 1;
+        const nextLayerVal = "L-" + nextLayerNum;
+        
+        let exists = Array.from(layerSelect.options).some(o => o.value === nextLayerVal);
+        if (!exists) {
+            let opt = document.createElement('option');
+            opt.value = nextLayerVal;
+            opt.text = nextLayerVal;
+            layerSelect.add(opt);
+        }
+        layerSelect.value = nextLayerVal;
+        
+        const layerList = document.getElementById('rel_layer_id_list');
+        if (layerList) {
+            let listExists = Array.from(layerList.options).some(o => o.value === nextLayerVal);
+            if (!listExists) {
+                let opt = document.createElement('option');
+                opt.value = nextLayerVal;
+                opt.text = nextLayerVal;
+                layerList.appendChild(opt);
+            }
+        }
+        
+        applyDefaultDepthsForLayer(boringId, sampleId, nextLayerVal);
+        
+        document.getElementById('rel_color').value = '';
+        if (document.getElementById('rel_primary_size')) document.getElementById('rel_primary_size').value = '';
+        document.getElementById('rel_soil').value = '';
+        initDefaultMinorConstituentRows();
+        document.getElementById('rel_moisture').value = '';
+        if (document.getElementById('rel_comments')) document.getElementById('rel_comments').value = '';
+        document.getElementById('rel_pid').value = '0.0';
+        document.getElementById('rel_pp').value = '0.0';
+        document.getElementById('rel_tv').value = '0.0';
+        if (document.getElementById('generated_material_profile')) {
+            document.getElementById('generated_material_profile').value = '';
+        }
+        updateSoilPreview('');
+        
+        const mappings = [
+            ['run_contractor', 'layer_override_contractor'],
+            ['run_equipment', 'layer_override_equipment'],
+            ['run_hammer', 'layer_override_hammer'],
+            ['run_sampler', 'layer_override_sampler'],
+            ['run_foreman', 'layer_override_foreman'],
+            ['run_helper', 'layer_override_helper'],
+            ['run_bit_type', 'layer_override_bit_type'],
+            ['run_rod_type', 'layer_override_rod_type'],
+            ['run_casing', 'layer_override_casing'],
+            ['run_casing_lining', 'layer_override_casing_lining'],
+            ['run_case_diameter', 'layer_override_case_diameter'],
+            ['run_hammer_wgt', 'layer_override_hammer_wgt'],
+            ['run_hammer_drop', 'layer_override_hammer_drop'],
+            ['run_rock_hammer_type', 'layer_override_rock_hammer_type'],
+            ['run_rock_hammer_wgt_drop', 'layer_override_rock_hammer_wgt_drop'],
+            ['run_rock_size', 'layer_override_rock_size']
+        ];
+        mappings.forEach(([bField, lField]) => {
+            const bEl = document.getElementById(bField);
+            const lEl = document.getElementById(lField);
+            if (bEl && lEl) lEl.value = bEl.value;
+        });
+        
+        if (typeof renderTraceDropdownsUI === "function") renderTraceDropdownsUI();
+        
+        saveCurrentLayerData();
+        refreshAllAfterDataChange();
+        showToast(`Layer "${nextLayerVal}" added successfully!`, 'success');
     }
 
     function renderBurmisterTable() {
@@ -12236,9 +12309,8 @@ window.addEventListener('load', () => {
     };
     
     window.saveSampleLayer = function() {
-        const form = document.getElementById('boringInfoForm');
-        if (form) {
-            form.requestSubmit();
+        if (typeof autoSaveActiveData === 'function') {
+            autoSaveActiveData();
         }
     };
     // --- END OF CUSTOM CONSTITUENTS AND SOIL COMPOSITION UI LOGIC ---
